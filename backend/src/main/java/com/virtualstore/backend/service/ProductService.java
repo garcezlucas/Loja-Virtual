@@ -2,7 +2,6 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,16 +34,16 @@ public class ProductService {
 
         Long categoryId = product.getCategory().getId();
 
-        Optional<Brand> brandOpt = brandRepository.findById(brandId);
+        Brand brandOpt = brandRepository.findById(brandId).get();
 
-        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
+        Category categoryOpt = categoryRepository.findById(categoryId).get();
 
         product.setCreationDate(new Date());
         Product newProduct = productRepository.saveAndFlush(product);
 
         Product returnProduct = newProduct;
-        returnProduct.setBrand(brandOpt.get());
-        returnProduct.setCategory(categoryOpt.get());
+        returnProduct.setBrand(brandOpt);
+        returnProduct.setCategory(categoryOpt);
 
         return returnProduct;
     }
