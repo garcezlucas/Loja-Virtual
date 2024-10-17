@@ -2,6 +2,8 @@ package com.virtualstore.backend.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +26,7 @@ public class PersonPermission {
 
     @ManyToOne
     @JoinColumn(name = "idPerson")
+    @JsonIgnore
     private Person person;
 
     @ManyToOne
