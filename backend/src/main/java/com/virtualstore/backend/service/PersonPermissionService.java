@@ -2,7 +2,6 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,16 +34,16 @@ public class PersonPermissionService {
 
         Long permissionId = personPermission.getPermission().getId();
 
-        Optional<Person> personOpt = personRepository.findById(personId);
+        Person personOpt = personRepository.findById(personId).get();
 
-        Optional<Permission> permissionOpt = permissionRepository.findById(permissionId);
+        Permission permissionOpt = permissionRepository.findById(permissionId).get();
 
         personPermission.setCreationDate(new Date());
         PersonPermission newPersonPermission = personPermissionRepository.saveAndFlush(personPermission);
 
         PersonPermission returnPersonPermission = newPersonPermission;
-        returnPersonPermission.setPerson(personOpt.get());
-        returnPersonPermission.setPermission(permissionOpt.get());
+        returnPersonPermission.setPerson(personOpt);
+        returnPersonPermission.setPermission(permissionOpt);
 
         return returnPersonPermission;
     }

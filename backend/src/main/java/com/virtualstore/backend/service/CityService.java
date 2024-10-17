@@ -2,7 +2,6 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,14 +27,14 @@ public class CityService {
     public City create(City city) {
         Long stateId = city.getState().getId();
 
-        Optional<State> stateOpt = stateRepository.findById(stateId);
+        State stateOpt = stateRepository.findById(stateId).get();
 
         city.setCreationDate(new Date());
 
         City newCity = cityRepository.saveAndFlush(city);
 
         City returnCity = newCity;
-        returnCity.setState(stateOpt.get());
+        returnCity.setState(stateOpt);
 
         return returnCity;
     }

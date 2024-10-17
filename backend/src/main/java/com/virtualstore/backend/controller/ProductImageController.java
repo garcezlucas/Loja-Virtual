@@ -11,36 +11,39 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.virtualstore.backend.entity.Image;
-import com.virtualstore.backend.service.ImageService;
+import com.virtualstore.backend.entity.ProductImage;
+import com.virtualstore.backend.service.ProductImageService;
 
 @RestController
 @RequestMapping("/api/image")
-public class ImageController {
+public class ProductImageController {
 
     @Autowired
-    private ImageService imageService;
+    private ProductImageService productImageService;
 
     @GetMapping("/")
-    public List<Image> getAllImages() {
-        return imageService.getAllImages();
+    public List<ProductImage> getAllImages() {
+        return productImageService.getAllImages();
     }
 
     @PostMapping("/")
-    public Image createImage(@RequestBody Image image) {
-        return imageService.create(image);
+    public ProductImage createImage(@RequestParam("productId") Long productId,
+            @RequestParam("file") MultipartFile file) {
+        return productImageService.create(productId, file);
     }
 
     @PutMapping("/")
-    public Image updateImage(@RequestBody Image image) {
-        return imageService.update(image);
+    public ProductImage updateImage(@RequestBody ProductImage image) {
+        return productImageService.update(image);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeImage(@PathVariable("id") Long id) {
-        imageService.remove(id);
+        productImageService.remove(id);
         return ResponseEntity.ok().build();
     }
 }
