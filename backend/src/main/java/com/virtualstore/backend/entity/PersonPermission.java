@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -22,11 +22,11 @@ public class PersonPermission {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToMany
+    @ManyToOne
     @JoinColumn(name = "idPerson")
     private Person person;
 
-    @ManyToMany
+    @ManyToOne
     @JoinColumn(name = "idPermission")
     private Permission permission;
 
@@ -34,5 +34,5 @@ public class PersonPermission {
     private Date creationDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedDate;
+    private Date updateDate;
 }

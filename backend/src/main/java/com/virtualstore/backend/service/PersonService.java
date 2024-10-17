@@ -62,7 +62,7 @@ public class PersonService {
     }
 
     public Person update(Person person) {
-        person.setUpdatedDate(new Date());
+        person.setUpdateDate(new Date());
 
         Person updatePerson = personRepository.saveAndFlush(person);
 

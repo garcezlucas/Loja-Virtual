@@ -42,5 +42,5 @@ public class Person {
     private Date creationDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedDate;
+    private Date updateDate;
 }
