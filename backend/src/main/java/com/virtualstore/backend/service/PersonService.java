@@ -2,7 +2,6 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +48,14 @@ public class PersonService {
 
         Long cityId = person.getCity().getId();
 
-        Optional<City> cityOpt = cityRepository.findById(cityId);
+        City cityOpt = cityRepository.findById(cityId).get();
 
         person.setCreationDate(new Date());
 
         Person newPerson = personRepository.saveAndFlush(person);
 
         Person returnPerson = newPerson;
-        returnPerson.setCity(cityOpt.get());
+        returnPerson.setCity(cityOpt);
 
         return returnPerson;
     }
