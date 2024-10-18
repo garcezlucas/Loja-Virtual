@@ -2,11 +2,11 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.virtualstore.backend.Validators.PersonExistenceService;
+import com.virtualstore.backend.Validators.Validator;
 import com.virtualstore.backend.entity.City;
 import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.repository.CityRepository;
@@ -15,77 +15,52 @@ import com.virtualstore.backend.repository.PersonRepository;
 @Service
 public class PersonService {
 
-    @Autowired
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
+    private final CityRepository cityRepository;
+    private final PersonExistenceService personExistenceService;
+    private final Validator<String> cpfValidator;
+    private final Validator<String> emailValidator;
 
-    @Autowired
-    private CityRepository cityRepository;
-
-    private static final String CPF_PATTERN = "\\d{11}";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+    public PersonService(PersonRepository personRepository,
+            CityRepository cityRepository,
+            PersonExistenceService personExistenceService,
+            Validator<String> cpfValidator,
+            Validator<String> emailValidator) {
+        this.personRepository = personRepository;
+        this.cityRepository = cityRepository;
+        this.personExistenceService = personExistenceService;
+        this.cpfValidator = cpfValidator;
+        this.emailValidator = emailValidator;
+    }
 
     public List<Person> getAllPersons() {
         return personRepository.findAll();
     }
 
     public Person create(Person person) {
+        cpfValidator.validate(person.getCpf());
+        emailValidator.validate(person.getEmail());
 
-        if (!isValidCPF(person.getCpf())) {
-            throw new IllegalArgumentException("CPF inválido!");
-        }
+        personExistenceService.checkEmailExists(person.getEmail());
+        personExistenceService.checkCpfExists(person.getCpf());
 
-        if (!isValidEmail(person.getEmail())) {
-            throw new IllegalArgumentException("Email inválido!");
-        }
-
-        if (personRepository.existsByEmail(person.getEmail())) {
-            throw new IllegalArgumentException("Email já cadastrado!");
-        }
-
-        if (personRepository.existsByCpf(person.getCpf())) {
-            throw new IllegalArgumentException("CPF já cadastrado!");
-        }
-
-        Long cityId = person.getCity().getId();
-
-        City cityOpt = cityRepository.findById(cityId).get();
+        City city = cityRepository.findById(person.getCity().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Cidade inválida!"));
 
         person.setCreationDate(new Date());
+        person.setCity(city);
 
-        Person newPerson = personRepository.saveAndFlush(person);
-
-        Person returnPerson = newPerson;
-        returnPerson.setCity(cityOpt);
-
-        return returnPerson;
+        return personRepository.saveAndFlush(person);
     }
 
     public Person update(Person person) {
         person.setUpdateDate(new Date());
-
-        Person updatePerson = personRepository.saveAndFlush(person);
-
-        return updatePerson;
+        return personRepository.saveAndFlush(person);
     }
 
     public void remove(Long id) {
-        Person person = personRepository.findById(id).get();
-
+        Person person = personRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada!"));
         personRepository.delete(person);
-    }
-
-    private boolean isValidCPF(String cpf) {
-        if (cpf == null || !cpf.matches(CPF_PATTERN)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isValidEmail(String email) {
-        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
-            return false;
-        }
-        return true;
     }
 }
