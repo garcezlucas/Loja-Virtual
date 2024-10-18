@@ -6,7 +6,4 @@ import com.virtualstore.backend.entity.Person;
 
 public interface PersonClientRepository extends JpaRepository<Person, Long> {
 
-    boolean existsByEmail(String email);
-    
-    boolean existsByCpf(String cpf);
 }
