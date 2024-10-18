@@ -33,6 +33,11 @@ public class Person {
 
     private String email;
 
+    private String recoverPasswordCode;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date sendCodeDate;
+
     private String password;
 
     private String address;
