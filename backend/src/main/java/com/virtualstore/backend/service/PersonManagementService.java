@@ -3,6 +3,8 @@ package com.virtualstore.backend.service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,8 +34,15 @@ public class PersonManagementService {
 
         personRepository.saveAndFlush(person);
 
-        emailService.sendTextEmail(person.getEmail(), "Código de Recuperação de Senha",
-                "Olá, o seu código de recuperação de senha é: " + recoveryCode);
+        //emailService.sendTextEmail(person.getEmail(), "Código de Recuperação de Senha",
+                //"Olá, o seu código de recuperação de senha é: " + recoveryCode);
+
+                Map<String, Object> properties = new HashMap<>();
+
+        properties.put("name", person.getName());
+        properties.put("recoveryCode", recoveryCode);
+
+        emailService.sendTemplateEmail(person.getEmail(), "Código de Recuperação de Senha", properties, "email-recovery-code.flth");
 
         return "Código enviado!";
     }
