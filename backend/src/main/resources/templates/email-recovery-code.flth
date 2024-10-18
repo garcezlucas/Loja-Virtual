@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Virtual</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #FFF5EE;
+        }
+
+        header {
+            background: #F5F5F5;
+            color: #1C1C1C;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        main {
+            background: #FFFAFA;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: #A9A9A9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #A9A9A9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Recuperação de senha</h1>
+    </header>
+
+     <h2>Olá, ${name}!</h2>
+        <p>Recebemos um pedido para redefinir sua senha. Aqui está o seu código de recuperação:</p>
+        <h3>${recoveryCode}</h3>
+        <p>Utilize este código para acessar a página de redefinição de senha.</p>
+
+        <h2>Dicas de Segurança</h2>
+        <p>Recomendamos que você altere sua senha após a redefinição e não compartilhe seus dados de login com ninguém.</p>
+
+        <h2>Links Úteis</h2>
+        <ul>
+            <li><a href="#">Política de Privacidade</a></li>
+            <li><a href="#">Termos de Serviço</a></li>
+            <li><a href="#">Ajuda</a></li>
+        </ul>
+
+    </main>
+
+    <footer>
+        <p>Template desenvolvido por: Lucas Garcez</p>
+        <p>Contato: <a href="mailto:lucas.dev.testes@gmail.com">lucas.dev.testes@gmail.com</a></p>
+        <p>&copy; 2024 Lucas Garcez. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+
+</html>

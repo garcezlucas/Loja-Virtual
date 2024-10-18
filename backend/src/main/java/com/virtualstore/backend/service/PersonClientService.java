@@ -1,6 +1,8 @@
 package com.virtualstore.backend.service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -57,8 +59,16 @@ public class PersonClientService {
         Person newPerson = personClientRepository.saveAndFlush(person);
         personPermissionService.linkClientPersonPermission(newPerson);
 
-        emailService.sendTextEmail(newPerson.getEmail(), "Cadastro na Loja Virtual",
-                "O registro na loja foi realizado com sucesso. Em breve você receberá a senha de acesso por e-mail.");
+        // emailService.sendTextEmail(newPerson.getEmail(), "Cadastro na Loja Virtual",
+        // "O registro na loja foi realizado com sucesso. Em breve você receberá a senha
+        // de acesso por e-mail.");
+
+        Map<String, Object> properties = new HashMap<>();
+
+        properties.put("name", newPerson.getName());
+        properties.put("email", newPerson.getEmail());
+
+        emailService.sendTemplateEmail(newPerson.getEmail(), "Cadastro na Loja Virtual", properties, "email-register-user.flth");
 
         return newPerson;
     }
