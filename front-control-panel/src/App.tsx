@@ -1,25 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.scss";
+import { Route, Routes } from "react-router-dom";
+import ErrorBoundary from "./layouts/ErrorBoundary/ErrorBoundary";
+import Login from "./layouts/Login/Login";
+import System from "./layouts/System/System";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ErrorBoundary>
+        <Routes>
+          {/* ROTAS RELACIONADAS AO LOGIN */}
+          <Route index path="/" element={<Login />} />
+          <Route index path="/:path" element={<Login />} />
+
+          {/* ROTAS RELACIONADAS AO SISTEMA */}
+          <Route index path="/system/:page" element={<System />} />
+        </Routes>
+    </ErrorBoundary>
   );
 }
 
