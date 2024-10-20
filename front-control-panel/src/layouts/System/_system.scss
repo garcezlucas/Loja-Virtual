@@ -1,0 +1,22 @@
+.system-container {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "aside main";
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    background-color: #DDDEE5;
+    gap: 1rem;
+    & header {
+        grid-area: header;
+    }
+    
+    & aside {
+        grid-area: aside;
+    }
+    
+    & main {
+        grid-area: main;
+    }
+}

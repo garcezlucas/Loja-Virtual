@@ -1,0 +1,59 @@
+.error-boundary-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    &-fix {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 40rem;
+        height: 27rem;
+        gap: 1rem;
+        background-color: #ffff;
+        border-radius: 0.625rem;
+        padding: 1rem;
+        & header {
+            font-family: New Order;
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 38px;
+            letter-spacing: 0px;
+            text-align: center;
+            
+        }
+        & img {
+            width: 5rem;
+            height: 5rem;
+            
+        }
+        & p {
+            font-family: New Order;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 36px;
+            letter-spacing: 1px;
+            text-align: center;
+            
+        }
+        & button {
+            width: 200px;
+            height: 52px;
+            padding: 15px, 0px, 15px, 0px;
+            border-radius: 10px;
+            background: #E43425;
+            & span {
+                font-family: New Order;
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 22px;
+                letter-spacing: 0em;
+                text-align: center;
+                color: #FFFFFF;
+            }
+        }
+    }
+}
