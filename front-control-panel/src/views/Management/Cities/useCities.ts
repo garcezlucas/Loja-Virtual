@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { CityService } from "../../../service/City.service";
+import { CitiesService } from "../../../service/Cities.service";
 import { City } from "../../../interfaces/City";
-import { StateService } from "../../../service/State.service";
+import { StatesService } from "../../../service/States.service";
 import { State } from "../../../interfaces/State";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+import { getFieldValue } from "../../../utils/getFildValue";
 
-interface useCitysProps {
+type FieldName = "name" | "state";
+
+interface useCitiesProps {
   handleCloseAdd: () => void;
 }
 
-export function useCity({ handleCloseAdd }: useCitysProps) {
+export function useCities({ handleCloseAdd }: useCitiesProps) {
   const [tableData, setTableData] = useState<City[]>([]);
   const [filteredData, setFilteredData] = useState<City[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,7 +38,7 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
 
   const getAllStates = async () => {
     try {
-      const response = await StateService.getAllStates();
+      const response = await StatesService.getAllStates();
       if (response?.length > 0) {
         const stateOptions = response.map((state: State) => ({
           value: state.id,
@@ -43,7 +46,7 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
         }));
 
         const options = [
-          { value: -1, label: "Selecione um estado" },
+          { value: 0, label: "Selecione um estado" },
           ...stateOptions,
         ];
 
@@ -67,7 +70,7 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
   const getAllCities = async () => {
     setLoading(true);
     try {
-      const response = await CityService.getAllCities();
+      const response = await CitiesService.getAllCities();
       if (response?.length >= 0) setTableData(response);
     } catch (error) {
       console.error(`error when searching all citys : ${error}`);
@@ -86,18 +89,16 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
   };
 
   const createCity = async () => {
-    const nameField = fields?.find((field) => field.name === "name");
-    const stateField = fields?.find((field) => field.name === "state");
-
-    const name = nameField?.value as string;
-    const stateId = stateField?.value as number;
+    const name = getFieldValue(fields, "name") as string;
+    const stateId = getFieldValue(fields, "state") as number;
 
     const city = {
       name: name,
       state: { id: stateId },
     };
+
     try {
-      const response = await CityService.createCity(city);
+      const response = await CitiesService.createCity(city);
       if (response?.id) {
         handleCloseAdd();
         getAllCities();
@@ -108,19 +109,17 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
   };
 
   const updateCity = async () => {
-    const nameField = fields?.find((field) => field.name === "name");
-    const stateField = fields?.find((field) => field.name === "state");
-
-    const name = nameField?.value as string;
-    const stateId = stateField?.value as number;
+    const name = getFieldValue(fields, "name") as string;
+    const stateId = getFieldValue(fields, "state") as number;
 
     const city = {
       id: selectedCity?.id as number,
       name,
       state: { id: stateId },
     };
+
     try {
-      const response = await CityService.updateCity(city);
+      const response = await CitiesService.updateCity(city);
       if (response?.id) {
         setOpenEdit(false);
         getAllCities();
@@ -132,18 +131,30 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
 
   const deleteCity = async (id: number) => {
     try {
-      await CityService.deleteCity(id);
+      await CitiesService.deleteCity(id);
       getAllCities();
     } catch (error) {
       console.error(`error when delete city : ${error}`);
     }
   };
 
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
+  };
+
   const handleCloseEdit = () => {
+    handleClearFields();
     setOpenEdit(false);
   };
 
   const handleCancel = () => {
+    handleClearFields();
     handleCloseAdd();
   };
 
@@ -151,20 +162,22 @@ export function useCity({ handleCloseAdd }: useCitysProps) {
     setSelectedCity(row);
     setOpenEdit(true);
 
+    const fieldMap: Record<FieldName, string | number> = {
+      name: row.name,
+      state: row.state.id,
+    };
+
     setFields((prevFields) =>
       prevFields.map((field) => {
-        if (field.name === "name") {
-          return { ...field, value: row.name };
-        }
-        if (field.name === "state") {
-          return { ...field, value: row.state.id };
+        if (field.name in fieldMap) {
+          return { ...field, value: fieldMap[field.name as FieldName] };
         }
         return field;
       })
     );
   };
 
-  const handleChange = (name: string, value: string | number) => {
+  const handleChange = (name: string, value: string | number | string[]) => {
     const isNumber = typeof value === "number";
 
     setFields((prevFields) =>

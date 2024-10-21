@@ -1,8 +1,13 @@
 import "./_management.scss";
 import { useManagement } from "./useManagement";
 import SearchIcon from "../../assets/icons/search.svg";
-import States from "./State/States";
-import City from "./City/City";
+import States from "./States/States";
+import Cities from "./Cities/Cities";
+import Brands from "./Brands/Brands";
+import Categories from "./Categories/Categories";
+import Products from "./Products/Products";
+import Collaborators from "./Collaborators/Collaborators";
+import Consumers from "./Consumers/Consumers";
 
 interface ManagementProps {
   parameter: string | undefined;
@@ -30,7 +35,7 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
 
         <main className="management-container-main">
           <div className="management-container-main-header">
-            <span>{`${translateWord(parameter)}s`.toLocaleUpperCase()}</span>
+            <span>{`${translateWord(parameter)}s`?.toLocaleUpperCase()}</span>
             <div className="management-container-main-header-search">
               <img src={SearchIcon} alt="search" />
               <input
@@ -50,7 +55,42 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
               />
             )}
             {parameter === "cities" && (
-              <City
+              <Cities
+                searchTerm={searchTerm}
+                openAdd={openAdd}
+                handleCloseAdd={handleCloseAdd}
+              />
+            )}
+            {parameter === "brands" && (
+              <Brands
+                searchTerm={searchTerm}
+                openAdd={openAdd}
+                handleCloseAdd={handleCloseAdd}
+              />
+            )}
+            {parameter === "categories" && (
+              <Categories
+                searchTerm={searchTerm}
+                openAdd={openAdd}
+                handleCloseAdd={handleCloseAdd}
+              />
+            )}
+            {parameter === "products" && (
+              <Products
+                searchTerm={searchTerm}
+                openAdd={openAdd}
+                handleCloseAdd={handleCloseAdd}
+              />
+            )}
+            {parameter === "collaborators" && (
+              <Collaborators
+                searchTerm={searchTerm}
+                openAdd={openAdd}
+                handleCloseAdd={handleCloseAdd}
+              />
+            )}
+            {parameter === "clients" && (
+              <Consumers
                 searchTerm={searchTerm}
                 openAdd={openAdd}
                 handleCloseAdd={handleCloseAdd}

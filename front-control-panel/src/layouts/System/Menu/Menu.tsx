@@ -12,6 +12,8 @@ const MENU_CONFIG = [
       { label: "Funcionários", path: "/system/management/collaborators" },
       { label: "Clientes", path: "/system/management/clients" },
       { label: "Produtos", path: "/system/management/products" },
+      { label: "Marcas", path: "/system/management/brands" },
+      { label: "Categorias", path: "/system/management/categories" },
       { label: "Estados", path: "/system/management/states" },
       { label: "Cidades", path: "/system/management/cities" },
     ],

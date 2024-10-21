@@ -6,17 +6,18 @@ export function useManagement() {
   const [openAdd, setOpenAdd] = useState<boolean>(false);
 
   const translations: { [key: string]: string } = {
-    brand: "marca",
-    category: "categoria",
+    brands: "marca",
+    categories: "categoria",
     cities: "cidade",
-    person: "pessoa",
-    product: "produto",
-    states: "estado"
+    products: "produto",
+    states: "estado",
+    collaborators: "colaborador",
+    clients: "cliente"
   };
   
   function translateWord(word: string | undefined): string {
     if(!word) return '';
-    return translations[word.toLowerCase()] || word;
+    return translations[word?.toLowerCase()] || word;
   }
 
   const handleOpenAdd = () => {
