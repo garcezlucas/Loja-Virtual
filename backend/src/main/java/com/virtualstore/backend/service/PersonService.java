@@ -54,6 +54,11 @@ public class PersonService {
     }
 
     public Person update(Person person) {
+        Person existingPerson = personRepository.findById(person.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Pessoa inválido!"));
+        Date createDate = existingPerson.getCreationDate();
+
+        person.setCreationDate(createDate);
         person.setUpdateDate(new Date());
         return personRepository.saveAndFlush(person);
     }

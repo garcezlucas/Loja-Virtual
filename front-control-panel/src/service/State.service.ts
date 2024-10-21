@@ -43,7 +43,7 @@ export class StateService {
     }
   }
 
-  public static async deleteSate(id: number) {
+  public static async deleteState(id: number) {
     try {
       const url = `api/state/${id}`;
 

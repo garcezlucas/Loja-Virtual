@@ -26,6 +26,11 @@ public class CategoryService {
     }
 
     public Category update(Category category) {
+        Category existingCategory = categoryRepository.findById(category.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Categoria inválida!"));
+        Date createDate = existingCategory.getCreationDate();
+
+        category.setCreationDate(createDate);
         category.setUpdateDate(new Date());
         Category updateCategory = categoryRepository.saveAndFlush(category);
         return updateCategory;

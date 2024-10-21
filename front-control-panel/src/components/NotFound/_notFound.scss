@@ -1,0 +1,16 @@
+.not-found {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50%;
+    font-family: New Order;
+    h1 {
+        color: rgba(#1D7882, 0.7);
+        font-family: New Order;
+        font-size: 1.5rem;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        letter-spacing: 0.01rem;
+    }
+}

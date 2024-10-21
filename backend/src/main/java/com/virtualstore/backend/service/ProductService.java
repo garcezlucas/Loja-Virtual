@@ -49,6 +49,11 @@ public class ProductService {
     }
 
     public Product update(Product product) {
+        Product existingProduct = productRepository.findById(product.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto inválido!"));
+        Date createDate = existingProduct.getCreationDate();
+
+        product.setCreationDate(createDate);
         product.setUpdateDate(new Date());
 
         Product updateProduct = productRepository.saveAndFlush(product);

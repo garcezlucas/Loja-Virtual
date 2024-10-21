@@ -26,6 +26,11 @@ public class PermissionService {
     }
 
     public Permission update(Permission permission) {
+        Permission existingPermission = permissionRepository.findById(permission.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Permissão inválida!"));
+        Date createDate = existingPermission.getCreationDate();
+
+        permission.setCreationDate(createDate);
         permission.setUpdateDate(new Date());
         Permission updatePermission = permissionRepository.saveAndFlush(permission);
         return updatePermission;

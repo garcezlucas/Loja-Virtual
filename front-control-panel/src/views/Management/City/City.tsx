@@ -2,7 +2,7 @@ import "../_management.scss";
 
 import { useCallback, useEffect, useMemo } from "react";
 
-import { useStates } from "./useStates";
+import { useCity } from "./useCity";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
@@ -13,13 +13,13 @@ import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 
-interface StatesProps {
+interface CitysProps {
   searchTerm: string;
   openAdd: boolean;
   handleCloseAdd: () => void;
 }
 
-const States: React.FC<StatesProps> = ({
+const City: React.FC<CitysProps> = ({
   searchTerm,
   openAdd,
   handleCloseAdd,
@@ -40,16 +40,22 @@ const States: React.FC<StatesProps> = ({
     openEdit,
 
     getAllStates,
+    getAllCities,
     handleSubmit,
-    deleteState,
+    deleteCity,
     handleCancel,
     handleCloseEdit,
     handleEditClick,
     handleChange,
-  } = useStates({ handleCloseAdd });
+  } = useCity({ handleCloseAdd });
 
   useEffect(() => {
-    getAllStates();
+    const fetchData = async () => {
+      await getAllCities();
+      await getAllStates();
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -70,7 +76,7 @@ const States: React.FC<StatesProps> = ({
         </button>
         <button
           className="action-buttons-delete"
-          onClick={() => deleteState(value)}
+          onClick={() => deleteCity(value)}
         >
           <img src={DeleteIcon} alt="delete" />
         </button>
@@ -83,7 +89,7 @@ const States: React.FC<StatesProps> = ({
     () => [
       { label: "ID", width: "25%" },
       { label: "Nome", width: "25%" },
-      { label: "Sigla", width: "25%" },
+      { label: "Estado", width: "25%" },
       { label: "", width: "25%" },
     ],
     []
@@ -93,7 +99,11 @@ const States: React.FC<StatesProps> = ({
     () => [
       { label: "id", format: (value) => value || "-", width: "10%" },
       { label: "name", format: (value) => value || "-", width: "10%" },
-      { label: "acronym", format: (value) => value || "-", width: "10%" },
+      {
+        label: "state",
+        format: (value) => `${value?.name} - ${value?.acronym}` || "-",
+        width: "10%",
+      },
       {
         label: "id",
         format: (value, row) => renderActionButtons(value, row),
@@ -106,6 +116,7 @@ const States: React.FC<StatesProps> = ({
   const dataTable = filteredData;
   const totalItems = filteredData?.length;
   const heightTable = "42.7rem";
+  const heightLoading = "30rem";
 
   const tableProps = {
     titleColumns,
@@ -119,6 +130,7 @@ const States: React.FC<StatesProps> = ({
     totalItems,
     heightTable,
     loading,
+    heightLoading,
   };
 
   return (
@@ -148,4 +160,4 @@ const States: React.FC<StatesProps> = ({
   );
 };
 
-export default States;
+export default City;
