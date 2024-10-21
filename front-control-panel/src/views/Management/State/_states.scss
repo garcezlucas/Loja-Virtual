@@ -1,0 +1,32 @@
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    &-edit{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: #F0E68C;
+        border-radius: 50%;
+        cursor: pointer;
+        & img {
+            width: 1.5rem;
+        }
+    }
+    &-delete {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: #FF0000;
+        border-radius: 50%;
+        cursor: pointer;
+        & img {
+            width: 1.5rem;
+        }
+    }
+}

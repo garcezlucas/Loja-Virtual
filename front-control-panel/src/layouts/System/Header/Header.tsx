@@ -5,35 +5,62 @@ import CalendarIcon from "../../../assets/icons/calendar.svg";
 import ConfigIcon from "../../../assets/icons/configs.svg";
 import UserIcon from "../../../assets/icons/user.svg";
 
+interface IconButtonProps {
+  src: string;
+  alt: string;
+  onClick?: () => void;
+}
+
+const IconButton: React.FC<IconButtonProps> = ({ src, alt, onClick }) => (
+  <button onClick={onClick} aria-label={alt}>
+    <img src={src} alt={alt} />
+  </button>
+);
+
+const HEADER_CONFIG = [
+  {
+    icon: CalendarIcon,
+    alt: "Calendar",
+    onClick: () => console.log("Calendar clicked"),
+  },
+  {
+    icon: ConfigIcon,
+    alt: "Configuration",
+    onClick: () => console.log("Configuration clicked"),
+  },
+  {
+    icon: UserIcon,
+    alt: "User",
+    onClick: () => console.log("User clicked"),
+  },
+];
+
 const Header: React.FC = () => {
   return (
-    <nav className="header-container">
+    <header className="header-container">
       <div className="header-container-fix">
         <div className="header-container-left">
           <div className="header-container-left-logo">
-            <img src={StoreIcon} alt="logo" />
+            <img src={StoreIcon} alt="Store Logo" />
             <span>Loja Virtual</span>
           </div>
 
           <div className="header-container-left-menu">
-            <button>
-              <img src={MenuIcon} alt="menu" />
-            </button>
+            <IconButton src={MenuIcon} alt="Menu" />
           </div>
         </div>
         <div className="header-container-configs">
-          <button>
-            <img src={CalendarIcon} alt="calendar" />
-          </button>
-          <button>
-            <img src={ConfigIcon} alt="configuration" />
-          </button>
-          <button>
-            <img src={UserIcon} alt="user" />
-          </button>
+          {HEADER_CONFIG.map((item, index) => (
+            <IconButton
+              key={index}
+              src={item.icon}
+              alt={item.alt}
+              onClick={item.onClick}
+            />
+          ))}
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 

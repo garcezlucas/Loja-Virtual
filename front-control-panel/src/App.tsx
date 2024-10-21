@@ -13,7 +13,7 @@ function App() {
           <Route index path="/:path" element={<Login />} />
 
           {/* ROTAS RELACIONADAS AO SISTEMA */}
-          <Route index path="/system/:page" element={<System />} />
+          <Route index path="/system/:page/:parameter?" element={<System />} />
         </Routes>
     </ErrorBoundary>
   );
