@@ -12,6 +12,7 @@ import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterShortDescriptionDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+import { maskCurrency } from "../../../utils/Currencymask";
 
 interface ProductsProps {
   searchTerm: string;
@@ -111,20 +112,12 @@ const Products: React.FC<ProductsProps> = ({
       { label: "category", format: (value) => value.name || "-", width: "20%" },
       {
         label: "expense",
-        format: (value) =>
-          new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(value) || "-",
+        format: (value) => maskCurrency(value * 100) || "-",
         width: "20%",
       },
       {
         label: "price",
-        format: (value) =>
-          new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(value) || "-",
+        format: (value) => maskCurrency(value * 100) || "-",
         width: "20%",
       },
       {
