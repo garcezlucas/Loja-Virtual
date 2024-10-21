@@ -7,6 +7,7 @@ import { CategoriesService } from "../../../service/Categories.service";
 import { Brand } from "../../../interfaces/Brand";
 import { BrandService } from "../../../service/Brands.service";
 import { getFieldValue } from "../../../utils/getFildValue";
+import { maskCurrency, removeMaskCurrency } from "../../../utils/Currencymask";
 
 type FieldName =
   | "shortDescription"
@@ -55,8 +56,20 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       value: 0,
       options: [],
     },
-    { label: "Preço de custo", name: "expense", type: "text", value: "" },
-    { label: "Preço de venda", name: "price", type: "text", value: "" },
+    {
+      label: "Preço de custo",
+      name: "expense",
+      type: "text",
+      value: "",
+      mask: maskCurrency,
+    },
+    {
+      label: "Preço de venda",
+      name: "price",
+      type: "text",
+      value: "",
+      mask: maskCurrency,
+    },
   ]);
 
   const getAllProducts = async () => {
@@ -159,8 +172,8 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       description,
       brand: { id: brandId },
       category: { id: categoryId },
-      expense,
-      price,
+      expense: removeMaskCurrency(expense),
+      price: removeMaskCurrency(price),
     };
 
     try {
@@ -191,8 +204,8 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       description,
       brand: { id: brandId },
       category: { id: categoryId },
-      expense,
-      price,
+      expense: removeMaskCurrency(expense),
+      price: removeMaskCurrency(price),
     };
 
     try {
@@ -244,8 +257,8 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       description: row.description,
       brand: row.brand.id,
       category: row.category.id,
-      expense: row.expense,
-      price: row.price,
+      expense: maskCurrency(row.expense * 100),
+      price: maskCurrency(row.price * 100),
     };
 
     setFields((prevFields) =>
@@ -265,9 +278,15 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       prevFields.map((field) => {
         if (field.name === name) {
           if (isNumber) {
-            return { ...field, value: value.toString() };
+            const newValue = field.mask
+              ? field.mask(value.toString())
+              : value.toString();
+            return { ...field, value: newValue };
           }
-          return { ...field, value };
+          const newValue = field.mask
+            ? field.mask(value.toString())
+            : value.toString();
+          return { ...field, value: newValue };
         }
         return field;
       })

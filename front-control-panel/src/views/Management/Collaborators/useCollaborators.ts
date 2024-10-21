@@ -7,6 +7,8 @@ import { City } from "../../../interfaces/City";
 import { Permission } from "../../../interfaces/Permission";
 import { PermissionsService } from "../../../service/Permissions.service";
 import { getFieldValue } from "../../../utils/getFildValue";
+import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
+import { cepMask, removeCEPMask } from "../../../utils/cepMask";
 
 type FieldName =
   | "name"
@@ -37,10 +39,10 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
 
   const [fields, setFields] = useState<DynamicField[]>([
     { label: "Nome", name: "name", type: "text", value: "" },
-    { label: "CPF", name: "cpf", type: "text", value: "" },
-    { label: "Email", name: "email", type: "text", value: "" },
+    { label: "CPF", name: "cpf", type: "text", value: "", mask: cpfMask },
+    { label: "Email", name: "email", type: "email", value: "" },
     { label: "Endereço", name: "address", type: "text", value: "" },
-    { label: "CEP", name: "codePostal", type: "text", value: "" },
+    { label: "CEP", name: "codePostal", type: "text", value: "", mask: cepMask },
     {
       label: "Cidade",
       name: "city",
@@ -158,10 +160,10 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
 
     const collaborator = {
       name,
-      cpf,
+      cpf: removeCpfMask(cpf),
       email,
       address,
-      codePostal,
+      codePostal: removeCEPMask(codePostal),
       city: { id: city },
       personPermissions: transformedPermissions,
     };
@@ -196,10 +198,10 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
     const collaborator = {
       id: selectedCollaborator?.id as number,
       name,
-      cpf,
+      cpf: removeCpfMask(cpf),
       email,
       address,
-      codePostal,
+      codePostal: removeCEPMask(codePostal),
       city: { id: city },
       personPermissions: transformedPermissions,
     };
@@ -250,10 +252,10 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
 
     const fieldMap: Record<FieldName, string | number | string[]> = {
       name: row.name,
-      cpf: row.cpf,
+      cpf: cpfMask(row.cpf),
       email: row.email,
       address: row.address,
-      codePostal: row.codePostal,
+      codePostal: cepMask(row.codePostal),
       city: row.city.id,
       permissions: row.personPermissions.map((permissions) =>
         permissions.permission.id?.toString()
@@ -273,7 +275,7 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
   const handleChange = (name: string, value: string | number | string[]) => {
     setFields((prevFields) =>
       prevFields.map((field) => {
-        const { type, value: currentValue } = field;
+        const { type, value: currentValue, mask } = field;
 
         if (field.name !== name) {
           return field;
@@ -297,14 +299,17 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
           return field;
         }
 
+        const newValue = mask ? mask(value.toString()) : value;
+
         if (typeof value === "number") {
-          return { ...field, value: value.toString() };
+          return { ...field, value: newValue.toString() };
         }
 
-        return { ...field, value };
+        return { ...field, value: newValue };
       })
     );
   };
+
 
   return {
     tableData,

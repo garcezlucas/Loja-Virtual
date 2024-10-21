@@ -13,6 +13,7 @@ import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 import { PersonPermission } from "../../../interfaces/Person";
+import { cpfMask } from "../../../utils/cpfMask";
 
 interface CollaboratorsProps {
   searchTerm: string;
@@ -101,7 +102,7 @@ const Collaborators: React.FC<CollaboratorsProps> = ({
     () => [
       { label: "id", format: (value) => value || "-", width: "14.28%" },
       { label: "name", format: (value) => value || "-", width: "14.28%" },
-      { label: "cpf", format: (value) => value || "-", width: "14.28%" },
+      { label: "cpf", format: (value) => cpfMask(value) || "-", width: "14.28%" },
       { label: "email", format: (value) => value || "-", width: "14.28%" },
       {
         label: "address",

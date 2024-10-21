@@ -4,9 +4,10 @@ import "./_select.scss";
 interface Field {
   label: string;
   name: string;
-  type: "text" | "select" | "multi-select";
+  type: "text" | "number" | "email" | "select" | "multi-select";
   value: string | number | string[];
   options?: { value: number; label: string }[];
+  mask?: (value: string) => string;
 }
 
 interface CustomSelectProps {
@@ -33,7 +34,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ field, handleChange }) => {
   return (
     <div className="custom-select">
       <div className="selected-value" onClick={toggleDropdown}>
-        {field.options?.find((option) => option.value.toString() === field.value)?.label ||
+        {field.options?.find((option) => option.value.toString() === field.value?.toString())?.label ||
           disablesOption?.label}
       </div>
       {isOpen && (

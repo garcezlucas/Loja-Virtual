@@ -9,7 +9,7 @@ const MENU_CONFIG = [
   {
     header: "Cadastro",
     items: [
-      { label: "Funcionários", path: "/system/management/collaborators" },
+      { label: "Colaboradores", path: "/system/management/collaborators" },
       { label: "Clientes", path: "/system/management/clients" },
       { label: "Produtos", path: "/system/management/products" },
       { label: "Marcas", path: "/system/management/brands" },
