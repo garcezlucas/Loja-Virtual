@@ -112,12 +112,12 @@ const Products: React.FC<ProductsProps> = ({
       { label: "category", format: (value) => value.name || "-", width: "20%" },
       {
         label: "expense",
-        format: (value) => maskCurrency(value * 100) || "-",
+        format: (value) => maskCurrency((value).toFixed(2)) || "-",
         width: "20%",
       },
       {
         label: "price",
-        format: (value) => maskCurrency(value * 100) || "-",
+        format: (value) => maskCurrency((value).toFixed(2)) || "-",
         width: "20%",
       },
       {
