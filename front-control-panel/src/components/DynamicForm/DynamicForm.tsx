@@ -6,9 +6,10 @@ import CustomSelect from "../Select/Select";
 export interface DynamicField {
   label: string;
   name: string;
-  type: "text" | "select" | "multi-select";
+  type: "text" | "number" | "email" | "select" | "multi-select";
   value: string | number | string[];
   options?: any[];
+  mask?: (value: string) => string;
 }
 
 interface DynamicFormProps {
@@ -26,6 +27,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   handleCancel,
   handleChange,
 }) => {
+  const isFormValid = () => {
+    return fields.every((field) => {
+      if (field.type === "email") {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(String(field.value));
+      }
+      return field.value !== "";
+    });
+  };
+
   return (
     <div className="dynamicForm-container">
       <header>{title}</header>
@@ -34,9 +45,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           {fields.map((field) => (
             <div key={field.name} className="dynamicForm-container-form-group">
               <label htmlFor={field.name}>{field.label}</label>
-              {field.type === "text" ? (
+              {field.type !== "select" && field.type !== "multi-select" ? (
                 <input
-                  type="text"
+                  type={field.type}
                   id={field.name}
                   value={field.value}
                   onChange={(e) => handleChange(field.name, e.target.value)}
@@ -66,7 +77,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             <button
               type="submit"
               style={{ backgroundColor: "#3CB371" }}
-              disabled={fields.some((field) => field.value === "")}
+              disabled={!isFormValid()}
             >
               <span>Enviar</span>
             </button>

@@ -5,6 +5,8 @@ import { CitiesService } from "../../../service/Cities.service";
 import { City } from "../../../interfaces/City";
 import { getFieldValue } from "../../../utils/getFildValue";
 import { ConsumersService } from "../../../service/Consumers.service";
+import { cepMask, removeCEPMask } from "../../../utils/cepMask";
+import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
 
 type FieldName =
   | "name"
@@ -34,10 +36,10 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
 
   const [fields, setFields] = useState<DynamicField[]>([
     { label: "Nome", name: "name", type: "text", value: "" },
-    { label: "CPF", name: "cpf", type: "text", value: "" },
-    { label: "Email", name: "email", type: "text", value: "" },
+    { label: "CPF", name: "cpf", type: "text", value: "", mask: cpfMask },
+    { label: "Email", name: "email", type: "email", value: "" },
     { label: "Endereço", name: "address", type: "text", value: "" },
-    { label: "CEP", name: "codePostal", type: "text", value: "" },
+    { label: "CEP", name: "codePostal", type: "text", value: "", mask: cepMask },
     {
       label: "Cidade",
       name: "city",
@@ -110,10 +112,10 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
 
     const collaborator = {
       name,
-      cpf,
+      cpf: removeCpfMask(cpf),
       email,
       address,
-      codePostal,
+      codePostal: removeCEPMask(codePostal),
       city: { id: city },
     };
 
@@ -140,10 +142,10 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
     const collaborator = {
       id: selectedCollaborator?.id as number,
       name,
-      cpf,
+      cpf: removeCpfMask(cpf),
       email,
       address,
-      codePostal,
+      codePostal: removeCEPMask(codePostal),
       city: { id: city },
     };
 
@@ -193,10 +195,10 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
 
     const fieldMap: Record<FieldName, string | number | string[]> = {
       name: row.name,
-      cpf: row.cpf,
+      cpf: cpfMask(row.cpf),
       email: row.email,
       address: row.address,
-      codePostal: row.codePostal,
+      codePostal: cepMask(row.codePostal),
       city: row.city.id,
     };
 
@@ -211,15 +213,11 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
   };
 
   const handleChange = (name: string, value: string | number | string[]) => {
-    const isNumber = typeof value === "number";
-
     setFields((prevFields) =>
       prevFields.map((field) => {
         if (field.name === name) {
-          if (isNumber) {
-            return { ...field, value: value.toString() };
-          }
-          return { ...field, value };
+          const newValue = field.mask ? field.mask(value.toString()) : value;
+          return { ...field, value: newValue };
         }
         return field;
       })
