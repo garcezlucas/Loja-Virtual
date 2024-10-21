@@ -4,17 +4,23 @@ import { State } from "../../../interfaces/State";
 
 interface useStatesProps {
   handleCloseAdd: () => void;
+  isEditMode?: boolean;
   reload: boolean;
   setReload: React.Dispatch<React.SetStateAction<boolean>>;
-  isEditMode?: boolean;
 }
 
 export function useStates({
   handleCloseAdd,
+  isEditMode,
   reload,
   setReload,
-  isEditMode,
 }: useStatesProps) {
+  const [tableData, setTableData] = useState<State[]>([]);
+  const [filteredData, setFilteredData] = useState<State[]>([]);
+  const [page, setPage] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const rowsPerPage = 7;
+
   const [id, setId] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [acronym, setAcronym] = useState("");
@@ -22,9 +28,17 @@ export function useStates({
 
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
+  const getAllStates = async () => {
+    try {
+      const response = await StateService.getAllStates();
+      if (response?.length > 0) setTableData(response);
+    } catch (error) {
+      console.error(`error when searching all states : ${error}`);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(isEditMode);
     if (isEditMode) {
       updateState();
     } else {
@@ -39,12 +53,13 @@ export function useStates({
     };
     try {
       const response = await StateService.createStates(state);
-      if (response) {
+      if (response?.id) {
         handleCloseAdd();
         setReload(!reload);
       }
     } catch (error) {
       console.error(`error when crate state : ${error}`);
+    } finally {
     }
   };
 
@@ -56,7 +71,7 @@ export function useStates({
     };
     try {
       const response = await StateService.updateStates(state);
-      if (response) {
+      if (response?.id) {
         handleCloseAdd();
         setReload(!reload);
       }
@@ -88,7 +103,21 @@ export function useStates({
     handleCloseAdd();
   };
 
+  const handleEditClick = (row: any) => {
+    setSelectedState(row);
+    setOpenEdit(true);
+  };
+
   return {
+    tableData,
+    filteredData,
+    setFilteredData,
+    page,
+    setPage,
+    totalPages,
+    setTotalPages,
+    rowsPerPage,
+
     setId,
     name,
     setName,
@@ -99,10 +128,12 @@ export function useStates({
     selectedState,
     setSelectedState,
 
+    getAllStates,
     handleSubmit,
     deleteState,
     handleCancel,
     handleOpenEdit,
     handleCloseEdit,
+    handleEditClick
   };
 }

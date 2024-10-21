@@ -6,17 +6,17 @@ import { State } from "../../../../interfaces/State";
 interface StateFormProps {
   title: string;
   handleCloseAdd: () => void;
+  selectedState?: State | null;
   reload: boolean;
   setReload: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedState?: State | null;
 }
 
 const StateForm: React.FC<StateFormProps> = ({
   title,
   handleCloseAdd,
+  selectedState,
   reload,
   setReload,
-  selectedState,
 }) => {
   const {
     setId,
@@ -29,9 +29,9 @@ const StateForm: React.FC<StateFormProps> = ({
     handleCancel,
   } = useStates({
     handleCloseAdd,
+    isEditMode: !!selectedState,
     reload,
     setReload,
-    isEditMode: !!selectedState,
   });
 
   useEffect(() => {

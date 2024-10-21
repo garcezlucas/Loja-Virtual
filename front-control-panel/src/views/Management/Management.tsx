@@ -2,7 +2,6 @@ import "./_management.scss";
 import { useManagement } from "./useManagement";
 import SearchIcon from "../../assets/icons/search.svg";
 import States from "./State/States";
-import { useEffect } from "react";
 
 interface ManagementProps {
   parameter: string | undefined;
@@ -10,38 +9,13 @@ interface ManagementProps {
 
 const Management: React.FC<ManagementProps> = ({ parameter }) => {
   const {
-    tableData,
-    filteredData,
-    setFilteredData,
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
     searchTerm,
     openAdd,
-    reload,
-    setReload,
 
-    getAllStates,
     handleOpenAdd,
     handleCloseAdd,
     handleSearch,
-    filterDataIgnoringAccents,
   } = useManagement();
-
-  useEffect(() => {
-    setPage(0);
-    setTotalPages(0);
-    getAllStates();
-  }, [parameter, reload]);
-
-  useEffect(() => {
-    if (tableData) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    }
-  }, [searchTerm, tableData]);
 
   return (
     <div className="management-container">
@@ -68,16 +42,9 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
           <div className="management-container-main-table">
             {parameter === "states" && (
               <States
-                filteredData={filteredData}
-                page={page}
-                setPage={setPage}
-                rowsPerPage={rowsPerPage}
-                totalPages={totalPages}
-                setTotalPages={setTotalPages}
+                searchTerm={searchTerm}
                 openAdd={openAdd}
                 handleCloseAdd={handleCloseAdd}
-                reload={reload}
-                setReload={setReload}
               />
             )}
           </div>

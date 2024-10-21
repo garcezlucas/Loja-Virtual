@@ -1,123 +1,99 @@
+import "./_states.scss";
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
 import StateForm from "./Forms/StateForm";
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 import { useStates } from "./useStates";
-import { State } from "../../../interfaces/State";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 
 interface StatesProps {
-  filteredData: State[];
-  page: number;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-  rowsPerPage: number;
-  totalPages: number;
-  setTotalPages: React.Dispatch<React.SetStateAction<number>>;
+  searchTerm: string;
   openAdd: boolean;
   handleCloseAdd: () => void;
-
-  reload: boolean;
-  setReload: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const States: React.FC<StatesProps> = ({
-  filteredData,
-  page,
-  setPage,
-  rowsPerPage,
-  totalPages,
-  setTotalPages,
+  searchTerm,
   openAdd,
   handleCloseAdd,
-
-  reload,
-  setReload,
 }) => {
+  const [reload, setReload] = useState<boolean>(false);
+
   const {
+    tableData,
+    filteredData,
+    setFilteredData,
+    page,
+    setPage,
+    totalPages,
+    setTotalPages,
+    rowsPerPage,
+
     openEdit,
-    setOpenEdit,
     selectedState,
-    setSelectedState,
 
     deleteState,
     handleCloseEdit,
+    getAllStates,
+    handleEditClick,
   } = useStates({ handleCloseAdd, reload, setReload });
 
-  const titleColumns: (string | { label: string; width?: string })[] = [
-    { label: "ID", width: "25%" },
-    { label: "Nome", width: "25%" },
-    { label: "Sigla", width: "25%" },
-    { label: "", width: "25%" },
-  ];
+  useEffect(() => {
+    getAllStates();
+  }, [reload]);
 
-  const columns: Column[] = [
-    {
-      label: "id",
-      format: (value) => (value !== undefined ? value : "-"),
-      width: "10%",
-    },
-    {
-      label: "name",
-      format: (value) => (value !== undefined ? value : "-"),
-      width: "10%",
-    },
-    {
-      label: "acronym",
-      format: (value) => (value !== undefined ? value : "-"),
-      width: "10%",
-    },
-    {
-      label: "id",
-      format: (value, row) => {
-        return (
-          <div
-            style={{
-              display: "flex",
-              gap: "1rem",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "2.5rem",
-                height: "2.5rem",
-                backgroundColor: "#F0E68C",
-                borderRadius: "50%",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                setSelectedState(row);
-                setOpenEdit(true);
-              }}
-            >
-              <img src={EditIcon} alt="edit" style={{ width: "1.5rem" }} />
-            </button>
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "2.5rem",
-                height: "2.5rem",
-                backgroundColor: "#FF0000",
-                borderRadius: "50%",
-                cursor: "pointer",
-              }}
-              onClick={() => deleteState(value)}
-            >
-              <img src={DeleteIcon} alt="delete" style={{ width: "1.5rem" }} />
-            </button>
-          </div>
-        );
+  useEffect(() => {
+    if (tableData.length > 0) {
+      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
+      setFilteredData(filtered);
+    }
+  }, [searchTerm, tableData]);
+
+  const renderActionButtons = useCallback(
+    (value: number, row: any) => (
+      <div className="action-buttons">
+        <button
+          className="action-buttons-edit"
+          onClick={() => handleEditClick(row)}
+        >
+          <img src={EditIcon} alt="edit" />
+        </button>
+        <button
+          className="action-buttons-delete"
+          onClick={() => deleteState(value)}
+        >
+          <img src={DeleteIcon} alt="delete" />
+        </button>
+      </div>
+    ),
+    []
+  );
+
+  const titleColumns = useMemo(
+    () => [
+      { label: "ID", width: "25%" },
+      { label: "Nome", width: "25%" },
+      { label: "Sigla", width: "25%" },
+      { label: "", width: "25%" },
+    ],
+    []
+  );
+
+  const columns: Column[] = useMemo(
+    () => [
+      { label: "id", format: (value) => value || "-", width: "10%" },
+      { label: "name", format: (value) => value || "-", width: "10%" },
+      { label: "acronym", format: (value) => value || "-", width: "10%" },
+      {
+        label: "id",
+        format: (value, row) => renderActionButtons(value, row),
+        width: "10%",
       },
-      width: "10%",
-    },
-  ];
+    ],
+    [renderActionButtons]
+  );
 
   const dataTable = filteredData;
   const totalItems = filteredData?.length;
@@ -155,9 +131,9 @@ const States: React.FC<StatesProps> = ({
         <StateForm
           title={"Editar"}
           handleCloseAdd={handleCloseEdit}
+          selectedState={selectedState}
           reload={reload}
           setReload={setReload}
-          selectedState={selectedState}
         />
       </Modal>
     </div>
