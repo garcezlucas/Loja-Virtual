@@ -40,6 +40,11 @@ public class CityService {
     }
 
     public City update(City city) {
+        City existingCity = cityRepository.findById(city.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Cidade inválida!"));
+        Date createDate = existingCity.getCreationDate();
+
+        city.setCreationDate(createDate);
         city.setUpdateDate(new Date());
 
         City updateCity = cityRepository.saveAndFlush(city);

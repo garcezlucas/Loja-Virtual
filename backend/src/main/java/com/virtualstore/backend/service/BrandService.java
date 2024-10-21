@@ -26,6 +26,11 @@ public class BrandService {
     }
 
     public Brand update(Brand brand) {
+        Brand existingBrand = brandRepository.findById(brand.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Marca inválida!"));
+        Date createDate = existingBrand.getCreationDate();
+
+        brand.setCreationDate(createDate);
         brand.setUpdateDate(new Date());
         Brand updateBrand = brandRepository.saveAndFlush(brand);
         return updateBrand;

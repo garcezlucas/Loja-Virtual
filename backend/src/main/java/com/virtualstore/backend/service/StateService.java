@@ -26,6 +26,11 @@ public class StateService {
     }
 
     public State update(State state) {
+        State existingState = stateRepository.findById(state.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Estado inválido!"));
+        Date createDate = existingState.getCreationDate();
+
+        state.setCreationDate(createDate);
         state.setUpdateDate(new Date());
         State updateState = stateRepository.saveAndFlush(state);
         return updateState;

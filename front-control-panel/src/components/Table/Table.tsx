@@ -4,6 +4,8 @@ import LeftArrowIcon from "../../assets/icons/left-arrow.svg";
 import DoubleLeftArrowIcon from "../../assets/icons/left-arrow-next.svg";
 import RightArrowIcon from "../../assets/icons/right-arrow.svg";
 import DoubleRightArrowIcon from "../../assets/icons/right-arrow-next.svg";
+import { Loading } from "../Loading/Loading";
+import { NotFoundData } from "../NotFound/NotFound";
 
 export interface Column {
   label: string;
@@ -37,6 +39,7 @@ interface TableProps {
     rowIndex?: number;
     setRowIndex?: React.Dispatch<React.SetStateAction<number>>;
     loading?: boolean;
+    heightLoading?: string;
   };
 }
 
@@ -56,6 +59,7 @@ const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
     OnClickBody,
     loading,
     heightTable,
+    heightLoading,
   } = tableProps;
 
   useEffect(() => {
@@ -81,7 +85,11 @@ const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
                     : "auto",
               };
               return (
-                <th key={index} style={{ ...columnStyle}} className="table-container-header">
+                <th
+                  key={index}
+                  style={{ ...columnStyle }}
+                  className="table-container-header"
+                >
                   {typeof column === "object" ? column.label : column}
                 </th>
               );
@@ -97,9 +105,10 @@ const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
+                    height: heightLoading
                   }}
                 >
-                  <span>Loading...</span>
+                  <Loading />
                 </div>
               </td>
             </tr>
@@ -111,9 +120,10 @@ const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
+                    height: heightLoading
                   }}
                 >
-                  <span>Nenhum dado encontrado</span>
+                  <NotFoundData message={"Nenhum dao encontrado"} />
                 </div>
               </td>
             </tr>

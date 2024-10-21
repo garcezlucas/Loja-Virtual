@@ -2,6 +2,7 @@ import "./_management.scss";
 import { useManagement } from "./useManagement";
 import SearchIcon from "../../assets/icons/search.svg";
 import States from "./State/States";
+import City from "./City/City";
 
 interface ManagementProps {
   parameter: string | undefined;
@@ -12,6 +13,7 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
     searchTerm,
     openAdd,
 
+    translateWord,
     handleOpenAdd,
     handleCloseAdd,
     handleSearch,
@@ -22,13 +24,13 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
       <div className="management-container-fix">
         <header className="management-container-header">
           <button onClick={handleOpenAdd}>
-            <span>{`+ Novo ${parameter}`}</span>
+            <span>{`+ Novo ${translateWord(parameter)}`}</span>
           </button>
         </header>
 
         <main className="management-container-main">
           <div className="management-container-main-header">
-            <span>{parameter}</span>
+            <span>{`${translateWord(parameter)}s`.toLocaleUpperCase()}</span>
             <div className="management-container-main-header-search">
               <img src={SearchIcon} alt="search" />
               <input
@@ -42,6 +44,13 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
           <div className="management-container-main-table">
             {parameter === "states" && (
               <States
+                searchTerm={searchTerm}
+                openAdd={openAdd}
+                handleCloseAdd={handleCloseAdd}
+              />
+            )}
+            {parameter === "cities" && (
+              <City
                 searchTerm={searchTerm}
                 openAdd={openAdd}
                 handleCloseAdd={handleCloseAdd}
