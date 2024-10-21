@@ -257,8 +257,8 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       description: row.description,
       brand: row.brand.id,
       category: row.category.id,
-      expense: maskCurrency(row.expense * 100),
-      price: maskCurrency(row.price * 100),
+      expense: maskCurrency(row.expense.toFixed(2)),
+      price: maskCurrency(row.price.toFixed(2)),
     };
 
     setFields((prevFields) =>
