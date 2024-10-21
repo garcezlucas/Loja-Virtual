@@ -2,7 +2,7 @@ import "../_management.scss";
 
 import { useCallback, useEffect, useMemo } from "react";
 
-import { useStates } from "./useStates";
+import { useCollaborators } from "./useCollaborators";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
@@ -12,14 +12,15 @@ import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+import { PersonPermission } from "../../../interfaces/Person";
 
-interface StatesProps {
+interface CollaboratorsProps {
   searchTerm: string;
   openAdd: boolean;
   handleCloseAdd: () => void;
 }
 
-const States: React.FC<StatesProps> = ({
+const Collaborators: React.FC<CollaboratorsProps> = ({
   searchTerm,
   openAdd,
   handleCloseAdd,
@@ -39,17 +40,21 @@ const States: React.FC<StatesProps> = ({
     fields,
     openEdit,
 
-    getAllStates,
+    getAllCollaborators,
+    getAllCities,
+    getAllPermission,
     handleSubmit,
     deleteState,
     handleCancel,
     handleCloseEdit,
     handleEditClick,
     handleChange,
-  } = useStates({ handleCloseAdd });
+  } = useCollaborators({ handleCloseAdd });
 
   useEffect(() => {
-    getAllStates();
+    getAllCollaborators();
+    getAllCities();
+    getAllPermission();
   }, []);
 
   useEffect(() => {
@@ -81,23 +86,45 @@ const States: React.FC<StatesProps> = ({
 
   const titleColumns = useMemo(
     () => [
-      { label: "ID", width: "25%" },
-      { label: "Nome", width: "25%" },
-      { label: "Sigla", width: "25%" },
-      { label: "", width: "25%" },
+      { label: "ID", width: "14.28%" },
+      { label: "Nome", width: "14.28%" },
+      { label: "CPF", width: "14.28%" },
+      { label: "Email", width: "14.28%" },
+      { label: "Endereço", width: "14.28%" },
+      { label: "Permissões", width: "14.28%" },
+      { label: "", width: "14.28%" },
     ],
     []
   );
 
   const columns: Column[] = useMemo(
     () => [
-      { label: "id", format: (value) => value || "-", width: "10%" },
-      { label: "name", format: (value) => value || "-", width: "10%" },
-      { label: "acronym", format: (value) => value || "-", width: "10%" },
+      { label: "id", format: (value) => value || "-", width: "14.28%" },
+      { label: "name", format: (value) => value || "-", width: "14.28%" },
+      { label: "cpf", format: (value) => value || "-", width: "14.28%" },
+      { label: "email", format: (value) => value || "-", width: "14.28%" },
+      {
+        label: "address",
+        format: (value, row) =>
+          `${value}, ${row.city.name} - ${row.city.state.acronym}` || "-",
+        width: "14.28%",
+      },
+      {
+        label: "personPermissions",
+        format: (value: PersonPermission[]) => {
+          if (value && value.length > 0) {
+            return value
+              .map((permission) => permission.permission.name)
+              .join(", ");
+          }
+          return "-";
+        },
+        width: "14.28%",
+      },
       {
         label: "id",
         format: (value, row) => renderActionButtons(value, row),
-        width: "10%",
+        width: "14.28%",
       },
     ],
     []
@@ -106,6 +133,7 @@ const States: React.FC<StatesProps> = ({
   const dataTable = filteredData;
   const totalItems = filteredData?.length;
   const heightTable = "42.7rem";
+  const heightLoading = "30rem";
 
   const tableProps = {
     titleColumns,
@@ -119,6 +147,7 @@ const States: React.FC<StatesProps> = ({
     totalItems,
     heightTable,
     loading,
+    heightLoading,
   };
 
   return (
@@ -148,4 +177,4 @@ const States: React.FC<StatesProps> = ({
   );
 };
 
-export default States;
+export default Collaborators;

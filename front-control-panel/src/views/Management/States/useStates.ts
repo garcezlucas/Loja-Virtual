@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { StateService } from "../../../service/State.service";
+import { StatesService } from "../../../service/States.service";
 import { State } from "../../../interfaces/State";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+import { getFieldValue } from "../../../utils/getFildValue";
+
+type FieldName = "name" | "acronym";
 
 interface useStatesProps {
   handleCloseAdd: () => void;
@@ -27,7 +30,7 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
 
   const getAllStates = async () => {
     try {
-      const response = await StateService.getAllStates();
+      const response = await StatesService.getAllStates();
       if (response?.length >= 0) setTableData(response);
     } catch (error) {
       console.error(`error when searching all states : ${error}`);
@@ -46,18 +49,16 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
   };
 
   const createState = async () => {
-    const nameField = fields?.find((field) => field.name === "name");
-    const acronymField = fields?.find((field) => field.name === "acronym");
-
-    const name = nameField?.value as string;
-    const acronym = acronymField?.value as string;
+    const name = getFieldValue(fields, "name") as string;
+    const acronym = getFieldValue(fields, "acronym") as string;
 
     const state = {
       name,
       acronym,
     };
+
     try {
-      const response = await StateService.createStates(state);
+      const response = await StatesService.createStates(state);
       if (response?.id) {
         handleCloseAdd();
         getAllStates();
@@ -69,19 +70,17 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
   };
 
   const updateState = async () => {
-    const nameField = fields?.find((field) => field.name === "name");
-    const acronymField = fields?.find((field) => field.name === "acronym");
-
-    const name = nameField?.value as string;
-    const acronym = acronymField?.value as string;
+    const name = getFieldValue(fields, "name") as string;
+    const acronym = getFieldValue(fields, "acronym") as string;
 
     const state = {
       id: selectedState?.id as number,
       name,
       acronym,
     };
+
     try {
-      const response = await StateService.updateStates(state);
+      const response = await StatesService.updateStates(state);
       if (response?.id) {
         setOpenEdit(false);
         getAllStates();
@@ -93,18 +92,30 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
 
   const deleteState = async (id: number) => {
     try {
-      await StateService.deleteState(id);
+      await StatesService.deleteState(id);
       getAllStates();
     } catch (error) {
       console.error(`error when delete state : ${error}`);
     }
   };
 
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
+  };
+
   const handleCloseEdit = () => {
+    handleClearFields();
     setOpenEdit(false);
   };
 
   const handleCancel = () => {
+    handleClearFields();
     handleCloseAdd();
   };
 
@@ -112,20 +123,22 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
     setSelectedState(row);
     setOpenEdit(true);
 
+    const fieldMap: Record<FieldName, string | number> = {
+      name: row.name,
+      acronym: row.acronym,
+    };
+
     setFields((prevFields) =>
       prevFields.map((field) => {
-        if (field.name === "name") {
-          return { ...field, value: row.name };
-        }
-        if (field.name === "acronym") {
-          return { ...field, value: row.acronym };
+        if (field.name in fieldMap) {
+          return { ...field, value: fieldMap[field.name as FieldName] };
         }
         return field;
       })
     );
   };
 
-  const handleChange = (name: string, value: string | number) => {
+  const handleChange = (name: string, value: string | number | string[]) => {
     const isNumber = typeof value === "number";
 
     setFields((prevFields) =>
@@ -146,7 +159,7 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
     filteredData,
     setFilteredData,
     loading,
-    
+
     page,
     setPage,
     totalPages,

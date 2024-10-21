@@ -1,78 +1,91 @@
 .dynamicForm-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 30rem;
+  min-height: 20rem;
+  max-height: 35rem;
+  height: auto;
+  position: relative;
+  & header {
+    font-family: New Order;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333B3E;
+  }
+  &-form {
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    width: 30rem;
-    height: 20rem;
-    & header {
-      font-family: New Order;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #333B3E;
-    }
-    &-form {
+    margin-bottom: 4rem;
+    max-height: 25rem;
+    overflow-y: scroll;
+    &-group {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
-      &-group {
-        display: flex;
-        flex-direction: column;
-        & label {
-          font-family: New Order;
-          font-size: 1rem;
-          font-weight: 500;
-          color: #333B3E;
-          margin-left: 0.5rem;
-        }
-        & input {
-          height: 1rem;
-          padding: 1rem;
+      & label {
+        font-family: New Order;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333B3E;
+        margin-left: 0.5rem;
+      }
+      & input {
+        height: 1rem;
+        padding: 1rem;
+        border: 2px solid #DFE4EC;
+        border-radius: 0.625rem;
+        outline: none;
+
+        font-family: New Order;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333B3E;
+      }
+      & select {
+        height: 3.5rem;
+        border: 2px solid #DFE4EC;
+        border-radius: 0.625rem;
+        outline: none;
+        background-color: white;
+
+        font-family: New Order;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333B3E;
+        padding-left: 0.7rem;
+        & option {
           border: 2px solid #DFE4EC;
           border-radius: 0.625rem;
-          outline: none;
-  
-          font-family: New Order;
-          font-size: 1rem;
-          font-weight: 500;
-          color: #333B3E;
-        }
-        & select {
-          height: 3.5rem;
-          border: 2px solid #DFE4EC;
-          border-radius: 0.625rem;
-          outline: none;
           background-color: white;
-  
-          font-family: New Order;
-          font-size: 1rem;
-          font-weight: 500;
-          color: #333B3E;
-          padding-left: 0.7rem;
         }
       }
-      &-buttons {
+    }
+    &-buttons {
+      display: flex;
+      gap: 1rem;
+      position: absolute;
+      bottom: 0rem;
+      right: 0rem;
+      & button {
         display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        & button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 8rem;
-          height: 2.5rem;
-          padding: 1rem;
-          border-radius: 0.625rem;
-          cursor: pointer;
-          & span {
-            font-family: New Order;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #FAFAFA;
-          }
-          &:disabled {
-            opacity: 0.5;
-          }
+        align-items: center;
+        justify-content: center;
+        width: 8rem;
+        height: 2.5rem;
+        padding: 1rem;
+        border-radius: 0.625rem;
+        cursor: pointer;
+        & span {
+          font-family: New Order;
+          font-size: 1rem;
+          font-weight: 500;
+          color: #FAFAFA;
+        }
+        &:disabled {
+          opacity: 0.5;
         }
       }
     }
   }
+}

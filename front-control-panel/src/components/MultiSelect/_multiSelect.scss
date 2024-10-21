@@ -1,0 +1,46 @@
+.dynamicForm-container-form-group-multiselect {
+    position: relative;
+    width: 100%;
+    z-index: 10;
+}
+
+.multiselect-header {
+    height: 3.5rem;
+    border: 2px solid #DFE4EC;
+    border-radius: 0.625rem;
+    outline: none;
+    background-color: white;
+    font-family: 'New Order', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333B3E;
+    padding-left: 0.7rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.multiselect-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 2px solid #DFE4EC;
+    border-radius: 0.625rem;
+    background-color: white;
+    max-height: 200px;
+    overflow-y: visible !important;
+    z-index: 1000;
+}
+
+.multiselect-option {
+    padding: 0.5rem 1rem;
+}
+
+.multiselect-option:hover {
+    background-color: #f0f0f0;
+}
+
+.selected {
+    background-color: #e0e0e0;
+}

@@ -1,11 +1,13 @@
 import React from "react";
 import "./_dynamicForm.scss";
+import MultiSelect from "../MultiSelect/MultiSelect";
+import CustomSelect from "../Select/Select";
 
 export interface DynamicField {
   label: string;
   name: string;
-  type: "text" | "select";
-  value: string | number;
+  type: "text" | "select" | "multi-select";
+  value: string | number | string[];
   options?: any[];
 }
 
@@ -14,7 +16,7 @@ interface DynamicFormProps {
   fields: DynamicField[];
   handleSubmit: (event: React.FormEvent) => Promise<void>;
   handleCancel: () => void;
-  handleChange: (name: string, value: string | number) => void;
+  handleChange: (name: string, value: string | number | string[]) => void;
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
@@ -41,18 +43,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                   required
                 />
               ) : field.type === "select" ? (
-                <select
-                  id={field.name}
-                  value={field.value}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  required
-                >
-                  {field.options?.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <CustomSelect field={field} handleChange={handleChange} />
+              ) : field.type === "multi-select" ? (
+                <MultiSelect
+                  options={field.options || []}
+                  selectedValues={field.value as string[]}
+                  onChange={(selected: any) =>
+                    handleChange(field.name, selected)
+                  }
+                />
               ) : null}
             </div>
           ))}

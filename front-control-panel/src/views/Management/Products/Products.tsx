@@ -2,7 +2,7 @@ import "../_management.scss";
 
 import { useCallback, useEffect, useMemo } from "react";
 
-import { useCity } from "./useCity";
+import { useProducts } from "./useProducts";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
@@ -11,15 +11,15 @@ import DynamicForm from "../../../components/DynamicForm/DynamicForm";
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
-import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+import { filterShortDescriptionDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 
-interface CitysProps {
+interface ProductsProps {
   searchTerm: string;
   openAdd: boolean;
   handleCloseAdd: () => void;
 }
 
-const City: React.FC<CitysProps> = ({
+const Products: React.FC<ProductsProps> = ({
   searchTerm,
   openAdd,
   handleCloseAdd,
@@ -39,28 +39,29 @@ const City: React.FC<CitysProps> = ({
     fields,
     openEdit,
 
-    getAllStates,
-    getAllCities,
+    getAllProducts,
+    getAllBrands,
+    getAllCategories,
     handleSubmit,
-    deleteCity,
+    deleteProduct,
     handleCancel,
     handleCloseEdit,
     handleEditClick,
     handleChange,
-  } = useCity({ handleCloseAdd });
+  } = useProducts({ handleCloseAdd });
 
   useEffect(() => {
-    const fetchData = async () => {
-      await getAllCities();
-      await getAllStates();
-    };
-
-    fetchData();
+    getAllProducts();
+    getAllBrands();
+    getAllCategories();
   }, []);
 
   useEffect(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
+      const filtered = filterShortDescriptionDataIgnoringAccents(
+        tableData,
+        searchTerm
+      );
       setFilteredData(filtered);
     }
   }, [searchTerm, tableData]);
@@ -76,7 +77,7 @@ const City: React.FC<CitysProps> = ({
         </button>
         <button
           className="action-buttons-delete"
-          onClick={() => deleteCity(value)}
+          onClick={() => deleteProduct(value)}
         >
           <img src={DeleteIcon} alt="delete" />
         </button>
@@ -87,27 +88,49 @@ const City: React.FC<CitysProps> = ({
 
   const titleColumns = useMemo(
     () => [
-      { label: "ID", width: "25%" },
-      { label: "Nome", width: "25%" },
-      { label: "Estado", width: "25%" },
-      { label: "", width: "25%" },
+      { label: "ID", width: "20%" },
+      { label: "Produto", width: "20%" },
+      { label: "Marca", width: "20%" },
+      { label: "Categoria", width: "20%" },
+      { label: "Preço de custo", width: "20%" },
+      { label: "Preço de venda", width: "20%" },
+      { label: "", width: "20%" },
     ],
     []
   );
 
   const columns: Column[] = useMemo(
     () => [
-      { label: "id", format: (value) => value || "-", width: "10%" },
-      { label: "name", format: (value) => value || "-", width: "10%" },
+      { label: "id", format: (value) => value || "-", width: "20%" },
       {
-        label: "state",
-        format: (value) => `${value?.name} - ${value?.acronym}` || "-",
-        width: "10%",
+        label: "shortDescription",
+        format: (value) => value || "-",
+        width: "20%",
+      },
+      { label: "brand", format: (value) => value.name || "-", width: "20%" },
+      { label: "category", format: (value) => value.name || "-", width: "20%" },
+      {
+        label: "expense",
+        format: (value) =>
+          new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(value) || "-",
+        width: "20%",
+      },
+      {
+        label: "price",
+        format: (value) =>
+          new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(value) || "-",
+        width: "20%",
       },
       {
         label: "id",
         format: (value, row) => renderActionButtons(value, row),
-        width: "10%",
+        width: "20%",
       },
     ],
     []
@@ -160,4 +183,4 @@ const City: React.FC<CitysProps> = ({
   );
 };
 
-export default City;
+export default Products;

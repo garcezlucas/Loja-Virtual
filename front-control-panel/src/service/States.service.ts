@@ -1,6 +1,6 @@
 import FetchRequest from "../api/apiFetch";
 
-export class StateService {
+export class StatesService {
   public static async getAllStates() {
     try {
       const url = `api/state/`;
