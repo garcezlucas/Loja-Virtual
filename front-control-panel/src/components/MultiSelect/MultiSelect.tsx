@@ -1,13 +1,16 @@
 import "./_multiSelect.scss";
-import React, { useState, useEffect, useRef } from "react";
 
-interface Option {
+import React, { useEffect } from "react";
+
+import { useMultiSelect } from "./useMultiSelect";
+
+export interface OptionMultiSelect {
   value: string;
   label: string;
 }
 
 interface MultiSelectProps {
-  options: Option[];
+  options: OptionMultiSelect[];
   selectedValues: string[];
   onChange: (selected: string[]) => void;
   required?: boolean;
@@ -21,49 +24,24 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   required = false,
   errormessage,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isInvalid, setIsInvalid] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const {
+    isOpen,
+    isInvalid,
+    dropdownRef,
+    hasInteracted,
+
+    handleClickOutside,
+    toggleDropdown,
+    handleOptionClick,
+    disablesOption,
+  } = useMultiSelect({ options, selectedValues, onChange, required });
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        if (hasInteracted) {
-          setIsInvalid(required && selectedValues.length === 0);
-        }
-      }
-    };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [hasInteracted, required, selectedValues]);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) setHasInteracted(true);
-  };
-
-  const handleOptionClick = (value: string) => {
-    if (value.toString() === "0") return;
-
-    const newSelectedValues = selectedValues.includes(value)
-      ? selectedValues.filter((val) => val !== value)
-      : [...selectedValues, value];
-
-    onChange(newSelectedValues);
-    setIsInvalid(required && newSelectedValues.length === 0);
-  };
-
-  const disablesOption = options?.find(
-    (option) => option.value.toString() === "0"
-  );
 
   return (
     <div className="multiselect-container" ref={dropdownRef}>

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
 import "./_dynamicForm.scss";
+import React from "react";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import CustomSelect from "../Select/Select";
 import VisibleEye from "../../assets/icons/eye-visible-show.svg";
 import HideEye from "../../assets/icons/eye-visible-hide.svg";
+import { useDynamicForm } from "./useDynamicForm";
 
 export interface ValidationRules {
   minLength?: number;
@@ -34,7 +35,9 @@ interface DynamicFormProps {
   handleChange: (name: string, value: string | number | string[]) => void;
   labelColor?: string;
   titleSubmitButton?: string;
+  colorSubmitButton?: string;
   titleCancelButton?: string;
+  colorCancelButton?: string;
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
@@ -45,80 +48,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   handleChange,
   labelColor,
   titleSubmitButton,
+  colorSubmitButton,
   titleCancelButton,
+  colorCancelButton,
 }) => {
-  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
-  const [visiblePassword, setVisiblePassword] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const {
+    touched,
+    visiblePassword,
 
-  const validateField = (field: DynamicField): boolean => {
-    const { type, value, validationRules, customValidator } = field;
-
-    if (!validationRules) return true;
-
-    if (!validationRules.required) return true;
-
-    if (validationRules.required && value === "") {
-      return false;
-    }
-
-    if (customValidator && !customValidator(value)) {
-      return false;
-    }
-
-    if (type === "email" && validationRules.pattern) {
-      return validationRules.pattern.test(String(value));
-    }
-
-    if (type === "text" || type === "email") {
-      if (
-        validationRules.minLength &&
-        String(value).length < validationRules.minLength
-      ) {
-        return false;
-      }
-      if (
-        validationRules.maxLength &&
-        String(value).length > validationRules.maxLength
-      ) {
-        return false;
-      }
-    }
-
-    if (type === "number") {
-      const numericValue = Number(value);
-      if (
-        validationRules.min !== undefined &&
-        numericValue < validationRules.min
-      ) {
-        return false;
-      }
-      if (
-        validationRules.max !== undefined &&
-        numericValue > validationRules.max
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  const isFormValid = () => {
-    return fields.every((field) => validateField(field));
-  };
-
-  const handleOnBlur = (fieldName: string) => {
-    setTouched((prev) => ({ ...prev, [fieldName]: true }));
-  };
-
-  const togglePasswordVisibility = (fieldName: string) => {
-    setVisiblePassword((prev) => ({
-      ...prev,
-      [fieldName]: !prev[fieldName],
-    }));
-  };
+    validateField,
+    isFormValid,
+    handleOnBlur,
+    togglePasswordVisibility,
+  } = useDynamicForm({ fields });
 
   return (
     <div className="dynamicForm-container">
@@ -196,7 +138,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               <button
                 type="button"
                 onClick={handleCancel}
-                style={{ backgroundColor: "#FF0000" }}
+                style={{
+                  backgroundColor: colorCancelButton
+                    ? colorCancelButton
+                    : "#FF0000",
+                }}
               >
                 <span>
                   {titleCancelButton ? titleCancelButton : "Cancelar"}
@@ -205,7 +151,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             )}
             <button
               type="submit"
-              style={{ backgroundColor: "#3CB371" }}
+              style={{
+                backgroundColor: colorSubmitButton
+                  ? colorSubmitButton
+                  : "#3CB371",
+              }}
               disabled={!isFormValid()}
             >
               <span>{titleSubmitButton ? titleSubmitButton : "Enviar"}</span>
