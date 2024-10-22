@@ -7,12 +7,16 @@ import { useProducts } from "./useProducts";
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
 import DynamicForm from "../../../components/DynamicForm/DynamicForm";
+import ImageUploader from "../../../components/InputImages/InputImages";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
+import AddPhotoIcon from "../../../assets/icons/add-photo.svg";
 
 import { filterShortDescriptionDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 import { maskCurrency } from "../../../utils/Currencymask";
+import { Image } from "../../../interfaces/Image";
+import Carousel from "../../../components/Carosel/Carousel";
 
 interface ProductsProps {
   searchTerm: string;
@@ -29,6 +33,7 @@ const Products: React.FC<ProductsProps> = ({
     tableData,
     filteredData,
     setFilteredData,
+    selectedProduct,
     loading,
 
     page,
@@ -39,6 +44,7 @@ const Products: React.FC<ProductsProps> = ({
 
     fields,
     openEdit,
+    openImage,
 
     getAllProducts,
     getAllBrands,
@@ -47,6 +53,9 @@ const Products: React.FC<ProductsProps> = ({
     deleteProduct,
     handleCancel,
     handleCloseEdit,
+    uploadImage,
+    handleOpenImageModal,
+    handleCloseImageModal,
     handleEditClick,
     handleChange,
   } = useProducts({ handleCloseAdd });
@@ -71,6 +80,12 @@ const Products: React.FC<ProductsProps> = ({
     (value: number, row: any) => (
       <div className="action-buttons">
         <button
+          className="action-buttons-add"
+          onClick={() => handleOpenImageModal(row)}
+        >
+          <img src={AddPhotoIcon} alt="edit" />
+        </button>
+        <button
           className="action-buttons-edit"
           onClick={() => handleEditClick(row)}
         >
@@ -89,41 +104,74 @@ const Products: React.FC<ProductsProps> = ({
 
   const titleColumns = useMemo(
     () => [
-      { label: "ID", width: "20%" },
-      { label: "Produto", width: "20%" },
-      { label: "Marca", width: "20%" },
-      { label: "Categoria", width: "20%" },
-      { label: "Preço de custo", width: "20%" },
-      { label: "Preço de venda", width: "20%" },
-      { label: "", width: "20%" },
+      { label: "ID", width: "12.5%" },
+      { label: "Imagem", width: "12.5%" },
+      { label: "Produto", width: "12.5%" },
+      { label: "Marca", width: "12.5%" },
+      { label: "Categoria", width: "12.5%" },
+      { label: "Preço de custo", width: "12.5%" },
+      { label: "Preço de venda", width: "12.5%" },
+      { label: "", width: "12.5%" },
     ],
     []
   );
 
+  const renderImages = (images: Image[]) => {
+    if (!images || images.length === 0) {
+      return "-";
+    }
+
+    const lisImages = images.map((image) => {
+      return `data:image;base64, ${image.file}`;
+    });
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          width: "3rem",
+          height: "3rem",
+        }}
+      >
+        <Carousel images={lisImages} />
+      </div>
+    );
+  };
+
   const columns: Column[] = useMemo(
     () => [
-      { label: "id", format: (value) => value || "-", width: "20%" },
+      { label: "id", format: (value) => value || "-", width: "12.5%" },
+      {
+        label: "images",
+        format: (value) => renderImages(value),
+        width: "12.5%",
+      },
       {
         label: "shortDescription",
         format: (value) => value || "-",
-        width: "20%",
+        width: "12.5%",
       },
-      { label: "brand", format: (value) => value.name || "-", width: "20%" },
-      { label: "category", format: (value) => value.name || "-", width: "20%" },
+      { label: "brand", format: (value) => value.name || "-", width: "12.5%" },
+      {
+        label: "category",
+        format: (value) => value.name || "-",
+        width: "12.5%",
+      },
       {
         label: "expense",
-        format: (value) => maskCurrency((value).toFixed(2)) || "-",
-        width: "20%",
+        format: (value) => maskCurrency(value.toFixed(2)) || "-",
+        width: "12.5%",
       },
       {
         label: "price",
-        format: (value) => maskCurrency((value).toFixed(2)) || "-",
-        width: "20%",
+        format: (value) => maskCurrency(value.toFixed(2)) || "-",
+        width: "12.5%",
       },
       {
         label: "id",
         format: (value, row) => renderActionButtons(value, row),
-        width: "20%",
+        width: "12.5%",
       },
     ],
     []
@@ -149,6 +197,10 @@ const Products: React.FC<ProductsProps> = ({
     heightLoading,
   };
 
+  const initialImages = selectedProduct?.images.map((image) => {
+    return `data:image;base64, ${image.file}`;
+  });
+
   return (
     <div>
       <TableComponent tableProps={tableProps} />
@@ -170,6 +222,13 @@ const Products: React.FC<ProductsProps> = ({
           handleSubmit={handleSubmit}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
+        />
+      </Modal>
+
+      <Modal isOpen={openImage} onClose={handleCloseImageModal}>
+        <ImageUploader
+          onImageUpload={uploadImage}
+          initialImages={initialImages}
         />
       </Modal>
     </div>

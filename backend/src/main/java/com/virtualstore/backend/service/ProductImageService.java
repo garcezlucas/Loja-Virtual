@@ -3,12 +3,16 @@ package com.virtualstore.backend.service;
 import java.util.Date;
 import java.util.List;
 
+import java.util.stream.Collectors;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +33,23 @@ public class ProductImageService {
 
     public List<ProductImage> getAllImages() {
         return productImageRepository.findAll();
+    }
+
+    public List<ProductImage> getByProduct(Long productId) {
+        List<ProductImage> listProductImages = productImageRepository.findByProductId(productId);
+
+        for (ProductImage productImage : listProductImages) {
+            try (
+                    InputStream in = new FileInputStream(
+                            "/home/lucasgarcez/Desktop/Portifolio/Projetos/Loja-Virtual/imagens/"
+                                    + productImage.getName())) {
+                productImage.setFile(IOUtils.toByteArray(in));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return listProductImages;
     }
 
     public ProductImage create(Long productId, MultipartFile file) {
