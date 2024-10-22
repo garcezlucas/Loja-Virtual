@@ -8,34 +8,57 @@ import Categories from "./Categories/Categories";
 import Products from "./Products/Products";
 import Collaborators from "./Collaborators/Collaborators";
 import Consumers from "./Consumers/Consumers";
+import Permissions from "./Permissions/Permissions";
+import { FC, useMemo } from "react";
 
 interface ManagementProps {
-  parameter: string | undefined;
+  parameter:
+    | "states"
+    | "cities"
+    | "brands"
+    | "categories"
+    | "products"
+    | "collaborators"
+    | "clients"
+    | "permissions";
 }
 
-const Management: React.FC<ManagementProps> = ({ parameter }) => {
+const componentMap: Record<string, FC<any>> = {
+  states: States,
+  cities: Cities,
+  brands: Brands,
+  categories: Categories,
+  products: Products,
+  collaborators: Collaborators,
+  clients: Consumers,
+  permissions: Permissions,
+};
+
+const Management: FC<ManagementProps> = ({ parameter }) => {
   const {
     searchTerm,
     openAdd,
+    TranslatedTitle,
+    TranslatedWord,
+    SelectedComponent,
 
-    translateWord,
     handleOpenAdd,
     handleCloseAdd,
     handleSearch,
-  } = useManagement();
+  } = useManagement({ componentMap, parameter });
 
   return (
     <div className="management-container">
       <div className="management-container-fix">
         <header className="management-container-header">
           <button onClick={handleOpenAdd}>
-            <span>{`+ Novo ${translateWord(parameter)}`}</span>
+            <span>{TranslatedWord}</span>
           </button>
         </header>
 
         <main className="management-container-main">
           <div className="management-container-main-header">
-            <span>{`${translateWord(parameter)}s`?.toLocaleUpperCase()}</span>
+            <span>{TranslatedTitle}</span>
             <div className="management-container-main-header-search">
               <img src={SearchIcon} alt="search" />
               <input
@@ -46,51 +69,10 @@ const Management: React.FC<ManagementProps> = ({ parameter }) => {
               />
             </div>
           </div>
+
           <div className="management-container-main-table">
-            {parameter === "states" && (
-              <States
-                searchTerm={searchTerm}
-                openAdd={openAdd}
-                handleCloseAdd={handleCloseAdd}
-              />
-            )}
-            {parameter === "cities" && (
-              <Cities
-                searchTerm={searchTerm}
-                openAdd={openAdd}
-                handleCloseAdd={handleCloseAdd}
-              />
-            )}
-            {parameter === "brands" && (
-              <Brands
-                searchTerm={searchTerm}
-                openAdd={openAdd}
-                handleCloseAdd={handleCloseAdd}
-              />
-            )}
-            {parameter === "categories" && (
-              <Categories
-                searchTerm={searchTerm}
-                openAdd={openAdd}
-                handleCloseAdd={handleCloseAdd}
-              />
-            )}
-            {parameter === "products" && (
-              <Products
-                searchTerm={searchTerm}
-                openAdd={openAdd}
-                handleCloseAdd={handleCloseAdd}
-              />
-            )}
-            {parameter === "collaborators" && (
-              <Collaborators
-                searchTerm={searchTerm}
-                openAdd={openAdd}
-                handleCloseAdd={handleCloseAdd}
-              />
-            )}
-            {parameter === "clients" && (
-              <Consumers
+            {SelectedComponent && (
+              <SelectedComponent
                 searchTerm={searchTerm}
                 openAdd={openAdd}
                 handleCloseAdd={handleCloseAdd}

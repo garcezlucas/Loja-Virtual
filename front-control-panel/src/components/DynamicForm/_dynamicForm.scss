@@ -33,7 +33,6 @@
       & input {
         height: 1rem;
         padding: 1rem;
-        border: 2px solid #DFE4EC;
         border-radius: 0.625rem;
         outline: none;
 
@@ -41,6 +40,13 @@
         font-size: 1rem;
         font-weight: 500;
         color: #333B3E;
+        
+        &.invalid {
+          border: 1px solid red !important;
+        }
+        &.valid {
+          border: 2px solid #DFE4EC;
+        }
       }
       & select {
         height: 3.5rem;
@@ -59,6 +65,12 @@
           border-radius: 0.625rem;
           background-color: white;
         }
+      }
+      &-error-message {
+        color: red;
+        font-family:  New Order;
+        font-size: 0.8rem;
+        margin-top: 4px;
       }
     }
     &-buttons {
@@ -89,3 +101,4 @@
     }
   }
 }
+

@@ -1,5 +1,5 @@
 import "./_multiSelect.scss";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface Option {
   value: string;
@@ -10,16 +10,45 @@ interface MultiSelectProps {
   options: Option[];
   selectedValues: string[];
   onChange: (selected: string[]) => void;
+  required?: boolean;
+  errormessage?: string;
 }
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
   options,
   selectedValues,
   onChange,
+  required = false,
+  errormessage,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isInvalid, setIsInvalid] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        if (hasInteracted) {
+          setIsInvalid(required && selectedValues.length === 0);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [hasInteracted, required, selectedValues]);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) setHasInteracted(true);
+  };
 
   const handleOptionClick = (value: string) => {
     if (value.toString() === "0") return;
@@ -29,6 +58,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       : [...selectedValues, value];
 
     onChange(newSelectedValues);
+    setIsInvalid(required && newSelectedValues.length === 0);
   };
 
   const disablesOption = options?.find(
@@ -36,8 +66,11 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   );
 
   return (
-    <div className="dynamicForm-container-form-group-multiselect">
-      <div className="multiselect-header" onClick={toggleDropdown}>
+    <div className="multiselect-container" ref={dropdownRef}>
+      <div
+        className={`multiselect-value ${isInvalid ? "invalid" : ""}`}
+        onClick={toggleDropdown}
+      >
         {selectedValues.length > 0
           ? options
               .filter((option) =>
@@ -71,6 +104,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
           })}
         </ul>
       )}
+      {isInvalid && <div className="error-message">{errormessage}</div>}
     </div>
   );
 };
