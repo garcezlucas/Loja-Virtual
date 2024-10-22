@@ -3,6 +3,9 @@
   margin: 0;
   padding: 0;
   border: none;
+  button, input {
+    outline: none;
+  }
   ::-webkit-scrollbar {
     width: 12px;
   }
