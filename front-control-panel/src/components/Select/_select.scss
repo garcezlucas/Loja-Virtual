@@ -1,45 +1,57 @@
 .custom-select {
     position: relative;
+}
+
+.selected-value {
     height: 3.5rem;
     border: 2px solid #DFE4EC;
     border-radius: 0.625rem;
+    outline: none;
     background-color: white;
-    cursor: pointer;
     font-family: 'New Order', sans-serif;
     font-size: 1rem;
     font-weight: 500;
     color: #333B3E;
     padding-left: 0.7rem;
-    user-select: none;
-}
-
-.selected-value {
     display: flex;
     align-items: center;
-    height: 100%;
+    cursor: pointer;
 }
 
-.options {
+.selected-options {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background-color: white;
     border: 2px solid #DFE4EC;
     border-radius: 0.625rem;
-    z-index: 10000;
+    background-color: white;
+    max-height: 200px;
+    overflow-y: visible !important;
+    z-index: 1000;
 }
 
-.option {
+.selected-option {
     padding: 0.5rem 0.7rem;
     cursor: pointer;
 }
 
-.option.disabled {
+.selected-option.disabled {
     color: #B0B0B0;
     pointer-events: none;
 }
 
-.option:hover:not(.disabled) {
+.selected-option:hover:not(.disabled) {
     background-color: #F0F0F0;
+}
+
+.invalid {
+    border: 1px solid red;
+}
+
+.error-message {
+    color: red;
+    font-family:  New Order;
+    font-size: 0.8rem;
+    margin-top: 4px;
 }

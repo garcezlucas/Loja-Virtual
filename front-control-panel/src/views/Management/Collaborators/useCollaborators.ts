@@ -38,24 +38,26 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
-    { label: "Nome", name: "name", type: "text", value: "" },
-    { label: "CPF", name: "cpf", type: "text", value: "", mask: cpfMask },
-    { label: "Email", name: "email", type: "email", value: "" },
-    { label: "Endereço", name: "address", type: "text", value: "" },
-    { label: "CEP", name: "codePostal", type: "text", value: "", mask: cepMask },
+    { label: "Nome*", name: "name", type: "text", value: "", validationRules: {required: true} },
+    { label: "CPF*", name: "cpf", type: "text", value: "", mask: cpfMask, validationRules: {required: true} },
+    { label: "Email*", name: "email", type: "email", value: "", validationRules: {required: true} },
+    { label: "Endereço*", name: "address", type: "text", value: "", validationRules: {required: true} },
+    { label: "CEP*", name: "codePostal", type: "text", value: "", mask: cepMask, validationRules: {required: true} },
     {
-      label: "Cidade",
+      label: "Cidade*",
       name: "city",
       type: "select",
       value: 0,
       options: [],
+      validationRules: {required: true}
     },
     {
-      label: "Permissões",
+      label: "Permissões*",
       name: "permissions",
       type: "multi-select",
       value: [],
       options: [],
+      validationRules: {required: true}
     },
   ]);
 
