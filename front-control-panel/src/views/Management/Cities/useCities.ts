@@ -26,13 +26,20 @@ export function useCities({ handleCloseAdd }: useCitiesProps) {
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
-    { label: "Nome", name: "name", type: "text", value: "" },
     {
-      label: "Estado",
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+    {
+      label: "Estado*",
       name: "state",
       type: "select",
       value: 0,
       options: [],
+      validationRules: { required: true, message: "Estado é obrigatório" },
     },
   ]);
 

@@ -17,12 +17,19 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
   const [totalPages, setTotalPages] = useState<number>(0);
   const rowsPerPage = 7;
 
-  const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
+  const [selectedPermission, setSelectedPermission] =
+    useState<Permission | null>(null);
 
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
-    { label: "Nome", name: "name", type: "text", value: "" },
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
   ]);
 
   const getAllPermissions = async () => {

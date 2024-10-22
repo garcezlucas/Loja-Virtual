@@ -24,7 +24,13 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
-    { label: "Nome", name: "name", type: "text", value: "" },
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
   ]);
 
   const getAllCategories = async () => {

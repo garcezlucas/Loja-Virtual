@@ -7,14 +7,10 @@ import { getFieldValue } from "../../../utils/getFildValue";
 import { ConsumersService } from "../../../service/Consumers.service";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
+import { emailValidator } from "../../../utils/emailValidator";
+import { cpfValidator } from "../../../utils/cpfValidator";
 
-type FieldName =
-  | "name"
-  | "cpf"
-  | "email"
-  | "address"
-  | "codePostal"
-  | "city";
+type FieldName = "name" | "cpf" | "email" | "address" | "codePostal" | "city";
 
 interface useConsumersProps {
   handleCloseAdd: () => void;
@@ -35,17 +31,52 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
-    { label: "Nome", name: "name", type: "text", value: "" },
-    { label: "CPF", name: "cpf", type: "text", value: "", mask: cpfMask },
-    { label: "Email", name: "email", type: "email", value: "" },
-    { label: "Endereço", name: "address", type: "text", value: "" },
-    { label: "CEP", name: "codePostal", type: "text", value: "", mask: cepMask },
     {
-      label: "Cidade",
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+    {
+      label: "CPF*",
+      name: "cpf",
+      type: "text",
+      value: "",
+      mask: cpfMask,
+      validationRules: { required: true, message: "Insira um CPF válido" },
+      customValidator: cpfValidator,
+    },
+    {
+      label: "Email*",
+      name: "email",
+      type: "email",
+      value: "",
+      validationRules: { required: true, message: "Insira um email válido" },
+      customValidator: emailValidator,
+    },
+    {
+      label: "Endereço*",
+      name: "address",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Edereço é obrigatório" },
+    },
+    {
+      label: "CEP*",
+      name: "codePostal",
+      type: "text",
+      value: "",
+      mask: cepMask,
+      validationRules: { required: true, message: "Cep é obrigatório" },
+    },
+    {
+      label: "Cidade*",
       name: "city",
       type: "select",
       value: 0,
       options: [],
+      validationRules: { required: true, message: "Cidade é obrigatório" },
     },
   ]);
 

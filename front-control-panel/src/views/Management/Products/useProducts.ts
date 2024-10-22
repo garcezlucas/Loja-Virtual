@@ -36,39 +36,59 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
 
   const [fields, setFields] = useState<DynamicField[]>([
     {
-      label: "Descrição curta",
+      label: "Descrição curta*",
       name: "shortDescription",
       type: "text",
       value: "",
+      validationRules: {
+        required: true,
+        message: "Descrição curta é obrigatório",
+      },
     },
-    { label: "Descrição", name: "description", type: "text", value: "" },
     {
-      label: "Marca",
+      label: "Descrição*",
+      name: "description",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Descrição é obrigatório" },
+    },
+    {
+      label: "Marca*",
       name: "brand",
       type: "select",
       value: 0,
       options: [],
+      validationRules: { required: true, message: "Marca é obrigatório" },
     },
     {
-      label: "Categoria",
+      label: "Categoria*",
       name: "category",
       type: "select",
       value: 0,
       options: [],
+      validationRules: { required: true, message: "Categoria é obrigatório" },
     },
     {
-      label: "Preço de custo",
+      label: "Preço de custo*",
       name: "expense",
       type: "text",
       value: "",
       mask: maskCurrency,
+      validationRules: {
+        required: true,
+        message: "Preço de custo é obrigatório",
+      },
     },
     {
-      label: "Preço de venda",
+      label: "Preço de venda*",
       name: "price",
       type: "text",
       value: "",
       mask: maskCurrency,
+      validationRules: {
+        required: true,
+        message: "Preço de venda é obrigatório",
+      },
     },
   ]);
 
