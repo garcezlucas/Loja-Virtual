@@ -35,7 +35,11 @@ const HEADER_CONFIG = [
   },
 ];
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  toggleMenu: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ toggleMenu }) => {
   return (
     <header className="header-container">
       <div className="header-container-fix">
@@ -46,7 +50,7 @@ const Header: React.FC = () => {
           </div>
 
           <div className="header-container-left-menu">
-            <IconButton src={MenuIcon} alt="Menu" />
+            <IconButton src={MenuIcon} alt="Menu" onClick={toggleMenu} />
           </div>
         </div>
         <div className="header-container-configs">
