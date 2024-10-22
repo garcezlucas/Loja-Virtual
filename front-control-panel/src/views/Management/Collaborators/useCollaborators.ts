@@ -9,6 +9,8 @@ import { PermissionsService } from "../../../service/Permissions.service";
 import { getFieldValue } from "../../../utils/getFildValue";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
+import { cpfValidator } from "../../../utils/cpfValidator";
+import { emailValidator } from "../../../utils/emailValidator";
 
 type FieldName =
   | "name"
@@ -38,18 +40,52 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
-    { label: "Nome*", name: "name", type: "text", value: "", validationRules: {required: true} },
-    { label: "CPF*", name: "cpf", type: "text", value: "", mask: cpfMask, validationRules: {required: true} },
-    { label: "Email*", name: "email", type: "email", value: "", validationRules: {required: true} },
-    { label: "Endereço*", name: "address", type: "text", value: "", validationRules: {required: true} },
-    { label: "CEP*", name: "codePostal", type: "text", value: "", mask: cepMask, validationRules: {required: true} },
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+    {
+      label: "CPF*",
+      name: "cpf",
+      type: "text",
+      value: "",
+      mask: cpfMask,
+      validationRules: { required: true, message: "Insira um CPF válido" },
+      customValidator: cpfValidator,
+    },
+    {
+      label: "Email*",
+      name: "email",
+      type: "email",
+      value: "",
+      validationRules: { required: true, message: "Insira um email válido" },
+      customValidator: emailValidator
+    },
+    {
+      label: "Endereço*",
+      name: "address",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Edereço é obrigatório" },
+    },
+    {
+      label: "CEP*",
+      name: "codePostal",
+      type: "text",
+      value: "",
+      mask: cepMask,
+      validationRules: { required: true, message: "Cep é obrigatório" },
+    },
     {
       label: "Cidade*",
       name: "city",
       type: "select",
       value: 0,
       options: [],
-      validationRules: {required: true}
+      validationRules: { required: true, message: "Cidade é obrigatório" },
     },
     {
       label: "Permissões*",
@@ -57,7 +93,10 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
       type: "multi-select",
       value: [],
       options: [],
-      validationRules: {required: true}
+      validationRules: {
+        required: true,
+        message: "Permissões são obrigatórias",
+      },
     },
   ]);
 
@@ -311,7 +350,6 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
       })
     );
   };
-
 
   return {
     tableData,

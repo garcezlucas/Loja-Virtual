@@ -34,8 +34,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        console.log(hasInteracted);
-        console.log(field.value);
         setIsOpen(false);
         if (hasInteracted) {
           if (typeof field.value === "string") {

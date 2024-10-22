@@ -21,6 +21,7 @@ export interface DynamicField {
   options?: any[];
   mask?: (value: string) => string;
   validationRules?: ValidationRules;
+  customValidator?: (value: string | number | string[]) => boolean;
 }
 
 interface DynamicFormProps {
@@ -41,11 +42,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
   const validateField = (field: DynamicField): boolean => {
-    const { type, value, validationRules } = field;
+    const { type, value, validationRules, customValidator } = field;
 
     if (!validationRules) return true;
 
     if (validationRules.required && value === "") {
+      return false;
+    }
+
+    if (customValidator && !customValidator(value)) {
       return false;
     }
 
