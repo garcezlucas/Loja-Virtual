@@ -4,7 +4,7 @@ import "./_select.scss";
 interface Field {
   label: string;
   name: string;
-  type: "text" | "number" | "email" | "select" | "multi-select";
+  type: "text" | "number" | "email" | "select" | "multi-select" | "password";
   value: string | number | string[];
   options?: { value: number; label: string }[];
   mask?: (value: string) => string;

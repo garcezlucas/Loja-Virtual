@@ -19,7 +19,7 @@
     gap: 2rem;
     margin-bottom: 4rem;
     max-height: 25rem;
-    overflow-y: scroll;
+    overflow-y: auto;
     &-group {
       display: flex;
       flex-direction: column;
@@ -30,39 +30,36 @@
         color: #333B3E;
         margin-left: 0.5rem;
       }
-      & input {
-        height: 1rem;
-        padding: 1rem;
-        border-radius: 0.625rem;
-
-        font-family: New Order;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #333B3E;
-        
-        &.invalid {
-          border: 1px solid red !important;
-        }
-        &.valid {
-          border: 2px solid #DFE4EC;
-        }
-      }
-      & select {
-        height: 3.5rem;
-        border: 2px solid #DFE4EC;
-        border-radius: 0.625rem;
-        outline: none;
-        background-color: white;
-
-        font-family: New Order;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #333B3E;
-        padding-left: 0.7rem;
-        & option {
-          border: 2px solid #DFE4EC;
+      &-input {
+        position: relative;
+        & input {
+          width: 92.5%;
+          height: 1rem;
+          padding: 1rem;
           border-radius: 0.625rem;
-          background-color: white;
+
+          font-family: New Order;
+          font-size: 1rem;
+          font-weight: 500;
+          color: #333B3E;
+          
+          &.invalid {
+            border: 1px solid red !important;
+          }
+          &.valid {
+            border: 2px solid #DFE4EC;
+          }
+        }
+        & button {
+          position: absolute;
+          right: 1rem;
+          bottom: 0.5rem;
+          background-color: transparent;
+          cursor: pointer;
+          & img {
+            width: 2rem;
+            height: 2rem;
+          }
         }
       }
       &-error-message {

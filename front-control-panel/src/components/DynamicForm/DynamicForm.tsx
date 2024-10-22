@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./_dynamicForm.scss";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import CustomSelect from "../Select/Select";
+import VisibleEye from "../../assets/icons/eye-visible-show.svg";
+import HideEye from "../../assets/icons/eye-visible-hide.svg";
 
 export interface ValidationRules {
   minLength?: number;
@@ -16,7 +18,7 @@ export interface ValidationRules {
 export interface DynamicField {
   label: string;
   name: string;
-  type: "text" | "number" | "email" | "select" | "multi-select";
+  type: "text" | "number" | "email" | "select" | "multi-select" | "password";
   value: string | number | string[];
   options?: any[];
   mask?: (value: string) => string;
@@ -28,8 +30,11 @@ interface DynamicFormProps {
   title: string;
   fields: DynamicField[];
   handleSubmit: (event: React.FormEvent) => Promise<void>;
-  handleCancel: () => void;
+  handleCancel?: () => void;
   handleChange: (name: string, value: string | number | string[]) => void;
+  labelColor?: string;
+  titleSubmitButton?: string;
+  titleCancelButton?: string;
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
@@ -38,13 +43,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   handleSubmit,
   handleCancel,
   handleChange,
+  labelColor,
+  titleSubmitButton,
+  titleCancelButton,
 }) => {
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+  const [visiblePassword, setVisiblePassword] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const validateField = (field: DynamicField): boolean => {
     const { type, value, validationRules, customValidator } = field;
 
     if (!validationRules) return true;
+
+    if (!validationRules.required) return true;
 
     if (validationRules.required && value === "") {
       return false;
@@ -100,6 +113,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     setTouched((prev) => ({ ...prev, [fieldName]: true }));
   };
 
+  const togglePasswordVisibility = (fieldName: string) => {
+    setVisiblePassword((prev) => ({
+      ...prev,
+      [fieldName]: !prev[fieldName],
+    }));
+  };
+
   return (
     <div className="dynamicForm-container">
       <header>{title}</header>
@@ -112,19 +132,41 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 key={field.name}
                 className="dynamicForm-container-form-group"
               >
-                <label htmlFor={field.name}>{field.label}</label>
+                <label htmlFor={field.name} style={{ color: labelColor }}>
+                  {field.label}
+                </label>
                 {field.type !== "select" && field.type !== "multi-select" ? (
-                  <input
-                    type={field.type}
-                    id={field.name}
-                    value={field.value}
-                    onChange={(e) => handleChange(field.name, e.target.value)}
-                    onBlur={() => handleOnBlur(field.name)}
-                    required={field.validationRules?.required}
-                    minLength={field.validationRules?.minLength}
-                    maxLength={field.validationRules?.maxLength}
-                    className={isValid ? "valid" : "invalid"}
-                  />
+                  <div className="dynamicForm-container-form-group-input">
+                    <input
+                      type={
+                        field.type === "password" &&
+                        !visiblePassword[field.name]
+                          ? "password"
+                          : "text"
+                      }
+                      id={field.name}
+                      value={field.value}
+                      onChange={(e) => handleChange(field.name, e.target.value)}
+                      onBlur={() => handleOnBlur(field.name)}
+                      required={field.validationRules?.required}
+                      minLength={field.validationRules?.minLength}
+                      maxLength={field.validationRules?.maxLength}
+                      className={isValid ? "valid" : "invalid"}
+                    />
+                    {field.type === "password" && (
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility(field.name)}
+                        className="toggle-password-visibility"
+                      >
+                        {visiblePassword[field.name] ? (
+                          <img src={HideEye} alt="hide" />
+                        ) : (
+                          <img src={VisibleEye} alt="show" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 ) : field.type === "select" ? (
                   <CustomSelect
                     field={field}
@@ -150,19 +192,23 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             );
           })}
           <div className="dynamicForm-container-form-buttons">
-            <button
-              type="button"
-              onClick={handleCancel}
-              style={{ backgroundColor: "#FF0000" }}
-            >
-              <span>Cancelar</span>
-            </button>
+            {handleCancel && (
+              <button
+                type="button"
+                onClick={handleCancel}
+                style={{ backgroundColor: "#FF0000" }}
+              >
+                <span>
+                  {titleCancelButton ? titleCancelButton : "Cancelar"}
+                </span>
+              </button>
+            )}
             <button
               type="submit"
               style={{ backgroundColor: "#3CB371" }}
               disabled={!isFormValid()}
             >
-              <span>Enviar</span>
+              <span>{titleSubmitButton ? titleSubmitButton : "Enviar"}</span>
             </button>
           </div>
         </form>
