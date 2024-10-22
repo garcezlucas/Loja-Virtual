@@ -1,0 +1,20 @@
+.loginForm-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &-fix {
+        padding: 5rem;
+        & header {
+            font-family: New Order;
+            font-size: 3rem;
+            font-weight: 500;
+            color: #FAFAFA;
+        }
+        & p {
+            font-family: New Order;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #FAFAFA;
+        }
+    }
+}
