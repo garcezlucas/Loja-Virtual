@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
 import "./_select.scss";
 
-interface Field {
+import React, { useEffect } from "react";
+
+import { useSelect } from "./useSelect";
+
+export interface SelectField {
   label: string;
   name: string;
   type: "text" | "number" | "email" | "select" | "multi-select" | "password";
@@ -11,7 +14,7 @@ interface Field {
 }
 
 interface CustomSelectProps {
-  field: Field;
+  field: SelectField;
   handleChange: (name: string, value: number) => void;
   required?: boolean;
   errormessage?: string;
@@ -23,49 +26,28 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   required = false,
   errormessage,
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isInvalid, setIsInvalid] = useState<boolean>(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const {
+    isOpen,
+    isInvalid,
+    dropdownRef,
+    hasInteracted,
+
+    toggleDropdown,
+    handleOptionClick,
+    handleClickOutside,
+    disablesOption,
+  } = useSelect({
+    field,
+    handleChange,
+    required,
+  });
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        if (hasInteracted) {
-          if (typeof field.value === "string") {
-            setIsInvalid(required && field.value.length === 0);
-          } else {
-            setIsInvalid(required && field.value === 0);
-          }
-        }
-      }
-    };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [hasInteracted, required, field.value]);
-
-  const toggleDropdown = () => {
-    setIsOpen((prev) => !prev);
-    if (!isOpen) setHasInteracted(true);
-  };
-
-  const handleOptionClick = (value: number) => {
-    if (value.toString() === "0") return;
-
-    handleChange(field.name, value);
-    setIsInvalid(required && value === 0);
-  };
-
-  const disablesOption = field.options?.find(
-    (option) => option.value.toString() === "0"
-  );
 
   return (
     <div className="custom-select" ref={dropdownRef}>
