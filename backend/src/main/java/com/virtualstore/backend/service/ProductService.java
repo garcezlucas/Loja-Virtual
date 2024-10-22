@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.virtualstore.backend.entity.Brand;
 import com.virtualstore.backend.entity.Category;
 import com.virtualstore.backend.entity.Product;
+import com.virtualstore.backend.entity.ProductImage;
 import com.virtualstore.backend.repository.BrandRepository;
 import com.virtualstore.backend.repository.CategoryRepository;
 import com.virtualstore.backend.repository.ProductRepository;
@@ -25,8 +26,18 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private ProductImageService productImageService;
+
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        List<Product> products = productRepository.findAll();
+
+        products.forEach(product -> {
+            List<ProductImage> images = productImageService.getByProduct(product.getId());
+            product.setImages(images);
+        });
+
+        return products;
     }
 
     public Product create(Product product) {

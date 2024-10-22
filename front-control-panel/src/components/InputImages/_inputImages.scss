@@ -1,0 +1,82 @@
+.input-image-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 30rem;
+    height: 25rem;
+    background-color: #FAFAFA;
+    & label {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        & img {
+            width: 100%;
+            height: 100%;
+            max-height: 19rem;
+            object-fit: cover;
+            border-radius: 0.625rem;
+        }
+        &-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+            height: 100%;
+            border: 1px dashed #DFE4EC;
+            border-radius: 0.625rem;
+            background-color: white;
+            & img {
+                width: 10rem;
+                height: 10rem;
+            }
+            & span {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'New Order', sans-serif;
+                font-size: 1rem;
+                font-weight: 500;
+                color: #333B3E;
+            }
+        }
+    }
+    & span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'New Order', sans-serif;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333B3E;
+        margin-top: -1rem;
+        margin-bottom: -1rem;
+    }
+    & footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        height: 2.5rem;
+        & button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 10rem;
+            height: 2.5rem;
+            border-radius: 0.625rem;
+            cursor: pointer;
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            & span {
+                font-family: 'New Order', sans-serif;
+                font-size: 1rem;
+                font-weight: 500;
+                color: #FAFAFA;
+            }
+        }
+    }
+}

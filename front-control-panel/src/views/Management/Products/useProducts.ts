@@ -8,6 +8,7 @@ import { Brand } from "../../../interfaces/Brand";
 import { BrandService } from "../../../service/Brands.service";
 import { getFieldValue } from "../../../utils/getFildValue";
 import { maskCurrency, removeMaskCurrency } from "../../../utils/Currencymask";
+import { ImagesService } from "../../../service/Images.service";
 
 type FieldName =
   | "shortDescription"
@@ -33,6 +34,7 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [openImage, setOpenImage] = useState<boolean>(false);
 
   const [fields, setFields] = useState<DynamicField[]>([
     {
@@ -256,6 +258,7 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
     }));
 
     setFields(updatedFields);
+    setSelectedProduct(null);
   };
 
   const handleCloseEdit = () => {
@@ -266,6 +269,47 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
   const handleCancel = () => {
     handleClearFields();
     handleCloseAdd();
+  };
+
+  const uploadImage = async (files: File[] | null) => {
+    if (!files) return;
+
+    const realFiles = files.filter((file) => file.size > 0);
+
+    if (realFiles?.length === 0) return;
+
+    try {
+      const productId = selectedProduct?.id?.toString();
+
+      const uploadPromises = realFiles.map(async (file) => {
+        const formData = new FormData();
+        formData.append("productId", productId as string);
+        formData.append("file", file);
+
+        return await ImagesService.uploadImage(formData);
+      });
+
+      const responses = await Promise.all(uploadPromises);
+
+      const successfulUploads = responses.filter((response) => response?.id);
+
+      if (successfulUploads.length > 0) {
+        handleCloseImageModal();
+        getAllProducts();
+      }
+    } catch (error) {
+      console.error(`Error when uploading images: ${error}`);
+    }
+  };
+
+  const handleOpenImageModal = (row: Product) => {
+    setSelectedProduct(row);
+    setOpenImage(true);
+  };
+
+  const handleCloseImageModal = () => {
+    setOpenImage(false);
+    setSelectedProduct(null);
   };
 
   const handleEditClick = (row: Product) => {
@@ -317,6 +361,7 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
     tableData,
     filteredData,
     setFilteredData,
+    selectedProduct,
     loading,
 
     page,
@@ -327,6 +372,7 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
 
     fields,
     openEdit,
+    openImage,
 
     getAllProducts,
     getAllBrands,
@@ -335,6 +381,9 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
     deleteProduct,
     handleCancel,
     handleCloseEdit,
+    uploadImage,
+    handleOpenImageModal,
+    handleCloseImageModal,
     handleEditClick,
     handleChange,
   };

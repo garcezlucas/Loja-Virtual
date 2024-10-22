@@ -83,6 +83,19 @@
     gap: 1rem;
     align-items: center;
     justify-content: center;
+    &-add{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: #B0C4DE;
+        border-radius: 50%;
+        cursor: pointer;
+        & img {
+            width: 1.5rem;
+        }
+    }
     &-edit{
         display: flex;
         align-items: center;
