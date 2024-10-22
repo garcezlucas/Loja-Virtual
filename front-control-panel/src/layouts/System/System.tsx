@@ -9,6 +9,11 @@ const System: React.FC = () => {
   const { page, parameter } = useParams();
 
   const [renderPage, setRenderPage] = useState<JSX.Element>(<></>);
+  const [showMenu, setShowMenu] = useState<boolean>(true);
+
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
 
   useEffect(() => {
     const newPage = renderRoute(page, parameter);
@@ -17,14 +22,15 @@ const System: React.FC = () => {
   }, [page, parameter]);
 
   return (
-    <div className="system-container">
+    <div className={`system-container${!showMenu ? '-allMain' : ''}`}>
       <header>
-        <Header />
+        <Header toggleMenu={toggleMenu} />
       </header>
-      <aside>
-        <Menu />
-      </aside>
-
+      {showMenu && (
+        <aside>
+          <Menu />
+        </aside>
+      )}
       <main>{renderPage}</main>
     </div>
   );

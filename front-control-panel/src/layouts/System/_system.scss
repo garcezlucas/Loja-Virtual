@@ -19,4 +19,14 @@
     & main {
         grid-area: main;
     }
+    &-allMain {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #DDDEE5;
+        gap: 1rem;
+        & main {
+            height: 100%;
+        }
+    }
 }
