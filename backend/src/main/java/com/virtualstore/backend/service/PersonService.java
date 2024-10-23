@@ -3,9 +3,9 @@ package com.virtualstore.backend.service;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.virtualstore.backend.Validators.PersonExistenceService;
 import com.virtualstore.backend.Validators.Validator;
 import com.virtualstore.backend.entity.City;
 import com.virtualstore.backend.entity.Person;
@@ -15,23 +15,26 @@ import com.virtualstore.backend.repository.PersonRepository;
 @Service
 public class PersonService {
 
-    private final PersonRepository personRepository;
-    private final CityRepository cityRepository;
-    private final PersonExistenceService personExistenceService;
-    private final Validator<String> cpfValidator;
-    private final Validator<String> emailValidator;
+    @Autowired
+    PersonRepository personRepository;
 
-    public PersonService(PersonRepository personRepository,
-            CityRepository cityRepository,
-            PersonExistenceService personExistenceService,
-            Validator<String> cpfValidator,
-            Validator<String> emailValidator) {
-        this.personRepository = personRepository;
-        this.cityRepository = cityRepository;
-        this.personExistenceService = personExistenceService;
-        this.cpfValidator = cpfValidator;
-        this.emailValidator = emailValidator;
-    }
+    @Autowired
+    PersonPermissionService personPermissionService;
+
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    CityRepository cityRepository;
+
+    @Autowired
+    PersonExistenceService personExistenceService;
+
+    @Autowired
+    Validator<String> cpfValidator;
+
+    @Autowired
+    Validator<String> emailValidator;
 
     public List<Person> getAllPersons() {
         return personRepository.findAll();

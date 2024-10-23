@@ -20,7 +20,6 @@ import com.virtualstore.backend.service.BrandService;
 
 @RestController
 @RequestMapping("/api/brand")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class BrandController {
 
     @Autowired

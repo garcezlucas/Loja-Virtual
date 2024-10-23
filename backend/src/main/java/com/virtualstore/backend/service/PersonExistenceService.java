@@ -1,10 +1,15 @@
-package com.virtualstore.backend.Validators;
+package com.virtualstore.backend.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.virtualstore.backend.repository.PersonRepository;
 
+@Service
 public class PersonExistenceService {
 
-    private final PersonRepository personRepository;
+    @Autowired
+    PersonRepository personRepository;
 
     public PersonExistenceService(PersonRepository personRepository) {
         this.personRepository = personRepository;

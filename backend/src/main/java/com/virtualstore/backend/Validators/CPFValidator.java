@@ -1,5 +1,8 @@
 package com.virtualstore.backend.Validators;
 
+import org.springframework.stereotype.Component;
+
+@Component("cpfValidator")
 public class CPFValidator implements Validator<String> {
     private static final String CPF_PATTERN = "\\d{11}";
 

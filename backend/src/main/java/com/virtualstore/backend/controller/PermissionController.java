@@ -20,7 +20,6 @@ import com.virtualstore.backend.service.PermissionService;
 
 @RestController
 @RequestMapping("/api/permission")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class PermissionController {
 
     @Autowired

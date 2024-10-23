@@ -2,6 +2,8 @@ package com.virtualstore.backend.entity;
 
 import java.util.Date;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -18,7 +20,7 @@ import lombok.Data;
 @Entity
 @Table(name = "person_permission")
 @Data
-public class PersonPermission {
+public class PersonPermission implements GrantedAuthority{
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,4 +40,9 @@ public class PersonPermission {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;
+
+    @Override
+    public String getAuthority() {
+        return permission.getName();
+    }
 }

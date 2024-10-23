@@ -4,9 +4,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.virtualstore.backend.Validators.PersonExistenceService;
 import com.virtualstore.backend.Validators.Validator;
 import com.virtualstore.backend.dto.PersonClientRequestDTO;
 import com.virtualstore.backend.entity.City;
@@ -17,29 +18,28 @@ import com.virtualstore.backend.repository.PersonClientRepository;
 @Service
 public class PersonClientService {
 
-    private final PersonClientRepository personClientRepository;
-    private final PersonPermissionService personPermissionService;
-    private final EmailService emailService;
-    private final CityRepository cityRepository;
-    private final PersonExistenceService personExistenceService;
-    private final Validator<String> cpfValidator;
-    private final Validator<String> emailValidator;
+    @Autowired
+    PersonClientRepository personClientRepository;
 
-    public PersonClientService(PersonClientRepository personClientRepository,
-            PersonPermissionService personPermissionService,
-            EmailService emailService,
-            CityRepository cityRepository,
-            PersonExistenceService personExistenceService,
-            Validator<String> cpfValidator,
-            Validator<String> emailValidator) {
-        this.personClientRepository = personClientRepository;
-        this.personPermissionService = personPermissionService;
-        this.emailService = emailService;
-        this.cityRepository = cityRepository;
-        this.personExistenceService = personExistenceService;
-        this.cpfValidator = cpfValidator;
-        this.emailValidator = emailValidator;
-    }
+    @Autowired
+    PersonPermissionService personPermissionService;
+
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    CityRepository cityRepository;
+
+    @Autowired
+    PersonExistenceService personExistenceService;
+
+    @Autowired
+    @Qualifier("cpfValidator") 
+    Validator<String> cpfValidator;
+
+    @Autowired
+    @Qualifier("emailValidator")
+    Validator<String> emailValidator;
 
     public Person create(PersonClientRequestDTO personClientRequestDTO) {
 
@@ -68,7 +68,8 @@ public class PersonClientService {
         properties.put("name", newPerson.getName());
         properties.put("email", newPerson.getEmail());
 
-        emailService.sendTemplateEmail(newPerson.getEmail(), "Cadastro na Loja Virtual", properties, "email-register-user.flth");
+        emailService.sendTemplateEmail(newPerson.getEmail(), "Cadastro na Loja Virtual", properties,
+                "email-register-user.flth");
 
         return newPerson;
     }

@@ -22,8 +22,6 @@ import com.virtualstore.backend.service.ProductImageService;
 
 @RestController
 @RequestMapping("/api/image")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
-        RequestMethod.DELETE })
 public class ProductImageController {
 
     @Autowired

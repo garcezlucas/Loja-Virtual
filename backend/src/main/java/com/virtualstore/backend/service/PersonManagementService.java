@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
@@ -22,6 +23,9 @@ public class PersonManagementService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public String requestCode(String email) {
 
         Person person = personRepository.findByEmail(email);
@@ -34,15 +38,13 @@ public class PersonManagementService {
 
         personRepository.saveAndFlush(person);
 
-        //emailService.sendTextEmail(person.getEmail(), "Código de Recuperação de Senha",
-                //"Olá, o seu código de recuperação de senha é: " + recoveryCode);
-
-                Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
 
         properties.put("name", person.getName());
         properties.put("recoveryCode", recoveryCode);
 
-        emailService.sendTemplateEmail(person.getEmail(), "Código de Recuperação de Senha", properties, "email-recovery-code.flth");
+        emailService.sendTemplateEmail(person.getEmail(), "Código de Recuperação de Senha", properties,
+                "email-recovery-code.flth");
 
         return "Código enviado!";
     }
@@ -63,7 +65,7 @@ public class PersonManagementService {
         Boolean expireTime = variation.getTime() / 1000 < 900;
 
         if (expireTime) {
-            personDb.setPassword(personRequestPassword);
+            personDb.setPassword(passwordEncoder.encode(personRequestPassword));
             personDb.setRecoverPasswordCode(null);
             personRepository.saveAndFlush(personDb);
 

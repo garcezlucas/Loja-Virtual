@@ -2,6 +2,9 @@ package com.virtualstore.backend.Validators;
 
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Component;
+
+@Component("emailValidator")
 public class EmailValidator implements Validator<String> {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
