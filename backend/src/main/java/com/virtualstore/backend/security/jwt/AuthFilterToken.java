@@ -1,4 +1,4 @@
-package com.virtualstore.backend.security;
+package com.virtualstore.backend.security.jwt;
 
 import java.io.IOException;
 

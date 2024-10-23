@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
 import com.virtualstore.backend.entity.Person;
-import com.virtualstore.backend.security.JwtUtil;
+import com.virtualstore.backend.security.jwt.JwtUtil;
 import com.virtualstore.backend.service.PersonManagementService;
 
 import org.springframework.web.bind.annotation.PostMapping;
