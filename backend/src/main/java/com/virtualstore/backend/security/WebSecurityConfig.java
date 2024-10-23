@@ -43,6 +43,7 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/management/**").permitAll()
+                        .requestMatchers("/api/person/**").hasAuthority("gerente")
                         .anyRequest().authenticated());
 
         http.addFilterBefore(authFilterToken(), UsernamePasswordAuthenticationFilter.class);

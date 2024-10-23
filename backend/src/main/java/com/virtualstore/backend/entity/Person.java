@@ -10,6 +10,7 @@ import java.util.Date;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -53,7 +54,7 @@ public class Person implements UserDetails {
     @JoinColumn(name = "idCity")
     private City city;
 
-    @OneToMany(mappedBy = "person", orphanRemoval = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @OneToMany(mappedBy = "person", orphanRemoval = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @Setter(value = AccessLevel.NONE)
     private List<PersonPermission> personPermissions;
 

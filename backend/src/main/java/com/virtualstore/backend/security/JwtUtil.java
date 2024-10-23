@@ -1,12 +1,12 @@
 package com.virtualstore.backend.security;
 
+import java.util.Base64;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.virtualstore.backend.entity.Person;
@@ -20,8 +20,7 @@ import io.jsonwebtoken.security.SignatureException;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private String secretKey = "4pJxhJ3pe8kTamQUCJ1oVs3nBHHS13b7bhxHChm5jf4=";
 
     private int tokenValidity = 900000;
 
@@ -31,7 +30,7 @@ public class JwtUtil {
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expirationDate = new Date(issuedAt.getTime() + tokenValidity);
 
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
 
         return Jwts.builder()
                 .subject(person.getUsername())
@@ -42,7 +41,7 @@ public class JwtUtil {
     }
 
     public String getEmailToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
 
         return Jwts.parser()
                 .verifyWith(key)
@@ -54,7 +53,7 @@ public class JwtUtil {
 
     public boolean tokenValidation(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+            SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
 
             Jwts.parser()
                     .verifyWith(key)
