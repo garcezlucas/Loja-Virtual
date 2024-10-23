@@ -1,6 +1,11 @@
 package com.virtualstore.backend.entity;
 
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 import java.util.Date;
 
 import jakarta.persistence.CascadeType;
@@ -21,7 +26,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "person")
 @Data
-public class Person {
+public class Person implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -59,9 +64,19 @@ public class Person {
     private Date updateDate;
 
     public void setPersonPermissions(List<PersonPermission> pp) {
-        for (PersonPermission p:pp) {
+        for (PersonPermission p : pp) {
             p.setPerson(this);
         }
         this.personPermissions = pp;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return personPermissions;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 }
