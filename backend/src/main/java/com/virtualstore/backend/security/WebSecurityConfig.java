@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.virtualstore.backend.security.jwt.AuthEntryPointJwt;
-import com.virtualstore.backend.security.jwt.AuthFilterToken;
+import com.virtualstore.backend.security.jwt.AuthTokenFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -27,8 +27,8 @@ public class WebSecurityConfig {
     private AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
-    public AuthFilterToken authFilterToken() {
-        return new AuthFilterToken();
+    public AuthTokenFilter authTokenFilter() {
+        return new AuthTokenFilter();
     }
 
     @Bean
@@ -55,7 +55,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/person/**").hasAuthority("gerente")
                         .anyRequest().authenticated());
 
-        http.addFilterBefore(authFilterToken(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

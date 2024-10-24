@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
-import com.virtualstore.backend.dto.TokenResponseDTO;
 import com.virtualstore.backend.entity.Person;
-import com.virtualstore.backend.entity.RefreshToken;
 import com.virtualstore.backend.security.jwt.JwtUtil;
 import com.virtualstore.backend.service.PersonManagementService;
 import com.virtualstore.backend.service.RefreshTokenService;
@@ -64,11 +62,11 @@ public class PersonManagementController {
 
         String accessToken = jwtUtil.generateTokenUsername(authenticatedPerson);
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authenticatedPerson);
+        refreshTokenService.createRefreshToken(authenticatedPerson);
 
-        TokenResponseDTO tokenResponse = new TokenResponseDTO(accessToken, refreshToken.getToken());
+        accessToken = "Bearer " + accessToken;
 
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(accessToken);
     }
 
 }
