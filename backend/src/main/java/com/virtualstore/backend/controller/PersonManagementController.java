@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.virtualstore.backend.dto.LoginResponseDTO;
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
 import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.security.jwt.JwtUtil;
@@ -66,7 +67,7 @@ public class PersonManagementController {
 
         accessToken = "Bearer " + accessToken;
 
-        return ResponseEntity.ok(accessToken);
+        return ResponseEntity.ok(new LoginResponseDTO(accessToken));
     }
 
 }
