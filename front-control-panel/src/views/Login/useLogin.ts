@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { DynamicField } from "../../components/DynamicForm/DynamicForm";
 import { emailValidator } from "../../utils/emailValidator";
+import { ManagementService } from "../../service/Management.service";
+import { getFieldValue } from "../../utils/getFildValue";
 
 interface useLoginFormProps {
-    navigate: (path: string) => void;
+  navigate: (path: string) => void;
 }
 
-export function useLoginForm({navigate}: useLoginFormProps) {
+export function useLoginForm({ navigate }: useLoginFormProps) {
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "E-mail*",
@@ -14,7 +16,7 @@ export function useLoginForm({navigate}: useLoginFormProps) {
       type: "email",
       value: "",
       validationRules: { required: false, message: "Insira um email válido" },
-      customValidator: emailValidator
+      customValidator: emailValidator,
     },
     {
       label: "Senha*",
@@ -27,7 +29,21 @@ export function useLoginForm({navigate}: useLoginFormProps) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    navigate('/system/dashboard')
+    try {
+      const email = getFieldValue(fields, "email") as string;
+      const password = getFieldValue(fields, "password") as string;
+
+      const user = { email, password };
+
+      const response = await ManagementService.login(user);
+
+      if (response.accessToken) {
+        localStorage.setItem("cookies", response.accessToken);
+        navigate("/system/dashboard");
+      }
+    } catch (error) {
+      console.error(`Error in realize login: ${error}`);
+    }
   };
 
   const handleClearFields = () => {
