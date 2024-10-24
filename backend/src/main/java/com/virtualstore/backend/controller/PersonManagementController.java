@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/management")
-
 public class PersonManagementController {
 
     @Autowired

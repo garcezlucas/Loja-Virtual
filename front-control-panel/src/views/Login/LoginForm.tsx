@@ -12,12 +12,12 @@ const LoginForm: React.FC = () => {
   return (
     <div className="loginForm-container">
       <div className="loginForm-container-fix">
-        <header>Seja bem-vindo à Loja Virtual</header>
+        <header>Seja bem-vindo</header>
         <br />
         <p>
-          Para acessar o sistema,
+          Para acessar o painel de controle,
           <br />
-          por favor, insira seu e-mail e senha.
+          por favor, insira suas credenciais.
         </p>
         <DynamicForm
           title=""
