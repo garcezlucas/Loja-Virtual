@@ -10,9 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
+import com.virtualstore.backend.dto.TokenResponseDTO;
 import com.virtualstore.backend.entity.Person;
-import com.virtualstore.backend.security.JwtUtil;
+import com.virtualstore.backend.entity.RefreshToken;
+import com.virtualstore.backend.security.jwt.JwtUtil;
 import com.virtualstore.backend.service.PersonManagementService;
+import com.virtualstore.backend.service.RefreshTokenService;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +32,10 @@ public class PersonManagementController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     @PostMapping("/password-code")
     public String recoveryCode(@RequestBody Person person) {
@@ -55,9 +62,13 @@ public class PersonManagementController {
 
         Person authenticatedPerson = (Person) authentication.getPrincipal();
 
-        String token = jwtUtil.generateTokenUsername(authenticatedPerson);
+        String accessToken = jwtUtil.generateTokenUsername(authenticatedPerson);
 
-        return ResponseEntity.ok(token);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authenticatedPerson);
+
+        TokenResponseDTO tokenResponse = new TokenResponseDTO(accessToken, refreshToken.getToken());
+
+        return ResponseEntity.ok(tokenResponse);
     }
 
 }
