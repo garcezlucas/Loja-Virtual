@@ -1,7 +1,11 @@
 async function FetchRequest(endpoint: string, options?: RequestInit) {
   const baseURL = process.env.REACT_APP_URL_API;
 
-  const headers = new Headers();
+  const token = localStorage.getItem("cookies");
+
+  const headers = new Headers({
+    Authorization: token ? `Bearer ${token}` : "",
+  });
 
   if (options?.headers) {
     const additionalHeaders = options.headers as Record<string, string>;
@@ -22,6 +26,10 @@ async function FetchRequest(endpoint: string, options?: RequestInit) {
   });
 
   const contentType = response.headers.get("content-type");
+  const newToken = response.headers.get("Authorization");
+
+  if (newToken) localStorage.setItem("cookies", newToken);
+
   if (contentType && contentType.includes("application/json")) {
     return response.json();
   } else {

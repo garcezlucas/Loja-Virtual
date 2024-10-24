@@ -3,7 +3,7 @@ import FetchRequest from "../api/apiFetch";
 export class ManagementService {
   public static async login(user: { email: string; password: string }) {
     try {
-      const url = `api/login/`;
+      const url = `api/management/login`;
 
       return await FetchRequest(url, {
         method: "POST",
