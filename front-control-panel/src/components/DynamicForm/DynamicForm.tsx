@@ -2,8 +2,6 @@ import "./_dynamicForm.scss";
 import React from "react";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import CustomSelect from "../Select/Select";
-import VisibleEye from "../../assets/icons/eye-visible-show.svg";
-import HideEye from "../../assets/icons/eye-visible-hide.svg";
 import { useDynamicForm } from "./useDynamicForm";
 
 export interface ValidationRules {
@@ -33,11 +31,6 @@ interface DynamicFormProps {
   handleSubmit: (event: React.FormEvent) => Promise<void>;
   handleCancel?: () => void;
   handleChange: (name: string, value: string | number | string[]) => void;
-  labelColor?: string;
-  titleSubmitButton?: string;
-  colorSubmitButton?: string;
-  titleCancelButton?: string;
-  colorCancelButton?: string;
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
@@ -46,20 +39,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   handleSubmit,
   handleCancel,
   handleChange,
-  labelColor,
-  titleSubmitButton,
-  colorSubmitButton,
-  titleCancelButton,
-  colorCancelButton,
 }) => {
   const {
     touched,
-    visiblePassword,
 
     validateField,
     isFormValid,
     handleOnBlur,
-    togglePasswordVisibility,
   } = useDynamicForm({ fields });
 
   return (
@@ -74,41 +60,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 key={field.name}
                 className="dynamicForm-container-form-group"
               >
-                <label htmlFor={field.name} style={{ color: labelColor }}>
-                  {field.label}
-                </label>
+                <label htmlFor={field.name}>{field.label}</label>
                 {field.type !== "select" && field.type !== "multi-select" ? (
-                  <div className="dynamicForm-container-form-group-input">
-                    <input
-                      type={
-                        field.type === "password" &&
-                        !visiblePassword[field.name]
-                          ? "password"
-                          : "text"
-                      }
-                      id={field.name}
-                      value={field.value}
-                      onChange={(e) => handleChange(field.name, e.target.value)}
-                      onBlur={() => handleOnBlur(field.name)}
-                      required={field.validationRules?.required}
-                      minLength={field.validationRules?.minLength}
-                      maxLength={field.validationRules?.maxLength}
-                      className={isValid ? "valid" : "invalid"}
-                    />
-                    {field.type === "password" && (
-                      <button
-                        type="button"
-                        onClick={() => togglePasswordVisibility(field.name)}
-                        className="toggle-password-visibility"
-                      >
-                        {visiblePassword[field.name] ? (
-                          <img src={HideEye} alt="hide" />
-                        ) : (
-                          <img src={VisibleEye} alt="show" />
-                        )}
-                      </button>
-                    )}
-                  </div>
+                  <input
+                    type={field.type}
+                    id={field.name}
+                    value={field.value}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    onBlur={() => handleOnBlur(field.name)}
+                    required={field.validationRules?.required}
+                    minLength={field.validationRules?.minLength}
+                    maxLength={field.validationRules?.maxLength}
+                    className={isValid ? "valid" : "invalid"}
+                  />
                 ) : field.type === "select" ? (
                   <CustomSelect
                     field={field}
@@ -139,26 +103,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 type="button"
                 onClick={handleCancel}
                 style={{
-                  backgroundColor: colorCancelButton
-                    ? colorCancelButton
-                    : "#FF0000",
+                  backgroundColor: "#FF0000",
                 }}
               >
-                <span>
-                  {titleCancelButton ? titleCancelButton : "Cancelar"}
-                </span>
+                <span>Cancelar</span>
               </button>
             )}
             <button
               type="submit"
               style={{
-                backgroundColor: colorSubmitButton
-                  ? colorSubmitButton
-                  : "#3CB371",
+                backgroundColor: "#3CB371",
               }}
               disabled={!isFormValid()}
             >
-              <span>{titleSubmitButton ? titleSubmitButton : "Enviar"}</span>
+              <span>Enviar</span>
             </button>
           </div>
         </form>

@@ -62,11 +62,12 @@ public class EmailService {
         }
     }
 
-    public String getContentFromTemplate (Map<String, Object> properties, String template) {
+    public String getContentFromTemplate(Map<String, Object> properties, String template) {
         StringBuffer content = new StringBuffer();
 
         try {
-            content.append(FreeMarkerTemplateUtils.processTemplateIntoString(fmConfiguration.getTemplate(template), properties));
+            content.append(FreeMarkerTemplateUtils.processTemplateIntoString(fmConfiguration.getTemplate(template),
+                    properties));
         } catch (Exception e) {
             e.printStackTrace();
         }

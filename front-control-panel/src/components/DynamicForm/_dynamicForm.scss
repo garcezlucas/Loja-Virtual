@@ -30,37 +30,22 @@
         color: #333B3E;
         margin-left: 0.5rem;
       }
-      &-input {
-        position: relative;
-        & input {
-          width: 92%;
-          height: 1rem;
-          padding: 1rem;
-          border-radius: 0.625rem;
+      & input {
+        width: 92%;
+        height: 1rem;
+        padding: 1rem;
+        border-radius: 0.625rem;
 
-          font-family: New Order;
-          font-size: 1rem;
-          font-weight: 500;
-          color: #333B3E;
-          
-          &.invalid {
-            border: 1px solid red !important;
-          }
-          &.valid {
-            border: 2px solid #DFE4EC;
-          }
+        font-family: New Order;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333B3E;
+        
+        &.invalid {
+          border: 1px solid red !important;
         }
-        & button {
-          position: absolute;
-          right: 1rem;
-          bottom: 0.5rem;
-          background-color: transparent;
-          cursor: pointer;
-          & img {
-            width: 2rem;
-            height: 2rem;
-            opacity: 0.5;
-          }
+        &.valid {
+          border: 2px solid #DFE4EC;
         }
       }
       &-error-message {

@@ -2,35 +2,34 @@ import { ChangeEvent, useState } from "react";
 import { ManagementService } from "../../service/Management.service";
 import { emailValidator } from "../../utils/emailValidator";
 
-interface useLoginFormProps {
+interface useRecoveryPasswordProps {
   navigate: (path: string) => void;
 }
 
-export function useLoginForm({ navigate }: useLoginFormProps) {
+export function useRecoveryPassword({ navigate }: useRecoveryPasswordProps) {
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
   const [isValid, setIsValid] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
     setLoading(true);
 
     try {
-      const user = { email, password };
+      const valid = emailValidator(email);
+      setIsValid(valid);
 
-      const response = await ManagementService.login(user);
+      if (!valid) return;
 
-      if (response.accessToken) {
-        localStorage.setItem("cookies", response.accessToken);
-        navigate("/system/dashboard");
+      const response = await ManagementService.getCodeAccess(email);
+
+      if (response) {
+        navigate("/login");
       }
     } catch (error) {
-      console.error(`Error in realize login: ${error}`);
+      console.error(`Error in solicit new code: ${error}`);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -44,25 +43,14 @@ export function useLoginForm({ navigate }: useLoginFormProps) {
     setIsValid(valid);
   };
 
-  const handlePassword = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
-
-  const togglePassword = () => {
-    setVisiblePassword(!visiblePassword);
-  };
-
   return {
     email,
-    password,
-    visiblePassword,
     isValid,
+    setIsValid,
     loading,
 
     handleSubmit,
     handleEmail,
     handleEmailBlur,
-    handlePassword,
-    togglePassword,
   };
 }

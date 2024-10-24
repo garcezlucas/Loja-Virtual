@@ -7,9 +7,6 @@ export interface useDynamicFormProps {
 
 export function useDynamicForm({ fields }: useDynamicFormProps) {
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
-  const [visiblePassword, setVisiblePassword] = useState<{
-    [key: string]: boolean;
-  }>({});
 
   const validateField = (field: DynamicField): boolean => {
     const { type, value, validationRules, customValidator } = field;
@@ -72,20 +69,11 @@ export function useDynamicForm({ fields }: useDynamicFormProps) {
     setTouched((prev) => ({ ...prev, [fieldName]: true }));
   };
 
-  const togglePasswordVisibility = (fieldName: string) => {
-    setVisiblePassword((prev) => ({
-      ...prev,
-      [fieldName]: !prev[fieldName],
-    }));
-  };
-
   return {
     touched,
-    visiblePassword,
 
     validateField,
     isFormValid,
     handleOnBlur,
-    togglePasswordVisibility,
   };
 }
