@@ -1,4 +1,4 @@
-package com.virtualstore.backend.security;
+package com.virtualstore.backend.security.jwt;
 
 import java.util.Base64;
 import java.util.Date;
@@ -7,10 +7,12 @@ import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.virtualstore.backend.entity.Person;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -20,9 +22,14 @@ import io.jsonwebtoken.security.SignatureException;
 @Component
 public class JwtUtil {
 
-    private String secretKey = "4pJxhJ3pe8kTamQUCJ1oVs3nBHHS13b7bhxHChm5jf4=";
+    @Value("${lojavirtual.app.jwtSecret}")
+    private String secretKey;
 
-    private int tokenValidity = 900000;
+    @Value("${lojavirtual.app.jwtExpirationMs}")
+    private int tokenValidity;
+
+    @Value("${lojavirtual.app.refreshExpirationMs}")
+    private int jwtRefreshExpirationMs;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
@@ -51,6 +58,23 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    public String getEmailFromExpiredToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
+
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public boolean tokenValidation(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
@@ -71,4 +95,23 @@ public class JwtUtil {
         return false;
     }
 
+    public boolean isTokenExpired(String token) {
+        Date expirationDate = getExpirationDateFromToken(token);
+        return expirationDate.before(new Date());
+    }
+
+    private Date getExpirationDateFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
+
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getExpiration();
+    }
+
+    public int getRefreshExpirationMs() {
+        return jwtRefreshExpirationMs;
+    }
 }
