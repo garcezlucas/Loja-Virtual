@@ -7,12 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.virtualstore.backend.dto.LoginResponseDTO;
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
 import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.repository.PersonRepository;
+import com.virtualstore.backend.security.jwt.JwtUtil;
 
 @Service
 public class PersonManagementService {
@@ -25,6 +32,15 @@ public class PersonManagementService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     public String requestCode(String email) {
 
@@ -40,8 +56,10 @@ public class PersonManagementService {
 
         Map<String, Object> properties = new HashMap<>();
 
+        String linkRecoveryCode = "http://localhost:3000/new-password?email=" + email + "&code=" + recoveryCode;
+
         properties.put("name", person.getName());
-        properties.put("recoveryCode", recoveryCode);
+        properties.put("recoveryCode", linkRecoveryCode);
 
         emailService.sendTemplateEmail(person.getEmail(), "Código de Recuperação de Senha", properties,
                 "email-recovery-code.flth");
@@ -72,10 +90,30 @@ public class PersonManagementService {
             emailService.sendTextEmail(personRequestEmail, "Alteração de Senha",
                     "Olá, a sua  senha foi alterada com sucesso!");
 
-            return "Senha alterado com sucesso!";
+            return "Senha alterada com sucesso!";
         } else {
             return "Tempo Expirado, solicite um novo código";
         }
+    }
+
+    public ResponseEntity<?> login(Person person) {
+        String email = person.getEmail();
+        String password = person.getPassword();
+
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(email, password));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Person authenticatedPerson = (Person) authentication.getPrincipal();
+
+        String accessToken = jwtUtil.generateTokenUsername(authenticatedPerson);
+
+        refreshTokenService.createRefreshToken(authenticatedPerson);
+
+        accessToken = "Bearer " + accessToken;
+
+        return ResponseEntity.ok(new LoginResponseDTO(accessToken));
     }
 
     private String getRecoverPasswordCode(Long id) {
