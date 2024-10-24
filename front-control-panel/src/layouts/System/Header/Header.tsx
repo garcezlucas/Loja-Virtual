@@ -1,3 +1,4 @@
+import React, { useEffect, useRef, useState } from "react";
 import "./_header.scss";
 import StoreIcon from "../../../assets/icons/store-shop.svg";
 import MenuIcon from "../../../assets/icons/menu.svg";
@@ -17,29 +18,86 @@ const IconButton: React.FC<IconButtonProps> = ({ src, alt, onClick }) => (
   </button>
 );
 
-const HEADER_CONFIG = [
-  {
-    icon: CalendarIcon,
-    alt: "Calendar",
-    onClick: () => console.log("Calendar clicked"),
-  },
-  {
-    icon: ConfigIcon,
-    alt: "Configuration",
-    onClick: () => console.log("Configuration clicked"),
-  },
-  {
-    icon: UserIcon,
-    alt: "User",
-    onClick: () => console.log("User clicked"),
-  },
-];
+interface DropdownItem {
+  label: string;
+  onClick: () => void;
+}
+
+const Dropdown: React.FC<{ items: DropdownItem[] }> = ({ items }) => (
+  <ul className="dropdown">
+    {items.map((item, index) => (
+      <li key={index} onClick={item.onClick}>
+        {item.label}
+      </li>
+    ))}
+  </ul>
+);
 
 interface HeaderProps {
   toggleMenu: () => void;
+  logout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ toggleMenu }) => {
+const Header: React.FC<HeaderProps> = ({ toggleMenu, logout }) => {
+  const [visibleDropdownIndex, setVisibleDropdownIndex] = useState<
+    number | null
+  >(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const HEADER_CONFIG = [
+    {
+      icon: CalendarIcon,
+      alt: "Calendar",
+      dropdownItems: [
+        { label: "Event 1", onClick: () => console.log("Event 1 clicked") },
+        { label: "Event 2", onClick: () => console.log("Event 2 clicked") },
+        { label: "Event 3", onClick: () => console.log("Event 3 clicked") },
+      ],
+    },
+    {
+      icon: ConfigIcon,
+      alt: "Configuration",
+      dropdownItems: [
+        { label: "Config 1", onClick: () => console.log("Config 1 clicked") },
+        { label: "Config 2", onClick: () => console.log("Config 2 clicked") },
+        { label: "Config 3", onClick: () => console.log("Config 3 clicked") },
+      ],
+    },
+    {
+      icon: UserIcon,
+      alt: "User",
+      dropdownItems: [
+        { label: "Perfil", onClick: () => console.log("Perfil clicked") },
+        {
+          label: "Configurações",
+          onClick: () => console.log("Configurações clicked"),
+        },
+        { label: "Logout", onClick: () => logout() },
+      ],
+    },
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setVisibleDropdownIndex(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  const toggleDropdown = (index: number) => {
+    setVisibleDropdownIndex(visibleDropdownIndex === index ? null : index);
+  };
+
   return (
     <header className="header-container">
       <div className="header-container-fix">
@@ -55,12 +113,20 @@ const Header: React.FC<HeaderProps> = ({ toggleMenu }) => {
         </div>
         <div className="header-container-configs">
           {HEADER_CONFIG.map((item, index) => (
-            <IconButton
+            <div
+              className="header-container-configs-dropdown-container"
               key={index}
-              src={item.icon}
-              alt={item.alt}
-              onClick={item.onClick}
-            />
+              ref={dropdownRef}
+            >
+              <IconButton
+                src={item.icon}
+                alt={item.alt}
+                onClick={() => toggleDropdown(index)}
+              />
+              {visibleDropdownIndex === index && (
+                <Dropdown items={item.dropdownItems} />
+              )}
+            </div>
           ))}
         </div>
       </div>
