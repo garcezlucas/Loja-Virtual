@@ -4,7 +4,7 @@ async function FetchRequest(endpoint: string, options?: RequestInit) {
   const token = localStorage.getItem("cookies");
 
   const headers = new Headers({
-    Authorization: token ? `Bearer ${token}` : "",
+    Authorization: token ? token : "",
   });
 
   if (options?.headers) {
