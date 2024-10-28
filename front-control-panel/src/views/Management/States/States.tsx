@@ -29,6 +29,7 @@ const States: React.FC<StatesProps> = ({
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -43,6 +44,7 @@ const States: React.FC<StatesProps> = ({
     handleSubmit,
     deleteState,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,
@@ -145,6 +147,22 @@ const States: React.FC<StatesProps> = ({
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
+      </Modal>
+
+      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
+        <div className="modal-response-container">
+          <header>{requestResponse.title}</header>
+          <img src={requestResponse.icon} alt={requestResponse.title} />
+          <p>{requestResponse.message}</p>
+          <button
+            style={{
+              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
+            }}
+            onClick={handleClearRequestResponse}
+          >
+            <span>Fechar</span>
+          </button>
+        </div>
       </Modal>
     </div>
   );
