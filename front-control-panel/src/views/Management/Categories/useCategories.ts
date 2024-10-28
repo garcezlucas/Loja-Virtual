@@ -4,6 +4,9 @@ import { Category } from "../../../interfaces/Category";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
 import { getFieldValue } from "../../../utils/getFildValue";
 
+import SuccessIcon from '../../../assets/icons/success.svg';
+import ErrorIcon from '../../../assets/icons/error.svg';
+
 interface useCategoriesProps {
   handleCloseAdd: () => void;
 }
@@ -32,6 +35,14 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
       validationRules: { required: true, message: "Nome é obrigatório" },
     },
   ]);
+  
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
 
   const getAllCategories = async () => {
     try {
@@ -65,9 +76,23 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllCategories();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate category : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -84,9 +109,23 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllCategories();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update category : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -107,6 +146,16 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
     }));
 
     setFields(updatedFields);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -154,6 +203,7 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -168,6 +218,7 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
     handleSubmit,
     deleteCategory,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,
