@@ -2,7 +2,10 @@ import { useState } from "react";
 import { StatesService } from "../../../service/States.service";
 import { State } from "../../../interfaces/State";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
+
+import SuccessIcon from '../../../assets/icons/success.svg';
+import ErrorIcon from '../../../assets/icons/error.svg';
 
 type FieldName = "name" | "acronym";
 
@@ -40,6 +43,14 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
     },
   ]);
 
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
+
   const getAllStates = async () => {
     try {
       const response = await StatesService.getAllStates();
@@ -74,10 +85,23 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllStates();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate state : ${error}`);
-    } finally {
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -96,9 +120,23 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllStates();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update state : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -119,6 +157,16 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
     }));
 
     setFields(updatedFields);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -171,6 +219,7 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -185,6 +234,7 @@ export function useStates({ handleCloseAdd }: useStatesProps) {
     handleSubmit,
     deleteState,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,

@@ -6,11 +6,14 @@ import { CitiesService } from "../../../service/Cities.service";
 import { City } from "../../../interfaces/City";
 import { Permission } from "../../../interfaces/Permission";
 import { PermissionsService } from "../../../service/Permissions.service";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
 import { cpfValidator } from "../../../utils/cpfValidator";
 import { emailValidator } from "../../../utils/emailValidator";
+
+import SuccessIcon from "../../../assets/icons/success.svg";
+import ErrorIcon from "../../../assets/icons/error.svg";
 
 type FieldName =
   | "name"
@@ -62,7 +65,7 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
       type: "email",
       value: "",
       validationRules: { required: true, message: "Insira um email válido" },
-      customValidator: emailValidator
+      customValidator: emailValidator,
     },
     {
       label: "Endereço*",
@@ -99,6 +102,14 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
       },
     },
   ]);
+
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
 
   const getAllCollaborators = async () => {
     try {
@@ -214,10 +225,23 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllCollaborators();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate collaborator: ${error}`);
-    } finally {
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -252,9 +276,23 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllCollaborators();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update collaborator: ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -275,6 +313,16 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
     }));
 
     setFields(updatedFields);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -356,6 +404,7 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -372,6 +421,7 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
     handleSubmit,
     deleteState,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,

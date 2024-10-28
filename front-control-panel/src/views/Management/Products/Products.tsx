@@ -14,7 +14,7 @@ import DeleteIcon from "../../../assets/icons/delete.svg";
 import AddPhotoIcon from "../../../assets/icons/add-photo.svg";
 
 import { filterShortDescriptionDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
-import { maskCurrency } from "../../../utils/Currencymask";
+import { maskCurrency } from "../../../utils/CurrencyMask";
 import { Image } from "../../../interfaces/Image";
 import Carousel from "../../../components/Carosel/Carousel";
 
@@ -35,6 +35,7 @@ const Products: React.FC<ProductsProps> = ({
     setFilteredData,
     selectedProduct,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -52,6 +53,7 @@ const Products: React.FC<ProductsProps> = ({
     handleSubmit,
     deleteProduct,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     uploadImage,
     handleOpenImageModal,
@@ -230,6 +232,22 @@ const Products: React.FC<ProductsProps> = ({
           onImageUpload={uploadImage}
           initialImages={initialImages}
         />
+      </Modal>
+
+      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
+        <div className="modal-response-container">
+          <header>{requestResponse.title}</header>
+          <img src={requestResponse.icon} alt={requestResponse.title} />
+          <p>{requestResponse.message}</p>
+          <button
+            style={{
+              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
+            }}
+            onClick={handleClearRequestResponse}
+          >
+            <span>Fechar</span>
+          </button>
+        </div>
       </Modal>
     </div>
   );

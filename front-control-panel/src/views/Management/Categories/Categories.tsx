@@ -29,6 +29,7 @@ const Categories: React.FC<CategoriesProps> = ({
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -43,6 +44,7 @@ const Categories: React.FC<CategoriesProps> = ({
     handleSubmit,
     deleteCategory,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,
@@ -118,7 +120,7 @@ const Categories: React.FC<CategoriesProps> = ({
     totalItems,
     heightTable,
     loading,
-    heightLoading
+    heightLoading,
   };
 
   return (
@@ -143,6 +145,22 @@ const Categories: React.FC<CategoriesProps> = ({
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
+      </Modal>
+
+      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
+        <div className="modal-response-container">
+          <header>{requestResponse.title}</header>
+          <img src={requestResponse.icon} alt={requestResponse.title} />
+          <p>{requestResponse.message}</p>
+          <button
+            style={{
+              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
+            }}
+            onClick={handleClearRequestResponse}
+          >
+            <span>Fechar</span>
+          </button>
+        </div>
       </Modal>
     </div>
   );

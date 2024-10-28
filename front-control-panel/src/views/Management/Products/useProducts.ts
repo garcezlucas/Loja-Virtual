@@ -6,9 +6,12 @@ import { Category } from "../../../interfaces/Category";
 import { CategoriesService } from "../../../service/Categories.service";
 import { Brand } from "../../../interfaces/Brand";
 import { BrandService } from "../../../service/Brands.service";
-import { getFieldValue } from "../../../utils/getFildValue";
-import { maskCurrency, removeMaskCurrency } from "../../../utils/Currencymask";
+import { getFieldValue } from "../../../utils/getFieldValue";
+import { maskCurrency, removeMaskCurrency } from "../../../utils/CurrencyMask";
 import { ImagesService } from "../../../service/Images.service";
+
+import SuccessIcon from '../../../assets/icons/success.svg';
+import ErrorIcon from '../../../assets/icons/error.svg';
 
 type FieldName =
   | "shortDescription"
@@ -93,6 +96,14 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       },
     },
   ]);
+
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
 
   const getAllProducts = async () => {
     try {
@@ -203,9 +214,23 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllProducts();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate product : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -235,9 +260,23 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllProducts();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update product : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -259,6 +298,16 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
 
     setFields(updatedFields);
     setSelectedProduct(null);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -363,6 +412,7 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
     setFilteredData,
     selectedProduct,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -380,6 +430,7 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
     handleSubmit,
     deleteProduct,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     uploadImage,
     handleOpenImageModal,
