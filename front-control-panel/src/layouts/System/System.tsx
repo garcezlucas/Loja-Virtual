@@ -4,6 +4,7 @@ import { renderRoute } from "./Routes";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "./Header/Header";
 import Menu from "./Menu/Menu";
+import { getFromLocalStorageDecrypted } from "../../utils/encryptStorage";
 
 const System: React.FC = () => {
   const { page, parameter } = useParams();
@@ -11,6 +12,7 @@ const System: React.FC = () => {
 
   const [renderPage, setRenderPage] = useState<JSX.Element>(<></>);
   const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
@@ -26,6 +28,8 @@ const System: React.FC = () => {
 
     const fetchData = async () => {
       const token = localStorage.getItem("cookies");
+      const permissions = await getFromLocalStorageDecrypted("permissions");
+      setPermissions(permissions)
 
       if (!token) {
         logout();
@@ -54,11 +58,11 @@ const System: React.FC = () => {
   return (
     <div className={`system-container${!showMenu ? "-allMain" : ""}`}>
       <header>
-        <Header toggleMenu={toggleMenu} logout={logout} />
+        <Header toggleMenu={toggleMenu} logout={logout} permissions={permissions} />
       </header>
       {showMenu && (
         <aside>
-          <Menu />
+          <Menu permissions={permissions} />
         </aside>
       )}
       <main>{renderPage}</main>

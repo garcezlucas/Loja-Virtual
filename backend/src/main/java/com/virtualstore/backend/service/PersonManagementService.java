@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.virtualstore.backend.dto.LoginResponseDTO;
 import com.virtualstore.backend.dto.PersonPasswordRequestDTO;
 import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.repository.PersonRepository;
@@ -113,7 +112,12 @@ public class PersonManagementService {
 
         accessToken = "Bearer " + accessToken;
 
-        return ResponseEntity.ok(new LoginResponseDTO(accessToken));
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("permissions", authenticatedPerson.getAuthorities());
+        map.put("accessToken", accessToken);
+
+        return ResponseEntity.ok(map);
     }
 
     private String getRecoverPasswordCode(Long id) {

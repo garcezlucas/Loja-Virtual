@@ -9,7 +9,7 @@ import Products from "./Products/Products";
 import Collaborators from "./Collaborators/Collaborators";
 import Consumers from "./Consumers/Consumers";
 import Permissions from "./Permissions/Permissions";
-import { FC, useMemo } from "react";
+import { FC } from "react";
 
 interface ManagementProps {
   parameter:
