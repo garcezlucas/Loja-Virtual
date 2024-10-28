@@ -4,6 +4,9 @@ import { Permission } from "../../../interfaces/Permission";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
 import { getFieldValue } from "../../../utils/getFieldValue";
 
+import SuccessIcon from '../../../assets/icons/success.svg';
+import ErrorIcon from '../../../assets/icons/error.svg';
+
 interface usePermissionsProps {
   handleCloseAdd: () => void;
 }
@@ -31,6 +34,14 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
       validationRules: { required: true, message: "Nome é obrigatório" },
     },
   ]);
+
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
 
   const getAllPermissions = async () => {
     try {
@@ -64,9 +75,23 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllPermissions();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate permission : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -83,9 +108,23 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllPermissions();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update permission : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -106,6 +145,16 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
     }));
 
     setFields(updatedFields);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -153,6 +202,7 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -167,6 +217,7 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
     handleSubmit,
     deletePermission,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,
