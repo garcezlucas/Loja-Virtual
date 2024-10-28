@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import "./_header.scss";
 import StoreIcon from "../../../assets/icons/store-shop.svg";
 import MenuIcon from "../../../assets/icons/menu.svg";
-import CalendarIcon from "../../../assets/icons/calendar.svg";
-import ConfigIcon from "../../../assets/icons/configs.svg";
+/* import CalendarIcon from "../../../assets/icons/calendar.svg";
+import ConfigIcon from "../../../assets/icons/configs.svg"; */
 import UserIcon from "../../../assets/icons/user.svg";
 
 interface IconButtonProps {
@@ -36,6 +36,7 @@ const Dropdown: React.FC<{ items: DropdownItem[] }> = ({ items }) => (
 interface HeaderProps {
   toggleMenu: () => void;
   logout: () => void;
+  permissions: string[];
 }
 
 const Header: React.FC<HeaderProps> = ({ toggleMenu, logout }) => {
@@ -45,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ toggleMenu, logout }) => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const HEADER_CONFIG = [
-    {
+   /*  {
       icon: CalendarIcon,
       alt: "Calendar",
       dropdownItems: [
@@ -62,16 +63,16 @@ const Header: React.FC<HeaderProps> = ({ toggleMenu, logout }) => {
         { label: "Config 2", onClick: () => console.log("Config 2 clicked") },
         { label: "Config 3", onClick: () => console.log("Config 3 clicked") },
       ],
-    },
+    }, */
     {
       icon: UserIcon,
       alt: "User",
       dropdownItems: [
-        { label: "Perfil", onClick: () => console.log("Perfil clicked") },
+  /*       { label: "Perfil", onClick: () => console.log("Perfil clicked") },
         {
           label: "Configurações",
           onClick: () => console.log("Configurações clicked"),
-        },
+        }, */
         { label: "Logout", onClick: () => logout() },
       ],
     },

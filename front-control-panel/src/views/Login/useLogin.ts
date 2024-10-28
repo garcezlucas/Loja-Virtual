@@ -1,6 +1,8 @@
 import { ChangeEvent, useState } from "react";
 import { ManagementService } from "../../service/Management.service";
 import { emailValidator } from "../../utils/emailValidator";
+import { PersonPermission } from "../../interfaces/Person";
+import { saveToLocalStorageEncrypted } from "../../utils/encryptStorage";
 
 interface useLoginFormProps {
   navigate: (path: string) => void;
@@ -23,7 +25,12 @@ export function useLoginForm({ navigate }: useLoginFormProps) {
 
       const response = await ManagementService.login(user);
 
-      if (response.accessToken) {
+      if (response.accessToken && response.permissions) {
+        const permissions = response.permissions.map(
+          (item: PersonPermission) => item.permission.name
+        );
+        saveToLocalStorageEncrypted("permissions", permissions);
+
         localStorage.setItem("cookies", response.accessToken);
         navigate("/system/dashboard");
       }

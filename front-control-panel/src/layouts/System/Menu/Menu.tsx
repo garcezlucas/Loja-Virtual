@@ -13,7 +13,14 @@ import CityIcon from "../../../assets/icons/city.svg";
 const MENU_CONFIG = [
   {
     header: "Home",
-    items: [{ icon: HomeIcon, label: "Dashboard", path: "/system/dashboard" }],
+    items: [
+      {
+        icon: HomeIcon,
+        label: "Dashboard",
+        path: "/system/dashboard",
+        permission: ["all"],
+      },
+    ],
   },
   {
     header: "Cadastro",
@@ -22,35 +29,59 @@ const MENU_CONFIG = [
         icon: CollaboratorIcon,
         label: "Colaboradores",
         path: "/system/management/collaborators",
+        permission: ["admin"],
       },
       {
         icon: CustomerIcon,
         label: "Clientes",
         path: "/system/management/clients",
+        permission: ["admin"],
       },
       {
         icon: PermissionIcon,
         label: "Permissões",
         path: "/system/management/permissions",
+        permission: ["admin"],
       },
       {
         icon: ProductIcon,
         label: "Produtos",
         path: "/system/management/products",
+        permission: ["admin"],
       },
-      { icon: BrandIcon, label: "Marcas", path: "/system/management/brands" },
+      {
+        icon: BrandIcon,
+        label: "Marcas",
+        path: "/system/management/brands",
+        permission: ["admin"],
+      },
       {
         icon: CategoryIcon,
         label: "Categorias",
         path: "/system/management/categories",
+        permission: ["admin"],
       },
-      { icon: StateIcon, label: "Estados", path: "/system/management/states" },
-      { icon: CityIcon, label: "Cidades", path: "/system/management/cities" },
+      {
+        icon: StateIcon,
+        label: "Estados",
+        path: "/system/management/states",
+        permission: ["admin"],
+      },
+      {
+        icon: CityIcon,
+        label: "Cidades",
+        path: "/system/management/cities",
+        permission: ["admin"],
+      },
     ],
   },
 ];
 
-const Menu: React.FC = () => {
+interface MenuProps {
+  permissions: string[];
+}
+
+const Menu: React.FC<MenuProps> = ({ permissions }) => {
   const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {
@@ -64,17 +95,26 @@ const Menu: React.FC = () => {
           <div key={index} className="menu-container-sections">
             <h2>{section.header}</h2>
             <ul>
-              {section.items.map((item, idx) => (
-                <li key={idx}>
-                  <button
-                    onClick={() => handleNavigate(item.path)}
-                    aria-label={`Navigate to ${item.label}`}
-                  >
-                    <img src={item.icon} alt={item.label} />
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              ))}
+              {section.items.map((item, idx) => {
+                if (
+                  !item.permission.includes("all") &&
+                  !permissions.some((permission) =>
+                    item.permission.includes(permission)
+                  )
+                )
+                  return;
+                return (
+                  <li key={idx}>
+                    <button
+                      onClick={() => handleNavigate(item.path)}
+                      aria-label={`Navigate to ${item.label}`}
+                    >
+                      <img src={item.icon} alt={item.label} />
+                      <span>{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
