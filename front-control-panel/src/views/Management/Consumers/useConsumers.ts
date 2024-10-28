@@ -3,7 +3,7 @@ import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
 import { Person } from "../../../interfaces/Person";
 import { CitiesService } from "../../../service/Cities.service";
 import { City } from "../../../interfaces/City";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 import { ConsumersService } from "../../../service/Consumers.service";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";

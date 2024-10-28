@@ -2,7 +2,7 @@ import { useState } from "react";
 import { StatesService } from "../../../service/States.service";
 import { State } from "../../../interfaces/State";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 
 type FieldName = "name" | "acronym";
 

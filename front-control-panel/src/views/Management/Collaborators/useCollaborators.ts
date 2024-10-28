@@ -6,7 +6,7 @@ import { CitiesService } from "../../../service/Cities.service";
 import { City } from "../../../interfaces/City";
 import { Permission } from "../../../interfaces/Permission";
 import { PermissionsService } from "../../../service/Permissions.service";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
 import { cpfValidator } from "../../../utils/cpfValidator";

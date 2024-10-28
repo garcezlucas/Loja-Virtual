@@ -6,7 +6,7 @@ import { Category } from "../../../interfaces/Category";
 import { CategoriesService } from "../../../service/Categories.service";
 import { Brand } from "../../../interfaces/Brand";
 import { BrandService } from "../../../service/Brands.service";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 import { maskCurrency, removeMaskCurrency } from "../../../utils/Currencymask";
 import { ImagesService } from "../../../service/Images.service";
 

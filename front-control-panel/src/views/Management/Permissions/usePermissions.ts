@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PermissionsService } from "../../../service/Permissions.service";
 import { Permission } from "../../../interfaces/Permission";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 
 interface usePermissionsProps {
   handleCloseAdd: () => void;

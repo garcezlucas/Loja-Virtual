@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BrandService } from "../../../service/Brands.service";
 import { Brand } from "../../../interfaces/Brand";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFildValue";
+import { getFieldValue } from "../../../utils/getFieldValue";
 
 import SuccessIcon from '../../../assets/icons/success.svg';
 import ErrorIcon from '../../../assets/icons/error.svg';

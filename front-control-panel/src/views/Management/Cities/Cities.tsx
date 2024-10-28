@@ -29,6 +29,7 @@ const Cities: React.FC<CitiesProps> = ({
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -44,6 +45,7 @@ const Cities: React.FC<CitiesProps> = ({
     handleSubmit,
     deleteCity,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,
@@ -155,6 +157,22 @@ const Cities: React.FC<CitiesProps> = ({
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
+      </Modal>
+
+      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
+        <div className="modal-response-container">
+          <header>{requestResponse.title}</header>
+          <img src={requestResponse.icon} alt={requestResponse.title} />
+          <p>{requestResponse.message}</p>
+          <button
+            style={{
+              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
+            }}
+            onClick={handleClearRequestResponse}
+          >
+            <span>Fechar</span>
+          </button>
+        </div>
       </Modal>
     </div>
   );
