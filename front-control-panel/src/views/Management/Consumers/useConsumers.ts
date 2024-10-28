@@ -10,6 +10,9 @@ import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
 import { emailValidator } from "../../../utils/emailValidator";
 import { cpfValidator } from "../../../utils/cpfValidator";
 
+import SuccessIcon from '../../../assets/icons/success.svg';
+import ErrorIcon from '../../../assets/icons/error.svg';
+
 type FieldName = "name" | "cpf" | "email" | "address" | "codePostal" | "city";
 
 interface useConsumersProps {
@@ -79,6 +82,14 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
       validationRules: { required: true, message: "Cidade é obrigatório" },
     },
   ]);
+
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
 
   const getAllConsumers = async () => {
     try {
@@ -155,9 +166,23 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllConsumers();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate collaborator: ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     } finally {
     }
   };
@@ -185,9 +210,23 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllConsumers();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update collaborator: ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -208,6 +247,16 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
     }));
 
     setFields(updatedFields);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -260,6 +309,7 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
 
     page,
     setPage,
@@ -275,6 +325,7 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
     handleSubmit,
     deleteState,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,
