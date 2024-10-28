@@ -4,6 +4,9 @@ import { Brand } from "../../../interfaces/Brand";
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
 import { getFieldValue } from "../../../utils/getFildValue";
 
+import SuccessIcon from '../../../assets/icons/success.svg';
+import ErrorIcon from '../../../assets/icons/error.svg';
+
 interface useBrandsProps {
   handleCloseAdd: () => void;
 }
@@ -30,6 +33,14 @@ export function useBrands({ handleCloseAdd }: useBrandsProps) {
       validationRules: { required: true, message: "Nome é obrigatório" },
     },
   ]);
+
+  const [requestResponse, setRequestResponse] = useState({
+    title: "",
+    message: "",
+    icon: "",
+    open: false,
+    success: false,
+  });
 
   const getAllBrands = async () => {
     try {
@@ -63,9 +74,23 @@ export function useBrands({ handleCloseAdd }: useBrandsProps) {
       if (response?.id) {
         handleCloseAdd();
         getAllBrands();
+        setRequestResponse({
+          title: "Adicionado",
+          message: "Item adicionado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when crate brand : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -82,9 +107,23 @@ export function useBrands({ handleCloseAdd }: useBrandsProps) {
       if (response?.id) {
         setOpenEdit(false);
         getAllBrands();
+        setRequestResponse({
+          title: "Atualizado",
+          message: "Item atualizado com sucesso",
+          icon: SuccessIcon,
+          open: true,
+          success: true,
+        });
       }
     } catch (error) {
       console.error(`error when update brand : ${error}`);
+      setRequestResponse({
+        title: "Erro",
+        message: "Ocorreu um erro, tente novamente",
+        icon: ErrorIcon,
+        open: true,
+        success: false,
+      });
     }
   };
 
@@ -105,6 +144,16 @@ export function useBrands({ handleCloseAdd }: useBrandsProps) {
     }));
 
     setFields(updatedFields);
+  };
+
+  const handleClearRequestResponse = () => {
+    setRequestResponse({
+      title: "",
+      message: "",
+      icon: "",
+      open: false,
+      success: false,
+    });
   };
 
   const handleCloseEdit = () => {
@@ -152,6 +201,8 @@ export function useBrands({ handleCloseAdd }: useBrandsProps) {
     filteredData,
     setFilteredData,
     loading,
+    requestResponse,
+
 
     page,
     setPage,
@@ -166,6 +217,7 @@ export function useBrands({ handleCloseAdd }: useBrandsProps) {
     handleSubmit,
     deleteBrand,
     handleCancel,
+    handleClearRequestResponse,
     handleCloseEdit,
     handleEditClick,
     handleChange,

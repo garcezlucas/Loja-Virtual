@@ -123,3 +123,40 @@
         }
     }
 }
+
+.modal-response-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 25rem;
+    height: 18rem;
+    & header {
+        font-family: New Order;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333B3E;
+    }
+    & img {
+        width: 5rem;
+        height: 5rem;
+    }
+    & p {
+        font-family: New Order;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333B3E;
+        margin-top: 0;
+    }
+    & button {
+        width: 8rem;
+        height: 2rem;
+        border-radius: 0.625rem;
+        & span {
+            font-family: New Order;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #FAFAFA;
+        }
+    }
+}
