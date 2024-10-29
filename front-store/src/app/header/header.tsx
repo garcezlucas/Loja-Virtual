@@ -76,7 +76,7 @@ const Header: React.FC = ({  }) => {
   };
 
   return (
-    <header className="#FAFAFA text-gray-100 py-4 shadow-md">
+    <header className="bg-[#FAFAFA] text-gray-100 py-4 shadow-md">
       <div className="w-full flex items-center justify-between px-4">
         
         {/* Logo e Menu */}
