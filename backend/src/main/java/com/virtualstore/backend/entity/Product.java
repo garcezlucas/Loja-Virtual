@@ -15,7 +15,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 @Entity
 @Table(name = "product")
@@ -40,6 +42,11 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductImage> images;
+
+
+    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @Setter(value = AccessLevel.NONE)
+    private List<ProductShopCart> productCard;
 
     private Double expense;
 
