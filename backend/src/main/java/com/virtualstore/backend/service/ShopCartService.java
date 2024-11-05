@@ -24,22 +24,30 @@ public class ShopCartService {
     }
 
     public ShopCart create(ShopCart shopCart, Product product, Double quantity) {
+        Long productId = product.getId();
+
         shopCart.setCreationDate(new Date());
         ShopCart newShopCart = shopCartRepository.saveAndFlush(shopCart);
-        productShopCartService.linkProductShopCart(shopCart, product, quantity);
+
+        productShopCartService.linkProductShopCart(shopCart, productId, quantity);
+
         return newShopCart;
     }
 
     public ShopCart update(ShopCart shopCart, Product product, Double quantity) {
+        Long productId = product.getId();
+
         ShopCart existingShopCart = shopCartRepository.findById(shopCart.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Carrinho inválido!"));
         Date createDate = existingShopCart.getCreationDate();
 
         shopCart.setCreationDate(createDate);
         shopCart.setUpdateDate(new Date());
+
         ShopCart updateShopCart = shopCartRepository.saveAndFlush(shopCart);
 
-        productShopCartService.linkProductShopCart(shopCart, product, quantity);
+        productShopCartService.linkProductShopCart(shopCart, productId, quantity);
+        
         return updateShopCart;
     }
 
