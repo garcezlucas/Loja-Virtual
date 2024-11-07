@@ -3,7 +3,7 @@ package com.virtualstore.backend.dto;
 import com.virtualstore.backend.entity.Product;
 import com.virtualstore.backend.entity.ShopCart;
 
-public class ShopCartRequest {
+public class ShopCartRequestDTO {
     private ShopCart shopCart;
     private Product product;
     private Double quantity;

@@ -2,12 +2,16 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.virtualstore.backend.dto.ShopCartReturnDTO;
 import com.virtualstore.backend.entity.Product;
+import com.virtualstore.backend.entity.ProductShopCart;
 import com.virtualstore.backend.entity.ShopCart;
+import com.virtualstore.backend.repository.ProductShopCartRepository;
 import com.virtualstore.backend.repository.ShopCartRepository;
 
 @Service
@@ -17,10 +21,37 @@ public class ShopCartService {
     private ShopCartRepository shopCartRepository;
 
     @Autowired
+    private ProductShopCartRepository productShopCartRepository;
+
+    @Autowired
     private ProductShopCartService productShopCartService;
 
     public List<ShopCart> getAllCarts() {
         return shopCartRepository.findAll();
+    }
+
+    public Optional<ShopCartReturnDTO> getShopCartByUser(Long userId) {
+        Optional<ShopCart> optionalCart = shopCartRepository.findByPersonIdAndSituation(userId, "pending");
+
+        if (optionalCart.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ShopCart cart = optionalCart.get();
+
+        List<ProductShopCart> products = productShopCartRepository.findByCartIdAndCreationDateAfter(
+                cart.getId(), cart.getCreationDate());
+
+        ShopCartReturnDTO shopCartDto = new ShopCartReturnDTO();
+        shopCartDto.setId(cart.getId());
+        shopCartDto.setPersonId(cart.getPerson().getId());
+        shopCartDto.setObservation(cart.getObservation());
+        shopCartDto.setSituation(cart.getSituation());
+        shopCartDto.setCreationDate(cart.getCreationDate());
+        shopCartDto.setUpdateDate(cart.getUpdateDate());
+        shopCartDto.setProducts(products);
+
+        return Optional.of(shopCartDto);
     }
 
     public ShopCart create(ShopCart shopCart, Product product, Double quantity) {
@@ -47,7 +78,7 @@ public class ShopCartService {
         ShopCart updateShopCart = shopCartRepository.saveAndFlush(shopCart);
 
         productShopCartService.linkProductShopCart(shopCart, productId, quantity);
-        
+
         return updateShopCart;
     }
 
