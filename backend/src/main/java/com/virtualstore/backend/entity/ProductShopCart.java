@@ -31,6 +31,7 @@ public class ProductShopCart {
 
     @ManyToOne
     @JoinColumn(name = "idCart")
+    @JsonIgnore
     private ShopCart cart;
 
     private Double price;

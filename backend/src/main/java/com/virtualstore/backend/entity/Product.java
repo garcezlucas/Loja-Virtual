@@ -43,11 +43,6 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductImage> images;
 
-
-    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
-    @Setter(value = AccessLevel.NONE)
-    private List<ProductShopCart> productCard;
-
     private Double expense;
 
     private Double price;
