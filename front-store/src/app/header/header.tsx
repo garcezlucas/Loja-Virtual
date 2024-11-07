@@ -1,10 +1,11 @@
-'use client'
+"use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import StoreIcon from "../../../public/icons/store-shop.svg";
 import MenuIcon from "../../../public/icons/menu.svg";
 import UserIcon from "../../../public/icons/user.svg";
 import CartIcon from "../../../public/icons/cart.svg";
+import Link from "next/link";
 
 interface IconButtonProps {
   src: string;
@@ -40,8 +41,10 @@ const Dropdown: React.FC<{ items: DropdownItem[] }> = ({ items }) => (
 /* interface HeaderProps {
 } */
 
-const Header: React.FC = ({  }) => {
-  const [visibleDropdownIndex, setVisibleDropdownIndex] = useState<number | null>(null);
+const Header: React.FC = ({}) => {
+  const [visibleDropdownIndex, setVisibleDropdownIndex] = useState<
+    number | null
+  >(null);
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,7 +52,9 @@ const Header: React.FC = ({  }) => {
     {
       icon: UserIcon,
       alt: "User",
-      dropdownItems: [{ label: "Logout", onClick: () => console.log('clicou') }],
+      dropdownItems: [
+        { label: "Logout", onClick: () => console.log("clicou") },
+      ],
     },
   ];
 
@@ -78,13 +83,14 @@ const Header: React.FC = ({  }) => {
   return (
     <header className="bg-[#FAFAFA] text-gray-100 py-4 shadow-md">
       <div className="w-full flex items-center justify-between px-4">
-        
         {/* Logo e Menu */}
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Image src={StoreIcon} alt="Store Logo" width={32} height={32} />
-            <span className="text-black font-semibold">Loja Virtual</span>
-          </div>
+          <Link href={'/'}>
+            <div className="flex items-center space-x-2">
+              <Image src={StoreIcon} alt="Store Logo" width={32} height={32} />
+              <span className="text-black font-semibold">Loja Virtual</span>
+            </div>
+          </Link>
           <IconButton src={MenuIcon} alt="Menu" onClick={toggleMenu} />
         </div>
 
@@ -94,18 +100,20 @@ const Header: React.FC = ({  }) => {
           <IconButton src={CartIcon} alt="Carrinho de Compras" />
 
           {/* Ícones com Dropdown */}
-          {HEADER_CONFIG.map((item, index) => (
-            <div key={index} className="relative" ref={dropdownRef}>
-              <IconButton
-                src={item.icon}
-                alt={item.alt}
-                onClick={() => toggleDropdown(index)}
-              />
-              {visibleDropdownIndex === index && (
-                <Dropdown items={item.dropdownItems} />
-              )}
-            </div>
-          ))}
+          {HEADER_CONFIG.map((item, index) => {
+            return (
+              <div key={index} className="relative" ref={dropdownRef}>
+                <IconButton
+                  src={item.icon}
+                  alt={item.alt}
+                  onClick={() => toggleDropdown(index)}
+                />
+                {visibleDropdownIndex === index && (
+                  <Dropdown items={item.dropdownItems} />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </header>
