@@ -78,51 +78,51 @@ cd loja-virtual
 
 ### **2. Configurando o Backend**
 
-#### - Navegue até o diretório do backend:
+- #### Navegue até o diretório do backend:
 ```bash
 cd backend
 ```
 
-#### - Configure o arquivo application.properties com as credenciais do banco de dados:
+- #### Configure o arquivo application.properties com as credenciais do banco de dados:
 ```bash
 spring.datasource.url=jdbc:mysql://localhost:3306/loja_virtual
 spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
 ```
 
-#### - Execute o backend:
+- #### Execute o backend:
 ```bash
 mvn spring-boot:run
 ```
 
 ### **3. Configurando o Painel de Controle**
-#### - Navegue até o diretório do painel:
+- #### Navegue até o diretório do painel:
 ```bash
 cd painel-controle
 ```
 
-#### - Instale as dependências:
+- #### Instale as dependências:
 ```bash
 yarn install
 ```
 
-#### - Execute o painel:
+- #### Execute o painel:
 ```bash
 yarn start
 ```
 
 ### **4. Configurando o Site da Loja**
-#### - Navegue até o diretório do site:
+- #### Navegue até o diretório do site:
 ```bash
 cd site-loja
 ```
 
-#### - Instale as dependências:
+- #### Instale as dependências:
 ```bash
 yarn install
 ```
 
-#### - Execute o site:
+- #### Execute o site:
 ```bash
 yarn dev
 ```
@@ -132,16 +132,17 @@ yarn dev
 ## ⚙️ Configurações
 ### Certifique-se de criar arquivos .env para definir variáveis de ambiente nos projetos React e Next.js, como a URL do backend.
 
-#### Exemplo de .env:
+#### .env para o Painel de Controle
 ```bash
-
 # Configuração para o Painel de Controle
 REACT_APP_URL_API=http://localhost:8080/
 REACT_APP_ENCRYPTION=4pJxhJ3pe8kTamQUCJ1oVs3jiudhvnaik
+```
 
+#### .env para o Site da Loja
+```bash
 # Configuração para o Site da Loja
 NEXT_PUBLIC_API_URL=http://localhost:8080/api
-
 ```
 
 ---
