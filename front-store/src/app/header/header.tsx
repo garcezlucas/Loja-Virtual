@@ -85,7 +85,7 @@ const Header: React.FC = ({}) => {
       <div className="w-full flex items-center justify-between px-4">
         {/* Logo e Menu */}
         <div className="flex items-center space-x-4">
-          <Link href={'/'}>
+          <Link href={"/"}>
             <div className="flex items-center space-x-2">
               <Image src={StoreIcon} alt="Store Logo" width={32} height={32} />
               <span className="text-black font-semibold">Loja Virtual</span>
@@ -97,7 +97,9 @@ const Header: React.FC = ({}) => {
         {/* Ícones de usuário e carrinho */}
         <div className="flex items-center space-x-6">
           {/* Carrinho de Compras */}
-          <IconButton src={CartIcon} alt="Carrinho de Compras" />
+          <Link href={"/cart"}>
+            <IconButton src={CartIcon} alt="Carrinho de Compras" />
+          </Link>
 
           {/* Ícones com Dropdown */}
           {HEADER_CONFIG.map((item, index) => {

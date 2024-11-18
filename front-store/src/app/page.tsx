@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import ContactForm from "./ContactForm";
 
 export default function Home() {
   const products = [
@@ -24,8 +25,50 @@ export default function Home() {
       price: 200.0,
       imageUrl: "/images/produto3.jpg",
     },
+    {
+      id: 4,
+      name: "Produto 1",
+      description: "Descrição do Produto 1",
+      price: 100.0,
+      imageUrl: "/images/produto1.jpg",
+    },
+    {
+      id: 5,
+      name: "Produto 2",
+      description: "Descrição do Produto 2",
+      price: 150.0,
+      imageUrl: "/images/produto2.jpg",
+    },
+    {
+      id: 6,
+      name: "Produto 3",
+      description: "Descrição do Produto 3",
+      price: 200.0,
+      imageUrl: "/images/produto3.jpg",
+    },
+    {
+      id: 7,
+      name: "Produto 1",
+      description: "Descrição do Produto 1",
+      price: 100.0,
+      imageUrl: "/images/produto1.jpg",
+    },
+    {
+      id: 8,
+      name: "Produto 2",
+      description: "Descrição do Produto 2",
+      price: 150.0,
+      imageUrl: "/images/produto2.jpg",
+    },
+    {
+      id: 9,
+      name: "Produto 3",
+      description: "Descrição do Produto 3",
+      price: 200.0,
+      imageUrl: "/images/produto3.jpg",
+    },
   ];
-  
+
   return (
     <div className="h-full bg-[#DDDEE5]">
       {/* Seção de Cabeçalho da Home */}
@@ -105,56 +148,7 @@ export default function Home() {
           Dúvidas ou sugestões? Entre em contato! Preencha o formulário abaixo e
           nossa equipe retornará o mais breve possível.
         </p>
-        <form className="bg-[#FAFAFA] shadow-md rounded-lg p-6">
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-[#333333]"
-            >
-              Nome:
-            </label>
-            <input
-              type="text"
-              id="name"
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none"
-              placeholder="Seu nome"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-[#333333]"
-            >
-              Email:
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none"
-              placeholder="Seu email"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="message"
-              className="block text-sm font-medium text-[#333333]"
-            >
-              Mensagem:
-            </label>
-            <textarea
-              id="message"
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none"
-              rows={4}
-              placeholder="Sua mensagem"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-[#F5A623] text-white font-semibold py-3 px-8 rounded-full hover:bg-[#FBBF24] transition-colors"
-          >
-            Enviar
-          </button>
-        </form>
+        <ContactForm />
       </section>
     </div>
   );

@@ -56,7 +56,6 @@ export default function Products() {
         </div>
         <select className="border border-gray-300 rounded p-2">
           <option value="recent">Mais Recentes</option>
-          <option value="popular">Populares</option>
           <option value="low_to_high">Preço: Menor para Maior</option>
           <option value="high_to_low">Preço: Maior para Menor</option>
         </select>
@@ -80,10 +79,10 @@ export default function Products() {
               />
               <div className="p-4">
                 <h3 className="text-lg font-semibold">
-                  Produto {product.name}
+                  {product.name}
                 </h3>
                 <p className="text-gray-600 mt-2">
-                  Descrição do Produto {product.name}
+                  {product.description}
                 </p>
                 <p className="text-[#4A90E2] font-bold mt-2">
                   R$ {product.price}
