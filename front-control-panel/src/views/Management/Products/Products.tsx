@@ -1,13 +1,16 @@
 import "../_management.scss";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 import { useProducts } from "./useProducts";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
-import DynamicForm from "../../../components/DynamicForm/DynamicForm";
+import DynamicForm, {
+  DynamicField,
+} from "../../../components/DynamicForm/DynamicForm";
 import ImageUploader from "../../../components/InputImages/InputImages";
+import Carousel from "../../../components/Carosel/Carousel";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
@@ -15,8 +18,9 @@ import AddPhotoIcon from "../../../assets/icons/add-photo.svg";
 
 import { filterShortDescriptionDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 import { maskCurrency } from "../../../utils/CurrencyMask";
+
 import { Image } from "../../../interfaces/Image";
-import Carousel from "../../../components/Carosel/Carousel";
+import { Product } from "../../../interfaces/Product";
 
 interface ProductsProps {
   searchTerm: string;
@@ -29,44 +33,101 @@ const Products: React.FC<ProductsProps> = ({
   openAdd,
   handleCloseAdd,
 }) => {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [filteredData, setFilteredData] = useState<Product[]>([]);
+  const [fields, setFields] = useState<DynamicField[]>([
+    {
+      label: "Descrição curta*",
+      name: "shortDescription",
+      type: "text",
+      value: "",
+      validationRules: {
+        required: true,
+        message: "Descrição curta é obrigatório",
+      },
+    },
+    {
+      label: "Descrição*",
+      name: "description",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Descrição é obrigatório" },
+    },
+    {
+      label: "Marca*",
+      name: "brand",
+      type: "select",
+      value: 0,
+      options: [],
+      validationRules: { required: true, message: "Marca é obrigatório" },
+    },
+    {
+      label: "Categoria*",
+      name: "category",
+      type: "select",
+      value: 0,
+      options: [],
+      validationRules: { required: true, message: "Categoria é obrigatório" },
+    },
+    {
+      label: "Preço de custo*",
+      name: "expense",
+      type: "text",
+      value: "",
+      mask: maskCurrency,
+      validationRules: {
+        required: true,
+        message: "Preço de custo é obrigatório",
+      },
+    },
+    {
+      label: "Preço de venda*",
+      name: "price",
+      type: "text",
+      value: "",
+      mask: maskCurrency,
+      validationRules: {
+        required: true,
+        message: "Preço de venda é obrigatório",
+      },
+    },
+  ]);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [openImage, setOpenImage] = useState<boolean>(false);
+
   const {
     tableData,
-    filteredData,
-    setFilteredData,
-    selectedProduct,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-    openImage,
-
-    getAllProducts,
-    getAllBrands,
-    getAllCategories,
-    handleSubmit,
+    categories,
+    brands,
+    isLoading,
     deleteProduct,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
+    updateFieldsWithCategories,
+    updateFieldsWithBrands,
+    handleSubmit,
     uploadImage,
     handleOpenImageModal,
     handleCloseImageModal,
-    handleEditClick,
     handleChange,
-  } = useProducts({ handleCloseAdd });
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
+  } = useProducts({
+    handleCloseAdd,
+    fields,
+    setFields,
+    setOpenEdit,
+    setOpenImage,
+    selectedProduct,
+    setSelectedProduct,
+  });
 
   useEffect(() => {
-    getAllProducts();
-    getAllBrands();
-    getAllCategories();
-  }, []);
+    updateFieldsWithCategories();
+  }, [categories]);
+
+  useEffect(() => {
+    updateFieldsWithBrands();
+  }, [brands]);
 
   useEffect(() => {
     if (tableData.length > 0) {
@@ -78,45 +139,16 @@ const Products: React.FC<ProductsProps> = ({
     }
   }, [searchTerm, tableData]);
 
-  const renderActionButtons = useCallback(
-    (value: number, row: any) => (
-      <div className="action-buttons">
-        <button
-          className="action-buttons-add"
-          onClick={() => handleOpenImageModal(row)}
-        >
-          <img src={AddPhotoIcon} alt="edit" />
-        </button>
-        <button
-          className="action-buttons-edit"
-          onClick={() => handleEditClick(row)}
-        >
-          <img src={EditIcon} alt="edit" />
-        </button>
-        <button
-          className="action-buttons-delete"
-          onClick={() => deleteProduct(value)}
-        >
-          <img src={DeleteIcon} alt="delete" />
-        </button>
-      </div>
-    ),
-    []
-  );
-
-  const titleColumns = useMemo(
-    () => [
-      { label: "ID", width: "12.5%" },
-      { label: "Imagem", width: "12.5%" },
-      { label: "Produto", width: "12.5%" },
-      { label: "Marca", width: "12.5%" },
-      { label: "Categoria", width: "12.5%" },
-      { label: "Preço de custo", width: "12.5%" },
-      { label: "Preço de venda", width: "12.5%" },
-      { label: "", width: "12.5%" },
-    ],
-    []
-  );
+  const titleColumns = [
+    { label: "ID", width: "12.5%" },
+    { label: "Imagem", width: "12.5%" },
+    { label: "Produto", width: "12.5%" },
+    { label: "Marca", width: "12.5%" },
+    { label: "Categoria", width: "12.5%" },
+    { label: "Preço de custo", width: "12.5%" },
+    { label: "Preço de venda", width: "12.5%" },
+    { label: "", width: "12.5%" },
+  ];
 
   const renderImages = (images: Image[]) => {
     if (!images || images.length === 0) {
@@ -141,62 +173,71 @@ const Products: React.FC<ProductsProps> = ({
     );
   };
 
-  const columns: Column[] = useMemo(
-    () => [
-      { label: "id", format: (value) => value || "-", width: "12.5%" },
-      {
-        label: "images",
-        format: (value) => renderImages(value),
-        width: "12.5%",
-      },
-      {
-        label: "shortDescription",
-        format: (value) => value || "-",
-        width: "12.5%",
-      },
-      { label: "brand", format: (value) => value.name || "-", width: "12.5%" },
-      {
-        label: "category",
-        format: (value) => value.name || "-",
-        width: "12.5%",
-      },
-      {
-        label: "expense",
-        format: (value) => maskCurrency(value.toFixed(2)) || "-",
-        width: "12.5%",
-      },
-      {
-        label: "price",
-        format: (value) => maskCurrency(value.toFixed(2)) || "-",
-        width: "12.5%",
-      },
-      {
-        label: "id",
-        format: (value, row) => renderActionButtons(value, row),
-        width: "12.5%",
-      },
-    ],
-    []
-  );
-
-  const dataTable = filteredData;
-  const totalItems = filteredData?.length;
-  const heightTable = "42.7rem";
-  const heightLoading = "30rem";
+  const columns: Column[] = [
+    { label: "id", format: (value) => value || "-", width: "12.5%" },
+    {
+      label: "images",
+      format: (value) => renderImages(value),
+      width: "12.5%",
+    },
+    {
+      label: "shortDescription",
+      format: (value) => value || "-",
+      width: "12.5%",
+    },
+    { label: "brand", format: (value) => value.name || "-", width: "12.5%" },
+    {
+      label: "category",
+      format: (value) => value.name || "-",
+      width: "12.5%",
+    },
+    {
+      label: "expense",
+      format: (value) => maskCurrency(value.toFixed(2)) || "-",
+      width: "12.5%",
+    },
+    {
+      label: "price",
+      format: (value) => maskCurrency(value.toFixed(2)) || "-",
+      width: "12.5%",
+    },
+    {
+      label: "id",
+      format: (value, row) => (
+        <div className="action-buttons">
+          <button
+            className="action-buttons-add"
+            onClick={() => handleOpenImageModal(row)}
+          >
+            <img src={AddPhotoIcon} alt="edit" />
+          </button>
+          <button
+            className="action-buttons-edit"
+            onClick={() => handleEditClick(row)}
+          >
+            <img src={EditIcon} alt="edit" />
+          </button>
+          <button
+            className="action-buttons-delete"
+            onClick={() => deleteProduct.mutate(value)}
+          >
+            <img src={DeleteIcon} alt="delete" />
+          </button>
+        </div>
+      ),
+      width: "12.5%",
+    },
+  ];
 
   const tableProps = {
     titleColumns,
     columns,
-    dataTable,
-    page,
-    setPage,
-    rowsPerPage,
-    totalPages,
-    setTotalPages,
-    totalItems,
-    heightTable,
-    loading,
-    heightLoading,
+    dataTable: filteredData,
+    rowsPerPage: 7,
+    totalItems: filteredData.length,
+    heightTable: "42.7rem",
+    loading: isLoading,
+    heightLoading: "30rem",
   };
 
   const initialImages = selectedProduct?.images.map((image) => {
@@ -211,7 +252,7 @@ const Products: React.FC<ProductsProps> = ({
         <DynamicForm
           title="Cadastro"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedProduct)}
           handleCancel={handleCancel}
           handleChange={handleChange}
         />
@@ -221,7 +262,7 @@ const Products: React.FC<ProductsProps> = ({
         <DynamicForm
           title="Editar"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedProduct)}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
@@ -232,22 +273,6 @@ const Products: React.FC<ProductsProps> = ({
           onImageUpload={uploadImage}
           initialImages={initialImages}
         />
-      </Modal>
-
-      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
-        <div className="modal-response-container">
-          <header>{requestResponse.title}</header>
-          <img src={requestResponse.icon} alt={requestResponse.title} />
-          <p>{requestResponse.message}</p>
-          <button
-            style={{
-              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
-            }}
-            onClick={handleClearRequestResponse}
-          >
-            <span>Fechar</span>
-          </button>
-        </div>
       </Modal>
     </div>
   );

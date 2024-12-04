@@ -1,17 +1,21 @@
 import "../_management.scss";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 import { useCities } from "./useCities";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
-import DynamicForm from "../../../components/DynamicForm/DynamicForm";
+import DynamicForm, {
+  DynamicField,
+} from "../../../components/DynamicForm/DynamicForm";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+
+import { City } from "../../../interfaces/City";
 
 interface CitiesProps {
   searchTerm: string;
@@ -24,41 +28,49 @@ const Cities: React.FC<CitiesProps> = ({
   openAdd,
   handleCloseAdd,
 }) => {
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [filteredData, setFilteredData] = useState<City[]>([]);
+  const [fields, setFields] = useState<DynamicField[]>([
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+    {
+      label: "Estado*",
+      name: "state",
+      type: "select",
+      value: 0,
+      options: [],
+      validationRules: { required: true, message: "Estado é obrigatório" },
+    },
+  ]);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+
   const {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllStates,
-    getAllCities,
-    handleSubmit,
+    states,
+    isLoading,
     deleteCity,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    updateFieldsWithStates,
+    handleSubmit,
     handleChange,
-  } = useCities({ handleCloseAdd });
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
+  } = useCities({
+    handleCloseAdd,
+    fields,
+    setFields,
+    setOpenEdit,
+    setSelectedCity,
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      await getAllCities();
-      await getAllStates();
-    };
-
-    fetchData();
-  }, []);
+    updateFieldsWithStates();
+  }, [states]);
 
   useEffect(() => {
     if (tableData.length > 0) {
@@ -67,72 +79,52 @@ const Cities: React.FC<CitiesProps> = ({
     }
   }, [searchTerm, tableData]);
 
-  const renderActionButtons = useCallback(
-    (value: number, row: any) => (
-      <div className="action-buttons">
-        <button
-          className="action-buttons-edit"
-          onClick={() => handleEditClick(row)}
-        >
-          <img src={EditIcon} alt="edit" />
-        </button>
-        <button
-          className="action-buttons-delete"
-          onClick={() => deleteCity(value)}
-        >
-          <img src={DeleteIcon} alt="delete" />
-        </button>
-      </div>
-    ),
-    []
-  );
+  const titleColumns = [
+    { label: "ID", width: "25%" },
+    { label: "Nome", width: "25%" },
+    { label: "Estado", width: "25%" },
+    { label: "", width: "25%" },
+  ];
 
-  const titleColumns = useMemo(
-    () => [
-      { label: "ID", width: "25%" },
-      { label: "Nome", width: "25%" },
-      { label: "Estado", width: "25%" },
-      { label: "", width: "25%" },
-    ],
-    []
-  );
-
-  const columns: Column[] = useMemo(
-    () => [
-      { label: "id", format: (value) => value || "-", width: "25%" },
-      { label: "name", format: (value) => value || "-", width: "25%" },
-      {
-        label: "state",
-        format: (value) => `${value?.name} - ${value?.acronym}` || "-",
-        width: "25%",
-      },
-      {
-        label: "id",
-        format: (value, row) => renderActionButtons(value, row),
-        width: "25%",
-      },
-    ],
-    []
-  );
-
-  const dataTable = filteredData;
-  const totalItems = filteredData?.length;
-  const heightTable = "42.7rem";
-  const heightLoading = "30rem";
+  const columns: Column[] = [
+    { label: "id", format: (value) => value || "-", width: "25%" },
+    { label: "name", format: (value) => value || "-", width: "25%" },
+    {
+      label: "state",
+      format: (value) => `${value?.name} - ${value?.acronym}` || "-",
+      width: "25%",
+    },
+    {
+      label: "id",
+      format: (value, row) => (
+        <div className="action-buttons">
+          <button
+            className="action-buttons-edit"
+            onClick={() => handleEditClick(row)}
+          >
+            <img src={EditIcon} alt="edit" />
+          </button>
+          <button
+            className="action-buttons-delete"
+            onClick={() => deleteCity.mutate(value)}
+          >
+            <img src={DeleteIcon} alt="delete" />
+          </button>
+        </div>
+      ),
+      width: "25%",
+    },
+  ];
 
   const tableProps = {
     titleColumns,
     columns,
-    dataTable,
-    page,
-    setPage,
-    rowsPerPage,
-    totalPages,
-    setTotalPages,
-    totalItems,
-    heightTable,
-    loading,
-    heightLoading,
+    dataTable: filteredData,
+    rowsPerPage: 7,
+    totalItems: filteredData.length,
+    heightTable: "42.7rem",
+    loading: isLoading,
+    heightLoading: "30rem",
   };
 
   return (
@@ -143,7 +135,7 @@ const Cities: React.FC<CitiesProps> = ({
         <DynamicForm
           title="Cadastro"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedCity)}
           handleCancel={handleCancel}
           handleChange={handleChange}
         />
@@ -153,26 +145,10 @@ const Cities: React.FC<CitiesProps> = ({
         <DynamicForm
           title="Editar"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedCity)}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
-      </Modal>
-
-      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
-        <div className="modal-response-container">
-          <header>{requestResponse.title}</header>
-          <img src={requestResponse.icon} alt={requestResponse.title} />
-          <p>{requestResponse.message}</p>
-          <button
-            style={{
-              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
-            }}
-            onClick={handleClearRequestResponse}
-          >
-            <span>Fechar</span>
-          </button>
-        </div>
       </Modal>
     </div>
   );

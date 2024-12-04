@@ -1,112 +1,50 @@
-import { useState } from "react";
-import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { Person } from "../../../interfaces/Person";
-import { CitiesService } from "../../../service/Cities.service";
-import { City } from "../../../interfaces/City";
-import { getFieldValue } from "../../../utils/getFieldValue";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { ConsumersService } from "../../../service/Consumers.service";
+import { CitiesService } from "../../../service/Cities.service";
+
+import { Person } from "../../../interfaces/Person";
+import { City } from "../../../interfaces/City";
+
+import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+
+import { getFieldValue } from "../../../utils/getFieldValue";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
-import { emailValidator } from "../../../utils/emailValidator";
-import { cpfValidator } from "../../../utils/cpfValidator";
-
-import SuccessIcon from '../../../assets/icons/success.svg';
-import ErrorIcon from '../../../assets/icons/error.svg';
 
 type FieldName = "name" | "cpf" | "email" | "address" | "codePostal" | "city";
 
 interface useConsumersProps {
   handleCloseAdd: () => void;
+  fields: DynamicField[];
+  setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
+  setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedConsumer: React.Dispatch<React.SetStateAction<Person | null>>;
 }
 
-export function useConsumers({ handleCloseAdd }: useConsumersProps) {
-  const [tableData, setTableData] = useState<Person[]>([]);
-  const [filteredData, setFilteredData] = useState<Person[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export function useConsumers({
+  handleCloseAdd,
+  fields,
+  setFields,
+  setOpenEdit,
+  setSelectedConsumer,
+}: useConsumersProps) {
+  const queryClient = useQueryClient();
 
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const rowsPerPage = 7;
-
-  const [selectedCollaborator, setSelectedCollaborator] =
-    useState<Person | null>(null);
-
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-
-  const [fields, setFields] = useState<DynamicField[]>([
-    {
-      label: "Nome*",
-      name: "name",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Nome é obrigatório" },
-    },
-    {
-      label: "CPF*",
-      name: "cpf",
-      type: "text",
-      value: "",
-      mask: cpfMask,
-      validationRules: { required: true, message: "Insira um CPF válido" },
-      customValidator: cpfValidator,
-    },
-    {
-      label: "Email*",
-      name: "email",
-      type: "email",
-      value: "",
-      validationRules: { required: true, message: "Insira um email válido" },
-      customValidator: emailValidator,
-    },
-    {
-      label: "Endereço*",
-      name: "address",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Edereço é obrigatório" },
-    },
-    {
-      label: "CEP*",
-      name: "codePostal",
-      type: "text",
-      value: "",
-      mask: cepMask,
-      validationRules: { required: true, message: "Cep é obrigatório" },
-    },
-    {
-      label: "Cidade*",
-      name: "city",
-      type: "select",
-      value: 0,
-      options: [],
-      validationRules: { required: true, message: "Cidade é obrigatório" },
-    },
-  ]);
-
-  const [requestResponse, setRequestResponse] = useState({
-    title: "",
-    message: "",
-    icon: "",
-    open: false,
-    success: false,
+  const { data: tableData = [], isLoading } = useQuery<Person[], Error>({
+    queryKey: ["consumers"],
+    queryFn: ConsumersService.getAllConsumers,
   });
 
-  const getAllConsumers = async () => {
-    try {
-      const response = await ConsumersService.getAllConsumers();
-      if (response?.length >= 0) setTableData(response);
-    } catch (error) {
-      console.error(`error when searching all consumers: ${error}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: cities = [] } = useQuery<City[], Error>({
+    queryKey: ["cities"],
+    queryFn: CitiesService.getAllCities,
+  });
 
-  const getAllCities = async () => {
+  const updateFieldsWithCities = () => {
     try {
-      const response = await CitiesService.getAllCities();
-      if (response?.length > 0) {
-        const stateOptions = response.map((state: City) => ({
+      if (cities?.length > 0) {
+        const stateOptions = cities.map((state: City) => ({
           value: state.id,
           label: state.name,
         }));
@@ -129,148 +67,82 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
         );
       }
     } catch (error) {
-      console.error(`error when searching all brand : ${error}`);
-    } finally {
-      setLoading(false);
+      console.error(`error when update fields with cities: ${error}`);
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (
+    event: React.FormEvent,
+    fields: DynamicField[],
+    selectedConsumer: Person | null
+  ) => {
     event.preventDefault();
-    if (!!selectedCollaborator) {
-      updateState();
+    const name = getFieldValue(fields, "name") as string;
+    const cpf = getFieldValue(fields, "cpf") as string;
+    const email = getFieldValue(fields, "email") as string;
+    const address = getFieldValue(fields, "address") as string;
+    const codePostal = getFieldValue(fields, "codePostal") as string;
+    const city = getFieldValue(fields, "city") as number;
+
+    if (selectedConsumer) {
+      updateConsumer.mutate({
+        id: selectedConsumer.id,
+        name,
+        cpf: removeCpfMask(cpf),
+        email,
+        address,
+        codePostal: removeCEPMask(codePostal),
+        city: { id: city } as City,
+      } as Person);
     } else {
-      createState();
+      createConsumer.mutate({
+        name,
+        cpf: removeCpfMask(cpf),
+        email,
+        address,
+        codePostal: removeCEPMask(codePostal),
+        city: { id: city } as City,
+      } as Person);
     }
   };
 
-  const createState = async () => {
-    const name = getFieldValue(fields, "name") as string;
-    const cpf = getFieldValue(fields, "cpf") as string;
-    const email = getFieldValue(fields, "email") as string;
-    const address = getFieldValue(fields, "address") as string;
-    const codePostal = getFieldValue(fields, "codePostal") as string;
-    const city = getFieldValue(fields, "city") as number;
+  const createConsumer = useMutation<void, Error, Omit<Person, "id">>({
+    mutationFn: (collaborator) => ConsumersService.createPerson(collaborator),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["consumers"] });
+      handleCloseAdd();
+    },
+  });
 
-    const collaborator = {
-      name,
-      cpf: removeCpfMask(cpf),
-      email,
-      address,
-      codePostal: removeCEPMask(codePostal),
-      city: { id: city },
-    };
+  const updateConsumer = useMutation<void, Error, Person>({
+    mutationFn: (collaborator) => ConsumersService.updatePerson(collaborator),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["consumers"] });
+      handleCloseEdit();
+    },
+  });
 
-    try {
-      const response = await ConsumersService.createPerson(collaborator);
-      if (response?.id) {
-        handleCloseAdd();
-        getAllConsumers();
-        setRequestResponse({
-          title: "Adicionado",
-          message: "Item adicionado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when crate collaborator: ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    } finally {
-    }
-  };
+  const deleteConsumer = useMutation<void, Error, number>({
+    mutationFn: (id) => ConsumersService.deletePerson(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["consumers"] });
+    },
+  });
 
-  const updateState = async () => {
-    const name = getFieldValue(fields, "name") as string;
-    const cpf = getFieldValue(fields, "cpf") as string;
-    const email = getFieldValue(fields, "email") as string;
-    const address = getFieldValue(fields, "address") as string;
-    const codePostal = getFieldValue(fields, "codePostal") as string;
-    const city = getFieldValue(fields, "city") as number;
-
-    const collaborator = {
-      id: selectedCollaborator?.id as number,
-      name,
-      cpf: removeCpfMask(cpf),
-      email,
-      address,
-      codePostal: removeCEPMask(codePostal),
-      city: { id: city },
-    };
-
-    try {
-      const response = await ConsumersService.updatePerson(collaborator);
-      if (response?.id) {
-        setOpenEdit(false);
-        getAllConsumers();
-        setRequestResponse({
-          title: "Atualizado",
-          message: "Item atualizado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when update collaborator: ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const deleteState = async (id: number) => {
-    try {
-      await ConsumersService.deletePerson(id);
-      getAllConsumers();
-    } catch (error) {
-      console.error(`error when delete collaborator: ${error}`);
-    }
-  };
-
-  const handleClearFields = () => {
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      value:
-        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
-    }));
-
-    setFields(updatedFields);
-  };
-
-  const handleClearRequestResponse = () => {
-    setRequestResponse({
-      title: "",
-      message: "",
-      icon: "",
-      open: false,
-      success: false,
-    });
-  };
-
-  const handleCloseEdit = () => {
-    handleClearFields();
-    setOpenEdit(false);
-  };
-
-  const handleCancel = () => {
-    handleClearFields();
-    handleCloseAdd();
+  const handleChange = (name: string, value: string | number | string[]) => {
+    setFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.name === name) {
+          const newValue = field.mask ? field.mask(value.toString()) : value;
+          return { ...field, value: newValue };
+        }
+        return field;
+      })
+    );
   };
 
   const handleEditClick = (row: Person) => {
-    setSelectedCollaborator(row);
+    setSelectedConsumer(row);
     setOpenEdit(true);
 
     const fieldMap: Record<FieldName, string | number | string[]> = {
@@ -292,42 +164,36 @@ export function useConsumers({ handleCloseAdd }: useConsumersProps) {
     );
   };
 
-  const handleChange = (name: string, value: string | number | string[]) => {
-    setFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.name === name) {
-          const newValue = field.mask ? field.mask(value.toString()) : value;
-          return { ...field, value: newValue };
-        }
-        return field;
-      })
-    );
+  const handleCancel = () => {
+    handleClearFields();
+    handleCloseAdd();
+  };
+
+  const handleCloseEdit = () => {
+    handleClearFields();
+    setOpenEdit(false);
+  };
+
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
   };
 
   return {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllConsumers,
-    getAllCities,
+    cities,
+    isLoading,
+    deleteConsumer,
+    updateFieldsWithCities,
     handleSubmit,
-    deleteState,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
     handleChange,
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
   };
 }

@@ -1,185 +1,76 @@
-import { useState } from "react";
-import { CategoriesService } from "../../../service/Categories.service";
-import { Category } from "../../../interfaces/Category";
-import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFieldValue";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import SuccessIcon from '../../../assets/icons/success.svg';
-import ErrorIcon from '../../../assets/icons/error.svg';
+import { CategoriesService } from "../../../service/Categories.service";
+
+import { Category } from "../../../interfaces/Category";
+
+import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+
+import { getFieldValue } from "../../../utils/getFieldValue";
 
 interface useCategoriesProps {
   handleCloseAdd: () => void;
+  fields: DynamicField[];
+  setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
+  setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedCategory: React.Dispatch<React.SetStateAction<Category | null>>;
 }
 
-export function useCategories({ handleCloseAdd }: useCategoriesProps) {
-  const [tableData, setTableData] = useState<Category[]>([]);
-  const [filteredData, setFilteredData] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export function useCategories({
+  handleCloseAdd,
+  fields,
+  setFields,
+  setOpenEdit,
+  setSelectedCategory,
+}: useCategoriesProps) {
+  const queryClient = useQueryClient();
 
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const rowsPerPage = 7;
-
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-
-  const [fields, setFields] = useState<DynamicField[]>([
-    {
-      label: "Nome*",
-      name: "name",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Nome é obrigatório" },
-    },
-  ]);
-  
-  const [requestResponse, setRequestResponse] = useState({
-    title: "",
-    message: "",
-    icon: "",
-    open: false,
-    success: false,
+  const { data: tableData = [], isLoading } = useQuery<Category[], Error>({
+    queryKey: ["categories"],
+    queryFn: CategoriesService.getAllCategories,
   });
 
-  const getAllCategories = async () => {
-    try {
-      const response = await CategoriesService.getAllCategories();
-      if (response?.length >= 0) setTableData(response);
-    } catch (error) {
-      console.error(`error when searching all categories : ${error}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const createCategory = useMutation<void, Error, Omit<Category, "id">>({
+    mutationFn: (category) => CategoriesService.createCategory(category),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      handleCloseAdd();
+    },
+  });
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const updateCategory = useMutation<void, Error, Category>({
+    mutationFn: (category) => CategoriesService.updateCategory(category),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      handleCloseEdit();
+    },
+  });
+
+  const deleteCategory = useMutation<void, Error, number>({
+    mutationFn: (id) => CategoriesService.deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+  });
+
+  const handleSubmit = async (
+    event: React.FormEvent,
+    fields: DynamicField[],
+    selectedCategory: Category | null
+  ) => {
     event.preventDefault();
-    if (!!selectedCategory) {
-      updateCategory();
+    const name = getFieldValue(fields, "name") as string;
+
+    if (selectedCategory) {
+      updateCategory.mutate({
+        id: selectedCategory.id,
+        name,
+      } as Category);
     } else {
-      createCategory();
+      createCategory.mutate({
+        name,
+      } as Category);
     }
-  };
-
-  const createCategory = async () => {
-    const name = getFieldValue(fields, "name") as string;
-
-    const category = {
-      name,
-    };
-
-    try {
-      const response = await CategoriesService.createCategory(category);
-      if (response?.id) {
-        handleCloseAdd();
-        getAllCategories();
-        setRequestResponse({
-          title: "Adicionado",
-          message: "Item adicionado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when crate category : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const updateCategory = async () => {
-    const name = getFieldValue(fields, "name") as string;
-
-    const category = {
-      id: selectedCategory?.id as number,
-      name,
-    };
-
-    try {
-      const response = await CategoriesService.updateCategory(category);
-      if (response?.id) {
-        setOpenEdit(false);
-        getAllCategories();
-        setRequestResponse({
-          title: "Atualizado",
-          message: "Item atualizado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when update category : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const deleteCategory = async (id: number) => {
-    try {
-      await CategoriesService.deleteCategory(id);
-      getAllCategories();
-    } catch (error) {
-      console.error(`error when delete category : ${error}`);
-    }
-  };
-
-  const handleClearFields = () => {
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      value:
-        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
-    }));
-
-    setFields(updatedFields);
-  };
-
-  const handleClearRequestResponse = () => {
-    setRequestResponse({
-      title: "",
-      message: "",
-      icon: "",
-      open: false,
-      success: false,
-    });
-  };
-
-  const handleCloseEdit = () => {
-    handleClearFields();
-    setOpenEdit(false);
-  };
-
-  const handleCancel = () => {
-    handleClearFields();
-    handleCloseAdd();
-  };
-
-  const handleEditClick = (row: Category) => {
-    setSelectedCategory(row);
-    setOpenEdit(true);
-
-    setFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.name === "name") {
-          return { ...field, value: row.name };
-        }
-        return field;
-      })
-    );
   };
 
   const handleChange = (name: string, value: string | number | string[]) => {
@@ -198,29 +89,48 @@ export function useCategories({ handleCloseAdd }: useCategoriesProps) {
     );
   };
 
+  const handleEditClick = (row: Category) => {
+    setSelectedCategory(row);
+    setOpenEdit(true);
+
+    setFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.name === "name") {
+          return { ...field, value: row.name };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleCancel = () => {
+    handleClearFields();
+    handleCloseAdd();
+  };
+
+  const handleCloseEdit = () => {
+    handleClearFields();
+    setOpenEdit(false);
+  };
+
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
+  };
+
   return {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllCategories,
-    handleSubmit,
+    isLoading,
     deleteCategory,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    handleSubmit,
     handleChange,
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
   };
 }

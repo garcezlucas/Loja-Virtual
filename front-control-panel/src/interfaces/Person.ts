@@ -15,7 +15,7 @@ export interface Person {
   email: string;
   recoverPasswordCode: string | null;
   sendCodeDate: Date | null;
-  password: string;
+  password?: string;
   address: string;
   codePostal: string;
   city: City;

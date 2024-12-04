@@ -1,64 +1,48 @@
-import { useState } from "react";
-import { CitiesService } from "../../../service/Cities.service";
-import { City } from "../../../interfaces/City";
-import { StatesService } from "../../../service/States.service";
-import { State } from "../../../interfaces/State";
-import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFieldValue";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import SuccessIcon from '../../../assets/icons/success.svg';
-import ErrorIcon from '../../../assets/icons/error.svg';
+import { CitiesService } from "../../../service/Cities.service";
+import { StatesService } from "../../../service/States.service";
+
+import { City } from "../../../interfaces/City";
+import { State } from "../../../interfaces/State";
+
+import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+
+import { getFieldValue } from "../../../utils/getFieldValue";
 
 type FieldName = "name" | "state";
 
 interface useCitiesProps {
   handleCloseAdd: () => void;
+  fields: DynamicField[];
+  setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
+  setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedCity: React.Dispatch<React.SetStateAction<City | null>>;
 }
 
-export function useCities({ handleCloseAdd }: useCitiesProps) {
-  const [tableData, setTableData] = useState<City[]>([]);
-  const [filteredData, setFilteredData] = useState<City[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export function useCities({
+  handleCloseAdd,
+  fields,
+  setFields,
+  setOpenEdit,
+  setSelectedCity,
+}: useCitiesProps) {
+  const queryClient = useQueryClient();
 
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const rowsPerPage = 7;
-
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
-
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-
-  const [fields, setFields] = useState<DynamicField[]>([
-    {
-      label: "Nome*",
-      name: "name",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Nome é obrigatório" },
-    },
-    {
-      label: "Estado*",
-      name: "state",
-      type: "select",
-      value: 0,
-      options: [],
-      validationRules: { required: true, message: "Estado é obrigatório" },
-    },
-  ]);
-
-  const [requestResponse, setRequestResponse] = useState({
-    title: "",
-    message: "",
-    icon: "",
-    open: false,
-    success: false,
+  const { data: tableData = [], isLoading } = useQuery<City[], Error>({
+    queryKey: ["cities"],
+    queryFn: CitiesService.getAllCities,
   });
 
-  const getAllStates = async () => {
+  const { data: states = [] } = useQuery<State[], Error>({
+    queryKey: ["states"],
+    queryFn: StatesService.getAllStates,
+  });
+
+  const updateFieldsWithStates = () => {
     try {
-      const response = await StatesService.getAllStates();
-      if (response?.length > 0) {
-        const stateOptions = response.map((state: State) => ({
+      if (states?.length > 0) {
+        const stateOptions = states.map((state: State) => ({
           value: state.id,
           label: state.name,
         }));
@@ -81,137 +65,70 @@ export function useCities({ handleCloseAdd }: useCitiesProps) {
         );
       }
     } catch (error) {
-      console.error(`Error when searching all states: ${error}`);
+      console.error(`Error when update fields with states: ${error}`);
     }
   };
 
-  const getAllCities = async () => {
-    setLoading(true);
-    try {
-      const response = await CitiesService.getAllCities();
-      if (response?.length >= 0) setTableData(response);
-    } catch (error) {
-      console.error(`error when searching all citys : ${error}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (
+    event: React.FormEvent,
+    fields: DynamicField[],
+    selectedCity: City | null
+  ) => {
     event.preventDefault();
-    if (!!selectedCity) {
-      updateCity();
+    const name = getFieldValue(fields, "name") as string;
+    const stateId = getFieldValue(fields, "state") as number;
+
+    if (selectedCity) {
+      updateCity.mutate({
+        id: selectedCity.id,
+        name,
+        state: { id: stateId } as State,
+      } as City);
     } else {
-      createCity();
+      createCity.mutate({
+        name,
+        state: { id: stateId } as State,
+      } as City);
     }
   };
 
-  const createCity = async () => {
-    const name = getFieldValue(fields, "name") as string;
-    const stateId = getFieldValue(fields, "state") as number;
+  const createCity = useMutation<void, Error, Omit<City, "id">>({
+    mutationFn: (brand) => CitiesService.createCity(brand),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cities"] });
+      handleCloseAdd();
+    },
+  });
 
-    const city = {
-      name: name,
-      state: { id: stateId },
-    };
+  const updateCity = useMutation<void, Error, City>({
+    mutationFn: (brand) => CitiesService.updateCity(brand),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cities"] });
+      handleCloseEdit();
+    },
+  });
 
-    try {
-      const response = await CitiesService.createCity(city);
-      if (response?.id) {
-        handleCloseAdd();
-        getAllCities();
-        setRequestResponse({
-          title: "Adicionado",
-          message: "Item adicionado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when crate city : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
+  const deleteCity = useMutation<void, Error, number>({
+    mutationFn: (id) => CitiesService.deleteCity(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cities"] });
+    },
+  });
 
-  const updateCity = async () => {
-    const name = getFieldValue(fields, "name") as string;
-    const stateId = getFieldValue(fields, "state") as number;
+  const handleChange = (name: string, value: string | number | string[]) => {
+    const isNumber = typeof value === "number";
 
-    const city = {
-      id: selectedCity?.id as number,
-      name,
-      state: { id: stateId },
-    };
-
-    try {
-      const response = await CitiesService.updateCity(city);
-      if (response?.id) {
-        setOpenEdit(false);
-        getAllCities();
-        setRequestResponse({
-          title: "Atualizado",
-          message: "Item atualizado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when update city : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const deleteCity = async (id: number) => {
-    try {
-      await CitiesService.deleteCity(id);
-      getAllCities();
-    } catch (error) {
-      console.error(`error when delete city : ${error}`);
-    }
-  };
-
-  const handleClearFields = () => {
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      value:
-        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
-    }));
-
-    setFields(updatedFields);
-  };
-
-  const handleClearRequestResponse = () => {
-    setRequestResponse({
-      title: "",
-      message: "",
-      icon: "",
-      open: false,
-      success: false,
-    });
-  };
-
-  const handleCloseEdit = () => {
-    handleClearFields();
-    setOpenEdit(false);
-  };
-
-  const handleCancel = () => {
-    handleClearFields();
-    handleCloseAdd();
+    setFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.name === name) {
+          if (isNumber) {
+            return { ...field, value: value.toString() };
+          }
+          return { ...field, value };
+        }
+        return field;
+      })
+    );
   };
 
   const handleEditClick = (row: City) => {
@@ -233,46 +150,36 @@ export function useCities({ handleCloseAdd }: useCitiesProps) {
     );
   };
 
-  const handleChange = (name: string, value: string | number | string[]) => {
-    const isNumber = typeof value === "number";
+  const handleCancel = () => {
+    handleClearFields();
+    handleCloseAdd();
+  };
 
-    setFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.name === name) {
-          if (isNumber) {
-            return { ...field, value: value.toString() };
-          }
-          return { ...field, value };
-        }
-        return field;
-      })
-    );
+  const handleCloseEdit = () => {
+    handleClearFields();
+    setOpenEdit(false);
+  };
+
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
   };
 
   return {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllStates,
-    getAllCities,
-    handleSubmit,
+    states,
+    isLoading,
     deleteCity,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    updateFieldsWithStates,
+    handleSubmit,
     handleChange,
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
   };
 }

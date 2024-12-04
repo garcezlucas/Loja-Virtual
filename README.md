@@ -19,12 +19,11 @@ Este é um projeto de uma **loja virtual** completa, incluindo backend, painel d
 - **React.js**: Framework para criação de interfaces dinâmicas.
 - **TypeScript**: Para maior segurança e produtividade no desenvolvimento.
 - **React Router DOM**: Navegação entre páginas.
-- **Ant Design** (ou outra lib): Para componentes estilizados e consistentes.
+- **React Query**: Gerenciamento eficiente de dados do frontend.
 
 ### Site da Loja
 - **Next.js**: Framework React para renderização do lado do servidor (SSR) e performance otimizada.
-- **Styled Components** ou **TailwindCSS**: Para estilização de componentes.
-- **SWR** ou **React Query**: Gerenciamento eficiente de dados do frontend.
+- **TailwindCSS**: Para estilização de componentes.
 
 ---
 

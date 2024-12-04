@@ -6,11 +6,16 @@ export function filterDataIgnoringAccents(
     return str?.normalize("NFD")?.replace(/[\u0300-\u036f]/g, "");
   };
 
-  return data?.filter((item: any) => {
-    return removeAccents(item?.name?.toLowerCase())?.includes(
-      removeAccents(searchTerm?.toLowerCase())
-    );
-  });
+  return data
+    ?.sort(
+      (a, b) =>
+        new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
+    )
+    ?.filter((item: any) => {
+      return removeAccents(item?.name?.toLowerCase())?.includes(
+        removeAccents(searchTerm?.toLowerCase())
+      );
+    });
 }
 
 export function filterShortDescriptionDataIgnoringAccents(
@@ -21,9 +26,14 @@ export function filterShortDescriptionDataIgnoringAccents(
     return str?.normalize("NFD")?.replace(/[\u0300-\u036f]/g, "");
   };
 
-  return data?.filter((item: any) => {
-    return removeAccents(item?.shortDescription?.toLowerCase())?.includes(
-      removeAccents(searchTerm?.toLowerCase())
-    );
-  });
+  return data
+    ?.sort(
+      (a, b) =>
+        new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
+    )
+    ?.filter((item: any) => {
+      return removeAccents(item?.shortDescription?.toLowerCase())?.includes(
+        removeAccents(searchTerm?.toLowerCase())
+      );
+    });
 }
