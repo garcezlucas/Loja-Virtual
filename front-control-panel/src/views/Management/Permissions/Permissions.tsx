@@ -1,17 +1,22 @@
 import "../_management.scss";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 import { usePermissions } from "./usePermissions";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
-import DynamicForm from "../../../components/DynamicForm/DynamicForm";
+import DynamicForm, {
+  DynamicField,
+} from "../../../components/DynamicForm/DynamicForm";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
+import { Permission } from "../../../interfaces/Permission";
+
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+
 
 interface PermissionsProps {
   searchTerm: string;
@@ -24,35 +29,36 @@ const Permissions: React.FC<PermissionsProps> = ({
   openAdd,
   handleCloseAdd,
 }) => {
+  const [selectedPermission, setSelectedPermission] =
+    useState<Permission | null>(null);
+  const [filteredData, setFilteredData] = useState<Permission[]>([]);
+  const [fields, setFields] = useState<DynamicField[]>([
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+  ]);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+
   const {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllPermissions,
-    handleSubmit,
+    isLoading,
     deletePermission,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    handleSubmit,
     handleChange,
-  } = usePermissions({ handleCloseAdd });
-
-  useEffect(() => {
-    getAllPermissions();
-  }, []);
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
+  } = usePermissions({
+    handleCloseAdd,
+    fields,
+    setFields,
+    setOpenEdit,
+    setSelectedPermission,
+  });
 
   useEffect(() => {
     if (tableData.length > 0) {
@@ -60,67 +66,46 @@ const Permissions: React.FC<PermissionsProps> = ({
       setFilteredData(filtered);
     }
   }, [searchTerm, tableData]);
+  const titleColumns = [
+    { label: "ID", width: "33.33%" },
+    { label: "Nome", width: "33.33%" },
+    { label: "", width: "33.33%" },
+  ];
 
-  const renderActionButtons = useCallback(
-    (value: number, row: any) => (
-      <div className="action-buttons">
-        <button
-          className="action-buttons-edit"
-          onClick={() => handleEditClick(row)}
-        >
-          <img src={EditIcon} alt="edit" />
-        </button>
-        <button
-          className="action-buttons-delete"
-          onClick={() => deletePermission(value)}
-        >
-          <img src={DeleteIcon} alt="delete" />
-        </button>
-      </div>
-    ),
-    []
-  );
-
-  const titleColumns = useMemo(
-    () => [
-      { label: "ID", width: "33.33%" },
-      { label: "Nome", width: "33.33%" },
-      { label: "", width: "33.33%" },
-    ],
-    []
-  );
-
-  const columns: Column[] = useMemo(
-    () => [
-      { label: "id", format: (value) => value || "-", width: "33.33%" },
-      { label: "name", format: (value) => value || "-", width: "33.33%" },
-      {
-        label: "id",
-        format: (value, row) => renderActionButtons(value, row),
-        width: "33.33%",
-      },
-    ],
-    []
-  );
-
-  const dataTable = filteredData;
-  const totalItems = filteredData?.length;
-  const heightTable = "42.7rem";
-  const heightLoading = "30rem";
+  const columns: Column[] = [
+    { label: "id", format: (value) => value || "-", width: "33.33%" },
+    { label: "name", format: (value) => value || "-", width: "33.33%" },
+    {
+      label: "id",
+      format: (value, row) => (
+        <div className="action-buttons">
+          <button
+            className="action-buttons-edit"
+            onClick={() => handleEditClick(row)}
+          >
+            <img src={EditIcon} alt="edit" />
+          </button>
+          <button
+            className="action-buttons-delete"
+            onClick={() => deletePermission.mutate(value)}
+          >
+            <img src={DeleteIcon} alt="delete" />
+          </button>
+        </div>
+      ),
+      width: "33.33%",
+    },
+  ];
 
   const tableProps = {
     titleColumns,
     columns,
-    dataTable,
-    page,
-    setPage,
-    rowsPerPage,
-    totalPages,
-    setTotalPages,
-    totalItems,
-    heightTable,
-    heightLoading,
-    loading,
+    dataTable: filteredData,
+    rowsPerPage: 7,
+    totalItems: filteredData.length,
+    heightTable: "42.7rem",
+    loading: isLoading,
+    heightLoading: "30rem",
   };
 
   return (
@@ -131,7 +116,7 @@ const Permissions: React.FC<PermissionsProps> = ({
         <DynamicForm
           title="Cadastro"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedPermission)}
           handleCancel={handleCancel}
           handleChange={handleChange}
         />
@@ -141,26 +126,10 @@ const Permissions: React.FC<PermissionsProps> = ({
         <DynamicForm
           title="Editar"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedPermission)}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
-      </Modal>
-
-      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
-        <div className="modal-response-container">
-          <header>{requestResponse.title}</header>
-          <img src={requestResponse.icon} alt={requestResponse.title} />
-          <p>{requestResponse.message}</p>
-          <button
-            style={{
-              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
-            }}
-            onClick={handleClearRequestResponse}
-          >
-            <span>Fechar</span>
-          </button>
-        </div>
       </Modal>
     </div>
   );

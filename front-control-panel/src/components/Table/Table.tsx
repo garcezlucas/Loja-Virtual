@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./_table.scss";
 import LeftArrowIcon from "../../assets/icons/left-arrow.svg";
 import DoubleLeftArrowIcon from "../../assets/icons/left-arrow-next.svg";
@@ -25,12 +25,8 @@ interface TableProps {
     )[];
     columns: Column[];
     dataTable: any;
-    page: number;
-    setPage: React.Dispatch<React.SetStateAction<number>>;
     rowsPerPage: number;
-    totalPages: number;
     totalItems: number;
-    setTotalPages: React.Dispatch<React.SetStateAction<number>>;
     heightTable: string;
     OnClickBody?: (
       event: React.MouseEvent<HTMLTableRowElement>,
@@ -44,15 +40,14 @@ interface TableProps {
 }
 
 const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
+  const [page, setPage] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+
   const {
     titleColumns,
     columns,
     dataTable,
-    page,
-    setPage,
     rowsPerPage,
-    totalPages,
-    setTotalPages,
     totalItems,
     rowIndex,
     setRowIndex,
@@ -105,7 +100,7 @@ const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    height: heightLoading
+                    height: heightLoading,
                   }}
                 >
                   <Loading />
@@ -120,7 +115,7 @@ const TableComponent: React.FC<TableProps> = ({ tableProps }) => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    height: heightLoading
+                    height: heightLoading,
                   }}
                 >
                   <NotFoundData message={"Nenhum dao encontrado"} />

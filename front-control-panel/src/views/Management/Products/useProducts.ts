@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { ProductsService } from "../../../service/Products.service";
-import { Product } from "../../../interfaces/Product";
-import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { Category } from "../../../interfaces/Category";
 import { CategoriesService } from "../../../service/Categories.service";
-import { Brand } from "../../../interfaces/Brand";
 import { BrandService } from "../../../service/Brands.service";
-import { getFieldValue } from "../../../utils/getFieldValue";
-import { maskCurrency, removeMaskCurrency } from "../../../utils/CurrencyMask";
 import { ImagesService } from "../../../service/Images.service";
 
-import SuccessIcon from '../../../assets/icons/success.svg';
-import ErrorIcon from '../../../assets/icons/error.svg';
+import { Product } from "../../../interfaces/Product";
+import { Category } from "../../../interfaces/Category";
+import { Brand } from "../../../interfaces/Brand";
+
+import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+
+import { getFieldValue } from "../../../utils/getFieldValue";
+import { maskCurrency } from "../../../utils/CurrencyMask";
 
 type FieldName =
   | "shortDescription"
@@ -23,104 +24,44 @@ type FieldName =
 
 interface useProductsProps {
   handleCloseAdd: () => void;
+  fields: DynamicField[];
+  setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
+  setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenImage: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedProduct: Product | null;
+  setSelectedProduct: React.Dispatch<React.SetStateAction<Product | null>>;
 }
 
-export function useProducts({ handleCloseAdd }: useProductsProps) {
-  const [tableData, setTableData] = useState<Product[]>([]);
-  const [filteredData, setFilteredData] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export function useProducts({
+  handleCloseAdd,
+  fields,
+  setFields,
+  setOpenEdit,
+  setOpenImage,
+  selectedProduct,
+  setSelectedProduct,
+}: useProductsProps) {
+  const queryClient = useQueryClient();
 
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const rowsPerPage = 7;
-
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-  const [openImage, setOpenImage] = useState<boolean>(false);
-
-  const [fields, setFields] = useState<DynamicField[]>([
-    {
-      label: "Descrição curta*",
-      name: "shortDescription",
-      type: "text",
-      value: "",
-      validationRules: {
-        required: true,
-        message: "Descrição curta é obrigatório",
-      },
-    },
-    {
-      label: "Descrição*",
-      name: "description",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Descrição é obrigatório" },
-    },
-    {
-      label: "Marca*",
-      name: "brand",
-      type: "select",
-      value: 0,
-      options: [],
-      validationRules: { required: true, message: "Marca é obrigatório" },
-    },
-    {
-      label: "Categoria*",
-      name: "category",
-      type: "select",
-      value: 0,
-      options: [],
-      validationRules: { required: true, message: "Categoria é obrigatório" },
-    },
-    {
-      label: "Preço de custo*",
-      name: "expense",
-      type: "text",
-      value: "",
-      mask: maskCurrency,
-      validationRules: {
-        required: true,
-        message: "Preço de custo é obrigatório",
-      },
-    },
-    {
-      label: "Preço de venda*",
-      name: "price",
-      type: "text",
-      value: "",
-      mask: maskCurrency,
-      validationRules: {
-        required: true,
-        message: "Preço de venda é obrigatório",
-      },
-    },
-  ]);
-
-  const [requestResponse, setRequestResponse] = useState({
-    title: "",
-    message: "",
-    icon: "",
-    open: false,
-    success: false,
+  const { data: tableData = [], isLoading } = useQuery<Product[], Error>({
+    queryKey: ["products"],
+    queryFn: ProductsService.getAllProducts,
   });
 
-  const getAllProducts = async () => {
-    try {
-      const response = await ProductsService.getAllProducts();
-      if (response?.length >= 0) setTableData(response);
-    } catch (error) {
-      console.error(`error when searching all products : ${error}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: categories = [] } = useQuery<Category[], Error>({
+    queryKey: ["categories"],
+    queryFn: CategoriesService.getAllCategories,
+  });
 
-  const getAllCategories = async () => {
+  const { data: brands = [] } = useQuery<Brand[], Error>({
+    queryKey: ["brands"],
+    queryFn: BrandService.getAllBrands,
+  });
+
+  const updateFieldsWithCategories = async () => {
     try {
-      const response = await CategoriesService.getAllCategories();
-      if (response?.length > 0) {
-        const stateOptions = response.map((state: Category) => ({
+      if (categories?.length > 0) {
+        const stateOptions = categories.map((state: Category) => ({
           value: state.id,
           label: state.name,
         }));
@@ -143,15 +84,14 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
         );
       }
     } catch (error) {
-      console.error(`Error when searching all states: ${error}`);
+      console.error(`Error when update fields with categories: ${error}`);
     }
   };
 
-  const getAllBrands = async () => {
+  const updateFieldsWithBrands = async () => {
     try {
-      const response = await BrandService.getAllBrands();
-      if (response?.length > 0) {
-        const stateOptions = response.map((state: Brand) => ({
+      if (brands?.length > 0) {
+        const stateOptions = brands.map((state: Brand) => ({
           value: state.id,
           label: state.name,
         }));
@@ -174,151 +114,70 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
         );
       }
     } catch (error) {
-      console.error(`error when searching all brand : ${error}`);
-    } finally {
-      setLoading(false);
+      console.error(`error when update fields with brands: ${error}`);
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (
+    event: React.FormEvent,
+    fields: DynamicField[],
+    selectedProduct: Product | null
+  ) => {
     event.preventDefault();
-    if (!!selectedProduct) {
-      updateProduct();
+    const shortDescription = getFieldValue(
+      fields,
+      "shortDescription"
+    ) as string;
+    const description = getFieldValue(fields, "description") as string;
+    const brandId = getFieldValue(fields, "brand") as number;
+    const categoryId = getFieldValue(fields, "category") as number;
+    const expense = getFieldValue(fields, "expense") as number;
+    const price = getFieldValue(fields, "price") as number;
+
+    if (selectedProduct) {
+      updateProduct.mutate({
+        id: selectedProduct.id,
+        shortDescription,
+        description,
+        brand: { id: brandId } as Brand,
+        category: { id: categoryId } as Category,
+        expense,
+        price,
+      } as Product);
     } else {
-      createProduct();
+      createProduct.mutate({
+        shortDescription,
+        description,
+        brand: { id: brandId } as Brand,
+        category: { id: categoryId } as Category,
+        expense,
+        price,
+      } as Product);
     }
   };
 
-  const createProduct = async () => {
-    const shortDescription = getFieldValue(
-      fields,
-      "shortDescription"
-    ) as string;
-    const description = getFieldValue(fields, "description") as string;
-    const brandId = getFieldValue(fields, "brand") as number;
-    const categoryId = getFieldValue(fields, "category") as number;
-    const expense = getFieldValue(fields, "expense") as number;
-    const price = getFieldValue(fields, "price") as number;
+  const createProduct = useMutation<void, Error, Omit<Product, "id">>({
+    mutationFn: (product) => ProductsService.createProduct(product),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      handleCloseAdd();
+    },
+  });
 
-    const product = {
-      shortDescription,
-      description,
-      brand: { id: brandId },
-      category: { id: categoryId },
-      expense: removeMaskCurrency(expense),
-      price: removeMaskCurrency(price),
-    };
+  const updateProduct = useMutation<void, Error, Product>({
+    mutationFn: (product) => ProductsService.updateProduct(product),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      handleCloseEdit();
+    },
+  });
 
-    try {
-      const response = await ProductsService.createProduct(product);
-      if (response?.id) {
-        handleCloseAdd();
-        getAllProducts();
-        setRequestResponse({
-          title: "Adicionado",
-          message: "Item adicionado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when crate product : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const updateProduct = async () => {
-    const shortDescription = getFieldValue(
-      fields,
-      "shortDescription"
-    ) as string;
-    const description = getFieldValue(fields, "description") as string;
-    const brandId = getFieldValue(fields, "brand") as number;
-    const categoryId = getFieldValue(fields, "category") as number;
-    const expense = getFieldValue(fields, "expense") as number;
-    const price = getFieldValue(fields, "price") as number;
-
-    const product = {
-      id: selectedProduct?.id as number,
-      shortDescription,
-      description,
-      brand: { id: brandId },
-      category: { id: categoryId },
-      expense: removeMaskCurrency(expense),
-      price: removeMaskCurrency(price),
-    };
-
-    try {
-      const response = await ProductsService.updateProduct(product);
-      if (response?.id) {
-        setOpenEdit(false);
-        getAllProducts();
-        setRequestResponse({
-          title: "Atualizado",
-          message: "Item atualizado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when update product : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const deleteProduct = async (id: number) => {
-    try {
-      await ProductsService.deleteProduct(id);
-      getAllProducts();
-    } catch (error) {
-      console.error(`error when delete product : ${error}`);
-    }
-  };
-
-  const handleClearFields = () => {
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      value:
-        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
-    }));
-
-    setFields(updatedFields);
-    setSelectedProduct(null);
-  };
-
-  const handleClearRequestResponse = () => {
-    setRequestResponse({
-      title: "",
-      message: "",
-      icon: "",
-      open: false,
-      success: false,
-    });
-  };
-
-  const handleCloseEdit = () => {
-    handleClearFields();
-    setOpenEdit(false);
-  };
-
-  const handleCancel = () => {
-    handleClearFields();
-    handleCloseAdd();
-  };
+  const deleteProduct = useMutation<void, Error, number>({
+    mutationFn: (id) => ProductsService.deleteProduct(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
 
   const uploadImage = async (files: File[] | null) => {
     if (!files) return;
@@ -344,7 +203,6 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
 
       if (successfulUploads.length > 0) {
         handleCloseImageModal();
-        getAllProducts();
       }
     } catch (error) {
       console.error(`Error when uploading images: ${error}`);
@@ -359,6 +217,28 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
   const handleCloseImageModal = () => {
     setOpenImage(false);
     setSelectedProduct(null);
+  };
+
+  const handleChange = (name: string, value: string | number | string[]) => {
+    const isNumber = typeof value === "number";
+
+    setFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.name === name) {
+          if (isNumber) {
+            const newValue = field.mask
+              ? field.mask(value.toString())
+              : value.toString();
+            return { ...field, value: newValue };
+          }
+          const newValue = field.mask
+            ? field.mask(value.toString())
+            : value.toString();
+          return { ...field, value: newValue };
+        }
+        return field;
+      })
+    );
   };
 
   const handleEditClick = (row: Product) => {
@@ -384,58 +264,42 @@ export function useProducts({ handleCloseAdd }: useProductsProps) {
     );
   };
 
-  const handleChange = (name: string, value: string | number | string[]) => {
-    const isNumber = typeof value === "number";
+  const handleCancel = () => {
+    handleClearFields();
+    handleCloseAdd();
+  };
 
-    setFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.name === name) {
-          if (isNumber) {
-            const newValue = field.mask
-              ? field.mask(value.toString())
-              : value.toString();
-            return { ...field, value: newValue };
-          }
-          const newValue = field.mask
-            ? field.mask(value.toString())
-            : value.toString();
-          return { ...field, value: newValue };
-        }
-        return field;
-      })
-    );
+  const handleCloseEdit = () => {
+    handleClearFields();
+    setOpenEdit(false);
+  };
+
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
+    setSelectedProduct(null);
   };
 
   return {
     tableData,
-    filteredData,
-    setFilteredData,
-    selectedProduct,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-    openImage,
-
-    getAllProducts,
-    getAllBrands,
-    getAllCategories,
-    handleSubmit,
+    categories,
+    brands,
+    isLoading,
     deleteProduct,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
+    updateFieldsWithCategories,
+    updateFieldsWithBrands,
+    handleSubmit,
     uploadImage,
     handleOpenImageModal,
     handleCloseImageModal,
-    handleEditClick,
     handleChange,
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
   };
 }

@@ -1,17 +1,21 @@
 import "../_management.scss";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useStates } from "./useStates";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
-import DynamicForm from "../../../components/DynamicForm/DynamicForm";
+import DynamicForm, {
+  DynamicField,
+} from "../../../components/DynamicForm/DynamicForm";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+
+import { State } from "../../../interfaces/State";
 
 interface StatesProps {
   searchTerm: string;
@@ -24,35 +28,42 @@ const States: React.FC<StatesProps> = ({
   openAdd,
   handleCloseAdd,
 }) => {
+  const [selectedState, setSelectedState] = useState<State | null>(null);
+  const [filteredData, setFilteredData] = useState<State[]>([]);
+  const [fields, setFields] = useState<DynamicField[]>([
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+    {
+      label: "Sigla*",
+      name: "acronym",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Sigla é obrigatório" },
+    },
+  ]);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+
   const {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllStates,
-    handleSubmit,
+    isLoading,
     deleteState,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    handleSubmit,
     handleChange,
-  } = useStates({ handleCloseAdd });
-
-  useEffect(() => {
-    getAllStates();
-  }, []);
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
+  } = useStates({
+    handleCloseAdd,
+    fields,
+    setFields,
+    setOpenEdit,
+    setSelectedState,
+  });
 
   useEffect(() => {
     if (tableData.length > 0) {
@@ -61,68 +72,48 @@ const States: React.FC<StatesProps> = ({
     }
   }, [searchTerm, tableData]);
 
-  const renderActionButtons = useCallback(
-    (value: number, row: any) => (
-      <div className="action-buttons">
-        <button
-          className="action-buttons-edit"
-          onClick={() => handleEditClick(row)}
-        >
-          <img src={EditIcon} alt="edit" />
-        </button>
-        <button
-          className="action-buttons-delete"
-          onClick={() => deleteState(value)}
-        >
-          <img src={DeleteIcon} alt="delete" />
-        </button>
-      </div>
-    ),
-    []
-  );
+  const titleColumns = [
+    { label: "ID", width: "25%" },
+    { label: "Nome", width: "25%" },
+    { label: "Sigla", width: "25%" },
+    { label: "", width: "25%" },
+  ];
 
-  const titleColumns = useMemo(
-    () => [
-      { label: "ID", width: "25%" },
-      { label: "Nome", width: "25%" },
-      { label: "Sigla", width: "25%" },
-      { label: "", width: "25%" },
-    ],
-    []
-  );
-
-  const columns: Column[] = useMemo(
-    () => [
-      { label: "id", format: (value) => value || "-", width: "25%" },
-      { label: "name", format: (value) => value || "-", width: "25%" },
-      { label: "acronym", format: (value) => value || "-", width: "25%" },
-      {
-        label: "id",
-        format: (value, row) => renderActionButtons(value, row),
-        width: "25%",
-      },
-    ],
-    []
-  );
-
-  const dataTable = filteredData;
-  const totalItems = filteredData?.length;
-  const heightTable = "42.7rem";
-  const heightLoading = "30rem";
+  const columns: Column[] = [
+    { label: "id", format: (value) => value || "-", width: "25%" },
+    { label: "name", format: (value) => value || "-", width: "25%" },
+    { label: "acronym", format: (value) => value || "-", width: "25%" },
+    {
+      label: "id",
+      format: (value, row) => (
+        <div className="action-buttons">
+          <button
+            className="action-buttons-edit"
+            onClick={() => handleEditClick(row)}
+          >
+            <img src={EditIcon} alt="edit" />
+          </button>
+          <button
+            className="action-buttons-delete"
+            onClick={() => deleteState.mutate(value)}
+          >
+            <img src={DeleteIcon} alt="delete" />
+          </button>
+        </div>
+      ),
+      width: "25%",
+    },
+  ];
 
   const tableProps = {
     titleColumns,
     columns,
-    dataTable,
-    page,
-    setPage,
-    rowsPerPage,
-    totalPages,
-    setTotalPages,
-    totalItems,
-    heightTable,
-    loading,
-    heightLoading
+    dataTable: filteredData,
+    rowsPerPage: 7,
+    totalItems: filteredData.length,
+    heightTable: "42.7rem",
+    loading: isLoading,
+    heightLoading: "30rem",
   };
 
   return (
@@ -133,7 +124,7 @@ const States: React.FC<StatesProps> = ({
         <DynamicForm
           title="Cadastro"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedState)}
           handleCancel={handleCancel}
           handleChange={handleChange}
         />
@@ -143,26 +134,10 @@ const States: React.FC<StatesProps> = ({
         <DynamicForm
           title="Editar"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedState)}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
-      </Modal>
-
-      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
-        <div className="modal-response-container">
-          <header>{requestResponse.title}</header>
-          <img src={requestResponse.icon} alt={requestResponse.title} />
-          <p>{requestResponse.message}</p>
-          <button
-            style={{
-              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
-            }}
-            onClick={handleClearRequestResponse}
-          >
-            <span>Fechar</span>
-          </button>
-        </div>
       </Modal>
     </div>
   );

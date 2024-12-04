@@ -1,17 +1,21 @@
 import "../_management.scss";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useCategories } from "./useCategories";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
-import DynamicForm from "../../../components/DynamicForm/DynamicForm";
+import DynamicForm, {
+  DynamicField,
+} from "../../../components/DynamicForm/DynamicForm";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+
+import { Category } from "../../../interfaces/Category";
 
 interface CategoriesProps {
   searchTerm: string;
@@ -24,35 +28,37 @@ const Categories: React.FC<CategoriesProps> = ({
   openAdd,
   handleCloseAdd,
 }) => {
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+  const [filteredData, setFilteredData] = useState<Category[]>([]);
+  const [fields, setFields] = useState<DynamicField[]>([
+    {
+      label: "Nome*",
+      name: "name",
+      type: "text",
+      value: "",
+      validationRules: { required: true, message: "Nome é obrigatório" },
+    },
+  ]);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+
   const {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllCategories,
-    handleSubmit,
+    isLoading,
     deleteCategory,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    handleSubmit,
     handleChange,
-  } = useCategories({ handleCloseAdd });
-
-  useEffect(() => {
-    getAllCategories();
-  }, []);
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
+  } = useCategories({
+    handleCloseAdd,
+    fields,
+    setFields,
+    setOpenEdit,
+    setSelectedCategory,
+  });
 
   useEffect(() => {
     if (tableData.length > 0) {
@@ -60,26 +66,6 @@ const Categories: React.FC<CategoriesProps> = ({
       setFilteredData(filtered);
     }
   }, [searchTerm, tableData]);
-
-  const renderActionButtons = useCallback(
-    (value: number, row: any) => (
-      <div className="action-buttons">
-        <button
-          className="action-buttons-edit"
-          onClick={() => handleEditClick(row)}
-        >
-          <img src={EditIcon} alt="edit" />
-        </button>
-        <button
-          className="action-buttons-delete"
-          onClick={() => deleteCategory(value)}
-        >
-          <img src={DeleteIcon} alt="delete" />
-        </button>
-      </div>
-    ),
-    []
-  );
 
   const titleColumns = useMemo(
     () => [
@@ -90,37 +76,40 @@ const Categories: React.FC<CategoriesProps> = ({
     []
   );
 
-  const columns: Column[] = useMemo(
-    () => [
-      { label: "id", format: (value) => value || "-", width: "33.33%" },
-      { label: "name", format: (value) => value || "-", width: "33.33%" },
-      {
-        label: "id",
-        format: (value, row) => renderActionButtons(value, row),
-        width: "33.33%",
-      },
-    ],
-    []
-  );
-
-  const dataTable = filteredData;
-  const totalItems = filteredData?.length;
-  const heightTable = "42.7rem";
-  const heightLoading = "30rem";
+  const columns: Column[] = [
+    { label: "id", format: (value) => value || "-", width: "33.33%" },
+    { label: "name", format: (value) => value || "-", width: "33.33%" },
+    {
+      label: "id",
+      format: (value, row) => (
+        <div className="action-buttons">
+          <button
+            className="action-buttons-edit"
+            onClick={() => handleEditClick(row)}
+          >
+            <img src={EditIcon} alt="edit" />
+          </button>
+          <button
+            className="action-buttons-delete"
+            onClick={() => deleteCategory.mutate(value)}
+          >
+            <img src={DeleteIcon} alt="delete" />
+          </button>
+        </div>
+      ),
+      width: "33.33%",
+    },
+  ];
 
   const tableProps = {
     titleColumns,
     columns,
-    dataTable,
-    page,
-    setPage,
-    rowsPerPage,
-    totalPages,
-    setTotalPages,
-    totalItems,
-    heightTable,
-    loading,
-    heightLoading,
+    dataTable: filteredData,
+    totalItems: filteredData?.length,
+    rowsPerPage: 7,
+    heightTable: "42.7rem",
+    loading: isLoading,
+    heightLoading: "30rem",
   };
 
   return (
@@ -131,7 +120,7 @@ const Categories: React.FC<CategoriesProps> = ({
         <DynamicForm
           title="Cadastro"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedCategory)}
           handleCancel={handleCancel}
           handleChange={handleChange}
         />
@@ -141,26 +130,10 @@ const Categories: React.FC<CategoriesProps> = ({
         <DynamicForm
           title="Editar"
           fields={fields}
-          handleSubmit={handleSubmit}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedCategory)}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
-      </Modal>
-
-      <Modal isOpen={requestResponse.open} onClose={handleClearRequestResponse}>
-        <div className="modal-response-container">
-          <header>{requestResponse.title}</header>
-          <img src={requestResponse.icon} alt={requestResponse.title} />
-          <p>{requestResponse.message}</p>
-          <button
-            style={{
-              backgroundColor: requestResponse.success ? "#3CB371" : "#FF0000",
-            }}
-            onClick={handleClearRequestResponse}
-          >
-            <span>Fechar</span>
-          </button>
-        </div>
       </Modal>
     </div>
   );

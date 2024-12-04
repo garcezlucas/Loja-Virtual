@@ -1,19 +1,18 @@
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { CollaboratorsService } from "../../../service/Collaborators.service";
-import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { Person } from "../../../interfaces/Person";
 import { CitiesService } from "../../../service/Cities.service";
+import { PermissionsService } from "../../../service/Permissions.service";
+
+import { Person, PersonPermission } from "../../../interfaces/Person";
 import { City } from "../../../interfaces/City";
 import { Permission } from "../../../interfaces/Permission";
-import { PermissionsService } from "../../../service/Permissions.service";
+
+import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+
 import { getFieldValue } from "../../../utils/getFieldValue";
 import { cpfMask, removeCpfMask } from "../../../utils/cpfMask";
 import { cepMask, removeCEPMask } from "../../../utils/cepMask";
-import { cpfValidator } from "../../../utils/cpfValidator";
-import { emailValidator } from "../../../utils/emailValidator";
-
-import SuccessIcon from "../../../assets/icons/success.svg";
-import ErrorIcon from "../../../assets/icons/error.svg";
 
 type FieldName =
   | "name"
@@ -26,114 +25,47 @@ type FieldName =
 
 interface useCollaboratorsProps {
   handleCloseAdd: () => void;
+  fields: DynamicField[];
+  setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
+  setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedCollaborator: React.Dispatch<React.SetStateAction<Person | null>>;
 }
 
-export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
-  const [tableData, setTableData] = useState<Person[]>([]);
-  const [filteredData, setFilteredData] = useState<Person[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export function useCollaborators({
+  handleCloseAdd,
+  fields,
+  setFields,
+  setOpenEdit,
+  setSelectedCollaborator,
+}: useCollaboratorsProps) {
+  const queryClient = useQueryClient();
 
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const rowsPerPage = 7;
-
-  const [selectedCollaborator, setSelectedCollaborator] =
-    useState<Person | null>(null);
-
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-
-  const [fields, setFields] = useState<DynamicField[]>([
-    {
-      label: "Nome*",
-      name: "name",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Nome é obrigatório" },
-    },
-    {
-      label: "CPF*",
-      name: "cpf",
-      type: "text",
-      value: "",
-      mask: cpfMask,
-      validationRules: { required: true, message: "Insira um CPF válido" },
-      customValidator: cpfValidator,
-    },
-    {
-      label: "Email*",
-      name: "email",
-      type: "email",
-      value: "",
-      validationRules: { required: true, message: "Insira um email válido" },
-      customValidator: emailValidator,
-    },
-    {
-      label: "Endereço*",
-      name: "address",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Edereço é obrigatório" },
-    },
-    {
-      label: "CEP*",
-      name: "codePostal",
-      type: "text",
-      value: "",
-      mask: cepMask,
-      validationRules: { required: true, message: "Cep é obrigatório" },
-    },
-    {
-      label: "Cidade*",
-      name: "city",
-      type: "select",
-      value: 0,
-      options: [],
-      validationRules: { required: true, message: "Cidade é obrigatório" },
-    },
-    {
-      label: "Permissões*",
-      name: "permissions",
-      type: "multi-select",
-      value: [],
-      options: [],
-      validationRules: {
-        required: true,
-        message: "Permissões são obrigatórias",
-      },
-    },
-  ]);
-
-  const [requestResponse, setRequestResponse] = useState({
-    title: "",
-    message: "",
-    icon: "",
-    open: false,
-    success: false,
+  const { data: tableData = [], isLoading } = useQuery<Person[], Error>({
+    queryKey: ["collaborators"],
+    queryFn: CollaboratorsService.getAllCollaborators,
   });
 
-  const getAllCollaborators = async () => {
-    try {
-      const response = await CollaboratorsService.getAllCollaborators();
-      if (response?.length >= 0) setTableData(response);
-    } catch (error) {
-      console.error(`error when searching all collaborators: ${error}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: permissions = [] } = useQuery<Permission[], Error>({
+    queryKey: ["permissions"],
+    queryFn: PermissionsService.getAllPermissions,
+  });
 
-  const getAllPermission = async () => {
+  const { data: cities = [] } = useQuery<City[], Error>({
+    queryKey: ["cities"],
+    queryFn: CitiesService.getAllCities,
+  });
+
+  const updateFieldsWithPermission = async () => {
     try {
-      const response = await PermissionsService.getAllPermissions();
-      if (response?.length > 0) {
-        const stateOptions = response.map((state: Permission) => ({
-          value: state.id,
-          label: state.name,
+      if (permissions?.length > 0) {
+        const permissionOptions = permissions.map((permission: Permission) => ({
+          value: permission.id,
+          label: permission.name,
         }));
 
         const options = [
           { value: 0, label: "Selecione uma permissão" },
-          ...stateOptions,
+          ...permissionOptions,
         ];
 
         setFields((prevFields) =>
@@ -149,22 +81,21 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
         );
       }
     } catch (error) {
-      console.error(`Error when searching all states: ${error}`);
+      console.error(`Error when update fields with permissions: ${error}`);
     }
   };
 
-  const getAllCities = async () => {
+  const updateFieldsWithCities = async () => {
     try {
-      const response = await CitiesService.getAllCities();
-      if (response?.length > 0) {
-        const stateOptions = response.map((state: City) => ({
-          value: state.id,
-          label: state.name,
+      if (cities?.length > 0) {
+        const cityOptions = cities.map((city: City) => ({
+          value: city.id,
+          label: city.name,
         }));
 
         const options = [
           { value: 0, label: "Selecione uma cidade" },
-          ...stateOptions,
+          ...cityOptions,
         ];
 
         setFields((prevFields) =>
@@ -180,186 +111,78 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
         );
       }
     } catch (error) {
-      console.error(`error when searching all brand : ${error}`);
-    } finally {
-      setLoading(false);
+      console.error(`Error when update fields with cities : ${error}`);
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (
+    event: React.FormEvent,
+    fields: DynamicField[],
+    selectedCollaborator: Person | null
+  ) => {
     event.preventDefault();
-    if (!!selectedCollaborator) {
-      updateState();
+    const name = getFieldValue(fields, "name") as string;
+    const cpf = getFieldValue(fields, "cpf") as string;
+    const email = getFieldValue(fields, "email") as string;
+    const address = getFieldValue(fields, "address") as string;
+    const codePostal = getFieldValue(fields, "codePostal") as string;
+    const city = getFieldValue(fields, "city") as number;
+    const permissions = getFieldValue(fields, "permissions") as string[];
+
+    const transformedPermissions = permissions.map((permission) => ({
+      permission: {
+        id: Number(permission),
+      },
+    }));
+
+    if (selectedCollaborator) {
+      updateCollaborator.mutate({
+        id: selectedCollaborator.id,
+        name,
+        cpf: removeCpfMask(cpf),
+        email,
+        address,
+        codePostal: removeCEPMask(codePostal),
+        city: { id: city } as City,
+        personPermissions: transformedPermissions as PersonPermission[],
+      } as Person);
     } else {
-      createState();
+      createCollaborator.mutate({
+        name,
+        cpf: removeCpfMask(cpf),
+        email,
+        address,
+        codePostal: removeCEPMask(codePostal),
+        city: { id: city } as City,
+        personPermissions: transformedPermissions as PersonPermission[],
+      } as Person);
     }
   };
 
-  const createState = async () => {
-    const name = getFieldValue(fields, "name") as string;
-    const cpf = getFieldValue(fields, "cpf") as string;
-    const email = getFieldValue(fields, "email") as string;
-    const address = getFieldValue(fields, "address") as string;
-    const codePostal = getFieldValue(fields, "codePostal") as string;
-    const city = getFieldValue(fields, "city") as number;
-    const permissions = getFieldValue(fields, "permissions") as string[];
+  const createCollaborator = useMutation<void, Error, Omit<Person, "id">>({
+    mutationFn: (collaborator) =>
+      CollaboratorsService.createPerson(collaborator),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collaborators"] });
+      handleCloseAdd();
+    },
+  });
 
-    const transformedPermissions = permissions.map((permission) => ({
-      permission: {
-        id: Number(permission),
-      },
-    }));
+  const updateCollaborator = useMutation<void, Error, Person>({
+    mutationFn: (collaborator) =>
+      CollaboratorsService.updatePerson(collaborator),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collaborators"] });
+      handleCloseEdit();
+    },
+  });
 
-    const collaborator = {
-      name,
-      cpf: removeCpfMask(cpf),
-      email,
-      address,
-      codePostal: removeCEPMask(codePostal),
-      city: { id: city },
-      personPermissions: transformedPermissions,
-    };
-
-    try {
-      const response = await CollaboratorsService.createPerson(collaborator);
-      if (response?.id) {
-        handleCloseAdd();
-        getAllCollaborators();
-        setRequestResponse({
-          title: "Adicionado",
-          message: "Item adicionado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when crate collaborator: ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const updateState = async () => {
-    const name = getFieldValue(fields, "name") as string;
-    const cpf = getFieldValue(fields, "cpf") as string;
-    const email = getFieldValue(fields, "email") as string;
-    const address = getFieldValue(fields, "address") as string;
-    const codePostal = getFieldValue(fields, "codePostal") as string;
-    const city = getFieldValue(fields, "city") as number;
-    const permissions = getFieldValue(fields, "permissions") as string[];
-
-    const transformedPermissions = permissions.map((permission) => ({
-      permission: {
-        id: Number(permission),
-      },
-    }));
-
-    const collaborator = {
-      id: selectedCollaborator?.id as number,
-      name,
-      cpf: removeCpfMask(cpf),
-      email,
-      address,
-      codePostal: removeCEPMask(codePostal),
-      city: { id: city },
-      personPermissions: transformedPermissions,
-    };
-
-    try {
-      const response = await CollaboratorsService.updatePerson(collaborator);
-      if (response?.id) {
-        setOpenEdit(false);
-        getAllCollaborators();
-        setRequestResponse({
-          title: "Atualizado",
-          message: "Item atualizado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when update collaborator: ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const deleteState = async (id: number) => {
-    try {
-      await CollaboratorsService.deletePerson(id);
-      getAllCollaborators();
-    } catch (error) {
-      console.error(`error when delete collaborator: ${error}`);
-    }
-  };
-
-  const handleClearFields = () => {
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      value:
-        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
-    }));
-
-    setFields(updatedFields);
-  };
-
-  const handleClearRequestResponse = () => {
-    setRequestResponse({
-      title: "",
-      message: "",
-      icon: "",
-      open: false,
-      success: false,
-    });
-  };
-
-  const handleCloseEdit = () => {
-    handleClearFields();
-    setOpenEdit(false);
-  };
-
-  const handleCancel = () => {
-    handleClearFields();
-    handleCloseAdd();
-  };
-
-  const handleEditClick = (row: Person) => {
-    setSelectedCollaborator(row);
-    setOpenEdit(true);
-
-    const fieldMap: Record<FieldName, string | number | string[]> = {
-      name: row.name,
-      cpf: cpfMask(row.cpf),
-      email: row.email,
-      address: row.address,
-      codePostal: cepMask(row.codePostal),
-      city: row.city.id,
-      permissions: row.personPermissions.map((permissions) =>
-        permissions.permission.id?.toString()
-      ),
-    };
-
-    setFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.name in fieldMap) {
-          return { ...field, value: fieldMap[field.name as FieldName] };
-        }
-        return field;
-      })
-    );
-  };
+  const deleteCollaborator = useMutation<void, Error, number>({
+    mutationFn: (id) => CollaboratorsService.deletePerson(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collaborators"] });
+    },
+  });
 
   const handleChange = (name: string, value: string | number | string[]) => {
     setFields((prevFields) =>
@@ -399,31 +222,64 @@ export function useCollaborators({ handleCloseAdd }: useCollaboratorsProps) {
     );
   };
 
+  const handleEditClick = (row: Person) => {
+    setSelectedCollaborator(row);
+    setOpenEdit(true);
+
+    const fieldMap: Record<FieldName, string | number | string[]> = {
+      name: row.name,
+      cpf: cpfMask(row.cpf),
+      email: row.email,
+      address: row.address,
+      codePostal: cepMask(row.codePostal),
+      city: row.city.id,
+      permissions: row.personPermissions.map((permissions) =>
+        permissions.permission.id?.toString()
+      ),
+    };
+
+    setFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.name in fieldMap) {
+          return { ...field, value: fieldMap[field.name as FieldName] };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleCancel = () => {
+    handleClearFields();
+    handleCloseAdd();
+  };
+
+  const handleCloseEdit = () => {
+    handleClearFields();
+    setOpenEdit(false);
+  };
+
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
+  };
+
   return {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllCollaborators,
-    getAllCities,
-    getAllPermission,
+    permissions,
+    cities,
+    isLoading,
+    deleteCollaborator,
+    updateFieldsWithPermission,
+    updateFieldsWithCities,
     handleSubmit,
-    deleteState,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
     handleChange,
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
   };
 }

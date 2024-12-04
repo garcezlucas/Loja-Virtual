@@ -1,185 +1,79 @@
-import { useState } from "react";
-import { PermissionsService } from "../../../service/Permissions.service";
-import { Permission } from "../../../interfaces/Permission";
-import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
-import { getFieldValue } from "../../../utils/getFieldValue";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import SuccessIcon from '../../../assets/icons/success.svg';
-import ErrorIcon from '../../../assets/icons/error.svg';
+import { PermissionsService } from "../../../service/Permissions.service";
+
+import { Permission } from "../../../interfaces/Permission";
+
+import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
+
+import { getFieldValue } from "../../../utils/getFieldValue";
 
 interface usePermissionsProps {
   handleCloseAdd: () => void;
+  fields: DynamicField[];
+  setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
+  setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedPermission: React.Dispatch<
+    React.SetStateAction<Permission | null>
+  >;
 }
 
-export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
-  const [tableData, setTableData] = useState<Permission[]>([]);
-  const [filteredData, setFilteredData] = useState<Permission[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+export function usePermissions({
+  handleCloseAdd,
+  fields,
+  setFields,
+  setOpenEdit,
+  setSelectedPermission,
+}: usePermissionsProps) {
+  const queryClient = useQueryClient();
 
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const rowsPerPage = 7;
-
-  const [selectedPermission, setSelectedPermission] =
-    useState<Permission | null>(null);
-
-  const [openEdit, setOpenEdit] = useState<boolean>(false);
-
-  const [fields, setFields] = useState<DynamicField[]>([
-    {
-      label: "Nome*",
-      name: "name",
-      type: "text",
-      value: "",
-      validationRules: { required: true, message: "Nome é obrigatório" },
-    },
-  ]);
-
-  const [requestResponse, setRequestResponse] = useState({
-    title: "",
-    message: "",
-    icon: "",
-    open: false,
-    success: false,
+  const { data: tableData = [], isLoading } = useQuery<Permission[], Error>({
+    queryKey: ["permissions"],
+    queryFn: PermissionsService.getAllPermissions,
   });
 
-  const getAllPermissions = async () => {
-    try {
-      const response = await PermissionsService.getAllPermissions();
-      if (response?.length >= 0) setTableData(response);
-    } catch (error) {
-      console.error(`error when searching all permission : ${error}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (
+    event: React.FormEvent,
+    fields: DynamicField[],
+    selectedPermission: Permission | null
+  ) => {
     event.preventDefault();
-    if (!!selectedPermission) {
-      updatePermission();
+    const name = getFieldValue(fields, "name") as string;
+
+    if (selectedPermission) {
+      updatePermission.mutate({
+        id: selectedPermission.id,
+        name,
+      } as Permission);
     } else {
-      createPermission();
+      createPermission.mutate({
+        name,
+      } as Permission);
     }
   };
 
-  const createPermission = async () => {
-    const name = getFieldValue(fields, "name") as string;
+  const createPermission = useMutation<void, Error, Omit<Permission, "id">>({
+    mutationFn: (permission) => PermissionsService.createPermission(permission),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
+      handleCloseAdd();
+    },
+  });
 
-    const permission = {
-      name,
-    };
+  const updatePermission = useMutation<void, Error, Permission>({
+    mutationFn: (permission) => PermissionsService.updatePermission(permission),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
+      handleCloseEdit();
+    },
+  });
 
-    try {
-      const response = await PermissionsService.createPermission(permission);
-      if (response?.id) {
-        handleCloseAdd();
-        getAllPermissions();
-        setRequestResponse({
-          title: "Adicionado",
-          message: "Item adicionado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when crate permission : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const updatePermission = async () => {
-    const name = getFieldValue(fields, "name") as string;
-
-    const permission = {
-      id: selectedPermission?.id as number,
-      name,
-    };
-
-    try {
-      const response = await PermissionsService.updatePermission(permission);
-      if (response?.id) {
-        setOpenEdit(false);
-        getAllPermissions();
-        setRequestResponse({
-          title: "Atualizado",
-          message: "Item atualizado com sucesso",
-          icon: SuccessIcon,
-          open: true,
-          success: true,
-        });
-      }
-    } catch (error) {
-      console.error(`error when update permission : ${error}`);
-      setRequestResponse({
-        title: "Erro",
-        message: "Ocorreu um erro, tente novamente",
-        icon: ErrorIcon,
-        open: true,
-        success: false,
-      });
-    }
-  };
-
-  const deletePermission = async (id: number) => {
-    try {
-      await PermissionsService.deletePermission(id);
-      getAllPermissions();
-    } catch (error) {
-      console.error(`error when delete permission : ${error}`);
-    }
-  };
-
-  const handleClearFields = () => {
-    const updatedFields = fields.map((field) => ({
-      ...field,
-      value:
-        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
-    }));
-
-    setFields(updatedFields);
-  };
-
-  const handleClearRequestResponse = () => {
-    setRequestResponse({
-      title: "",
-      message: "",
-      icon: "",
-      open: false,
-      success: false,
-    });
-  };
-
-  const handleCloseEdit = () => {
-    handleClearFields();
-    setOpenEdit(false);
-  };
-
-  const handleCancel = () => {
-    handleClearFields();
-    handleCloseAdd();
-  };
-
-  const handleEditClick = (row: Permission) => {
-    setSelectedPermission(row);
-    setOpenEdit(true);
-
-    setFields((prevFields) =>
-      prevFields.map((field) => {
-        if (field.name === "name") {
-          return { ...field, value: row.name };
-        }
-        return field;
-      })
-    );
-  };
+  const deletePermission = useMutation<void, Error, number>({
+    mutationFn: (id) => PermissionsService.deletePermission(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
+    },
+  });
 
   const handleChange = (name: string, value: string | number | string[]) => {
     const isNumber = typeof value === "number";
@@ -197,29 +91,48 @@ export function usePermissions({ handleCloseAdd }: usePermissionsProps) {
     );
   };
 
+  const handleEditClick = (row: Permission) => {
+    setSelectedPermission(row);
+    setOpenEdit(true);
+
+    setFields((prevFields) =>
+      prevFields.map((field) => {
+        if (field.name === "name") {
+          return { ...field, value: row.name };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleCancel = () => {
+    handleClearFields();
+    handleCloseAdd();
+  };
+
+  const handleCloseEdit = () => {
+    handleClearFields();
+    setOpenEdit(false);
+  };
+
+  const handleClearFields = () => {
+    const updatedFields = fields.map((field) => ({
+      ...field,
+      value:
+        field.type === "select" ? 0 : field.type === "multi-select" ? [] : "",
+    }));
+
+    setFields(updatedFields);
+  };
+
   return {
     tableData,
-    filteredData,
-    setFilteredData,
-    loading,
-    requestResponse,
-
-    page,
-    setPage,
-    totalPages,
-    setTotalPages,
-    rowsPerPage,
-
-    fields,
-    openEdit,
-
-    getAllPermissions,
-    handleSubmit,
+    isLoading,
     deletePermission,
-    handleCancel,
-    handleClearRequestResponse,
-    handleCloseEdit,
-    handleEditClick,
+    handleSubmit,
     handleChange,
+    handleEditClick,
+    handleCancel,
+    handleCloseEdit,
   };
 }
