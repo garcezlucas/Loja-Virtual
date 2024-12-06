@@ -29,6 +29,16 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/category/{id}")
+    public List<Product> getAllProductsByCategory(@PathVariable("id") Long categoryId) {
+        return productService.getAllProductsByCategory(categoryId);
+    }
+
+    @GetMapping("/{id}")
+    public Product getProduct(@PathVariable("id") Long id) {
+        return productService.getProduct(id);
+    }
+
     @PostMapping("/")
     public Product createProduct(@RequestBody Product product) {
         return productService.create(product);

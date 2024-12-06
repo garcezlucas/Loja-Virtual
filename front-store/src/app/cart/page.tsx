@@ -47,7 +47,7 @@ export default function Cart() {
     cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <div className="h-full bg-[#DDDEE5]">
+    <div className="bg-[#DDDEE5] min-h-screen">
       {/* Cabeçalho */}
       <header className="bg-[#FAFAFA] text-center py-16">
         <h1 className="text-4xl font-bold text-[#333333]">

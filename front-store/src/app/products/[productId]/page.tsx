@@ -1,60 +1,41 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { getProductViewModel } from "@/hooks/useProducts";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import React from "react";
-import { useEffect, useState } from "react";
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  specifications: string;
-}
-
-const products = [
-  {
-    id: 1,
-    name: "Produto 1",
-    description: "Descrição do Produto 1",
-    price: 100.0,
-    imageUrl: "/images/produto1.jpg",
-    specifications: "teste",
-  },
-  {
-    id: 2,
-    name: "Produto 2",
-    description: "Descrição do Produto 2",
-    price: 150.0,
-    imageUrl: "/images/produto2.jpg",
-    specifications: "teste",
-  },
-  {
-    id: 3,
-    name: "Produto 3",
-    description: "Descrição do Produto 3",
-    price: 200.0,
-    imageUrl: "/images/produto3.jpg",
-    specifications: "teste",
-  },
-];
+import { Product } from "@/interfaces/Product";
 
 export default function ProductDetails() {
-    const { productId } = useParams();
-
+  const { productId } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const selectedProduct = products.find((p) => p.id === parseInt(productId as string));
-    if (selectedProduct) setProduct(selectedProduct);
+    const fetchProduct = async () => {
+      try {
+        const productData = await getProductViewModel(productId as string);
+        setProduct(productData);
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+        setError("Erro ao carregar produtos.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
   }, [productId]);
 
-  if (!product) {
-    return <div>Carregando...</div>;
-  }
+  if (loading)
+    return <div className="bg-[#DDDEE5] min-h-screen">Carregando...</div>;
+  if (error) return <div className="bg-[#DDDEE5] min-h-screen">{error}</div>;
+  if (!product)
+    return (
+      <div className="bg-[#DDDEE5] min-h-screen">Produto não encontrado.</div>
+    );
 
   return (
     <div className="bg-[#DDDEE5] min-h-screen">
@@ -66,8 +47,8 @@ export default function ProductDetails() {
         <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-6 flex flex-col md:flex-row">
           <div className="md:w-1/2">
             <Image
-              src={product.imageUrl}
-              alt={product.name}
+              src={`data:image;base64, ${product?.images[0]?.file}`}
+              alt={product.shortDescription}
               className="object-cover w-full h-80 md:h-full"
               width={600}
               height={400}
@@ -75,7 +56,7 @@ export default function ProductDetails() {
           </div>
           <div className="p-6 md:w-1/2">
             <h1 className="text-3xl font-semibold text-[#333333]">
-              {product.name}
+              {product.shortDescription}
             </h1>
             <p className="text-gray-600 mt-4">{product.description}</p>
             <p className="text-[#4A90E2] font-bold text-2xl mt-4">
@@ -89,7 +70,7 @@ export default function ProductDetails() {
               <h2 className="text-xl font-semibold text-[#333333]">
                 Especificações
               </h2>
-              <p className="text-gray-600 mt-2">{product.specifications}</p>
+              <p className="text-gray-600 mt-2">{product.category.name}</p>
             </div>
           </div>
         </div>

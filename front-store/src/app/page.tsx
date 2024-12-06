@@ -1,73 +1,17 @@
-import Image from "next/image";
 import Link from "next/link";
-import ContactForm from "./ContactForm";
+import ContactForm from "../components/ContactForm";
+import { getProductsViewModel } from "@/hooks/useProducts";
+import ProductCard from "@/components/ProductCard";
+import { Product } from "@/interfaces/Product";
 
-export default function Home() {
-  const products = [
-    {
-      id: 1,
-      name: "Produto 1",
-      description: "Descrição do Produto 1",
-      price: 100.0,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 2,
-      name: "Produto 2",
-      description: "Descrição do Produto 2",
-      price: 150.0,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 3,
-      name: "Produto 3",
-      description: "Descrição do Produto 3",
-      price: 200.0,
-      imageUrl: "/images/produto3.jpg",
-    },
-    {
-      id: 4,
-      name: "Produto 1",
-      description: "Descrição do Produto 1",
-      price: 100.0,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 5,
-      name: "Produto 2",
-      description: "Descrição do Produto 2",
-      price: 150.0,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 6,
-      name: "Produto 3",
-      description: "Descrição do Produto 3",
-      price: 200.0,
-      imageUrl: "/images/produto3.jpg",
-    },
-    {
-      id: 7,
-      name: "Produto 1",
-      description: "Descrição do Produto 1",
-      price: 100.0,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 8,
-      name: "Produto 2",
-      description: "Descrição do Produto 2",
-      price: 150.0,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 9,
-      name: "Produto 3",
-      description: "Descrição do Produto 3",
-      price: 200.0,
-      imageUrl: "/images/produto3.jpg",
-    },
-  ];
+export default async function Home() {
+  let products: Product[] = [];
+
+  try {
+    products = await getProductsViewModel();
+  } catch (error) {
+    console.error("Erro ao carregar produtos:", error);
+  }
 
   return (
     <div className="h-full bg-[#DDDEE5]">
@@ -94,31 +38,7 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white shadow-md rounded-lg overflow-hidden"
-            >
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-full h-48 object-cover"
-                width={600}
-                height={400}
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-                <p className="text-gray-600 mt-2">{product.description}</p>
-                <p className="text-[#4A90E2] font-bold mt-2">
-                  R$ {product.price.toFixed(2).replace(".", ",")}
-                </p>
-                <Link
-                  href={`/products/${product.id}`}
-                  className="mt-4 block text-center bg-[#4A90E2] text-white font-semibold py-2 px-4 rounded hover:bg-[#3A70B3] transition-colors"
-                >
-                  Ver Detalhes
-                </Link>
-              </div>
-            </div>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>

@@ -30,7 +30,7 @@ export default function Promotions() {
   ];
 
   return (
-    <div className="h-full bg-[#DDDEE5]">
+    <div className="bg-[#DDDEE5] min-h-screen">
       {/* Cabeçalho */}
       <header className="bg-[#FAFAFA] text-center py-12">
         <h1 className="text-4xl font-bold text-[#333333]">Promoções</h1>

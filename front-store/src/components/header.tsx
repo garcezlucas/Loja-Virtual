@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import StoreIcon from "../../../public/icons/store-shop.svg";
-import MenuIcon from "../../../public/icons/menu.svg";
-import UserIcon from "../../../public/icons/user.svg";
-import CartIcon from "../../../public/icons/cart.svg";
+import StoreIcon from "../../public/icons/store-shop.svg";
+import MenuIcon from "../../public/icons/menu.svg";
+import UserIcon from "../../public/icons/user.svg";
+import CartIcon from "../../public/icons/cart.svg";
 import Link from "next/link";
 
 interface IconButtonProps {
