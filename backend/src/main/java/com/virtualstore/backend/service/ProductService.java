@@ -2,6 +2,7 @@ package com.virtualstore.backend.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,26 @@ public class ProductService {
         });
 
         return products;
+    }
+
+    public List<Product> getAllProductsByCategory(Long categoryId) {
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+
+        products.forEach(product -> {
+            List<ProductImage> images = productImageService.getByProduct(product.getId());
+            product.setImages(images);
+        });
+
+        return products;
+    }
+
+    public Product getProduct(Long id) {
+        Product product = productRepository.findById(id).get();
+
+        List<ProductImage> images = productImageService.getByProduct(product.getId());
+        product.setImages(images);
+
+        return product;
     }
 
     public Product create(Product product) {

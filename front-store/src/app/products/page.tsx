@@ -1,34 +1,53 @@
-import Image from "next/image";
-import Link from "next/link";
+// src/app/products/page.tsx
+import { getCategoriesViewModel } from "@/hooks/useCategory";
+import {
+  getProductsByCategoryViewModel,
+  getProductsViewModel,
+} from "@/hooks/useProducts";
+import { Category } from "@/interfaces/Category";
+import { Product } from "@/interfaces/Product";
+import Filters from "@/components/Filters";
+import ProductCard from "@/components/ProductCard";
 
-export default function Products() {
-  const products = [
-    {
-      id: 1,
-      name: "Produto 1",
-      description: "Descrição do Produto 1",
-      price: 100.0,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 2,
-      name: "Produto 2",
-      description: "Descrição do Produto 2",
-      price: 150.0,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 3,
-      name: "Produto 3",
-      description: "Descrição do Produto 3",
-      price: 200.0,
-      imageUrl: "/images/produto3.jpg",
-    },
-  ];
+const Products = async ({
+  searchParams,
+}: {
+  searchParams: { categoryId: string | null; sort: string };
+}) => {
+  const { categoryId, sort } = searchParams || {
+    categoryId: null,
+    sort: "recent",
+  };
+
+  let categories: Category[] = [];
+  let products: Product[] = [];
+
+  try {
+    categories = await getCategoriesViewModel();
+    if (categoryId) {
+      products = await getProductsByCategoryViewModel(categoryId);
+    } else {
+      products = await getProductsViewModel();
+    }
+  } catch (error) {
+    console.error("Erro ao carregar categorias ou produtos:", error);
+  }
+
+  const sortedProducts = [...products];
+  if (sort === "recent") {
+    sortedProducts.sort((a, b) => {
+      const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+      const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+      return dateB - dateA;
+    });
+  } else if (sort === "low_to_high") {
+    sortedProducts.sort((a, b) => a.price - b.price);
+  } else if (sort === "high_to_low") {
+    sortedProducts.sort((a, b) => b.price - a.price);
+  }
 
   return (
-    <div className="h-full bg-[#DDDEE5]">
-      {/* Cabeçalho */}
+    <div className="bg-[#DDDEE5] min-h-screen">
       <header className="bg-[#FAFAFA] text-center py-12">
         <h1 className="text-4xl font-bold text-[#333333]">Produtos</h1>
         <p className="mt-4 text-lg text-[#333333]">
@@ -36,68 +55,16 @@ export default function Products() {
           você.
         </p>
       </header>
-
-      {/* Filtros e Ordenação */}
-      <section className="container mx-auto py-8 px-4 flex justify-between items-center">
-        <div className="flex space-x-4">
-          <button className="px-4 py-2 bg-[#4A90E2] text-white font-semibold rounded hover:bg-[#3A70B3] transition-colors">
-            Todos
-          </button>
-          {["Eletrônicos", "Roupas"].map((category, index) => {
-            return (
-              <button
-                key={index}
-                className="px-4 py-2 bg-[#FAFAFA] text-[#333333] font-semibold rounded hover:bg-[#F0F0F0] transition-colors"
-              >
-                {category}
-              </button>
-            );
-          })}
-        </div>
-        <select className="border border-gray-300 rounded p-2">
-          <option value="recent">Mais Recentes</option>
-          <option value="low_to_high">Preço: Menor para Maior</option>
-          <option value="high_to_low">Preço: Maior para Menor</option>
-        </select>
-      </section>
-
-      {/* Grid de Produtos */}
+      <Filters categories={categories} categoryId={categoryId} sort={sort} />
       <section className="container mx-auto py-10 px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {/* Exemplo de Produto - Utilize um map para renderizar produtos dinamicamente */}
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white shadow-md rounded-lg overflow-hidden"
-            >
-              <Image
-                src={product.imageUrl} // Substitua com URLs dinâmicos
-                alt={`Produto ${product.name}`}
-                className="w-full h-48 object-cover"
-                width={600}
-                height={400}
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold">
-                  {product.name}
-                </h3>
-                <p className="text-gray-600 mt-2">
-                  {product.description}
-                </p>
-                <p className="text-[#4A90E2] font-bold mt-2">
-                  R$ {product.price}
-                </p>
-                <Link
-                  href={`/products/${product.id}`}
-                  className="mt-4 block text-center bg-[#4A90E2] text-white font-semibold py-2 px-4 rounded hover:bg-[#3A70B3] transition-colors"
-                >
-                  Ver Detalhes
-                </Link>
-              </div>
-            </div>
+          {sortedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
     </div>
   );
-}
+};
+
+export default Products;
