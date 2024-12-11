@@ -1,8 +1,6 @@
-import "../_management.scss";
-
 import { useEffect, useState } from "react";
 
-import { usePermissions } from "./usePermissions";
+import { usePromotions } from "./usePromotions";
 
 import Modal from "../../../components/Modal/Modal";
 import TableComponent, { Column } from "../../../components/Table/Table";
@@ -13,52 +11,74 @@ import DynamicForm, {
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
-import { Permission } from "../../../interfaces/Permission";
-
 import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 
+import { Promotion } from "../../../interfaces/Promotion";
 
-interface PermissionsProps {
+interface PromotionsProps {
   searchTerm: string;
   openAdd: boolean;
   handleCloseAdd: () => void;
 }
 
-const Permissions: React.FC<PermissionsProps> = ({
+const Promotions: React.FC<PromotionsProps> = ({
   searchTerm,
   openAdd,
   handleCloseAdd,
 }) => {
-  const [selectedPermission, setSelectedPermission] =
-    useState<Permission | null>(null);
-  const [filteredData, setFilteredData] = useState<Permission[]>([]);
+  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(
+    null
+  );
+  const [filteredData, setFilteredData] = useState<Promotion[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
-      label: "Nome*",
-      name: "name",
-      type: "text",
+      label: "Produto*",
+      name: "product",
+      type: "select",
+      value: 0,
+      options: [],
+      validationRules: { required: true, message: "Produto é obrigatório" },
+    },
+    {
+      label: "Desconto*",
+      name: "discount",
+      type: "number",
+      value: 0,
+      validationRules: { required: true, message: "Desconto é obrigatório" },
+    },
+    {
+      label: "Ativo*",
+      name: "isValid",
+      type: "select",
       value: "",
-      validationRules: { required: true, message: "Nome é obrigatório" },
+      options: ["Válido", "Inválido"],
+      validationRules: { required: true, message: "Campo é obrigatório" },
     },
   ]);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
 
   const {
     tableData,
+    products,
     isLoading,
-    deletePermission,
+    deletePromotion,
+    updateFieldsWithStates,
     handleSubmit,
     handleChange,
     handleEditClick,
     handleCancel,
     handleCloseEdit,
-  } = usePermissions({
+  } = usePromotions({
     handleCloseAdd,
     fields,
     setFields,
     setOpenEdit,
-    setSelectedPermission,
+    setSelectedPromotion,
   });
+
+  useEffect(() => {
+    updateFieldsWithStates();
+  }, [products]);
 
   useEffect(() => {
     if (tableData.length > 0) {
@@ -66,7 +86,7 @@ const Permissions: React.FC<PermissionsProps> = ({
       setFilteredData(filtered);
     }
   }, [searchTerm, tableData]);
-  
+
   const titleColumns = [
     { label: "ID", width: "33.33%" },
     { label: "Nome", width: "33.33%" },
@@ -88,7 +108,7 @@ const Permissions: React.FC<PermissionsProps> = ({
           </button>
           <button
             className="action-buttons-delete"
-            onClick={() => deletePermission.mutate(value)}
+            onClick={() => deletePromotion.mutate(value)}
           >
             <img src={DeleteIcon} alt="delete" />
           </button>
@@ -117,7 +137,7 @@ const Permissions: React.FC<PermissionsProps> = ({
         <DynamicForm
           title="Cadastro"
           fields={fields}
-          handleSubmit={(e) => handleSubmit(e, fields, selectedPermission)}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedPromotion)}
           handleCancel={handleCancel}
           handleChange={handleChange}
         />
@@ -127,7 +147,7 @@ const Permissions: React.FC<PermissionsProps> = ({
         <DynamicForm
           title="Editar"
           fields={fields}
-          handleSubmit={(e) => handleSubmit(e, fields, selectedPermission)}
+          handleSubmit={(e) => handleSubmit(e, fields, selectedPromotion)}
           handleCancel={handleCloseEdit}
           handleChange={handleChange}
         />
@@ -136,4 +156,4 @@ const Permissions: React.FC<PermissionsProps> = ({
   );
 };
 
-export default Permissions;
+export default Promotions;
