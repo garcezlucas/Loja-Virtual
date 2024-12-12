@@ -5,6 +5,7 @@ const translationsTitle = {
   categories: "Categorias",
   cities: "Cidades",
   products: "Produtos",
+  promotions: "Promoções",
   states: "Estados",
   collaborators: "Colaboradores",
   clients: "Clientes",
@@ -16,6 +17,7 @@ const translations = {
   categories: "+ Nova categoria",
   cities: "+ Nova cidade",
   products: "+ Novo produto",
+  promotions: "+ Nova Promoção",
   states: "+ Novo estado",
   collaborators: "+ Novo colaborador",
   clients: "+ Novo cliente",
@@ -30,6 +32,7 @@ interface useManagementProps {
     | "brands"
     | "categories"
     | "products"
+    | "promotions"
     | "collaborators"
     | "clients"
     | "permissions";

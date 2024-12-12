@@ -10,6 +10,7 @@ import Collaborators from "./Collaborators/Collaborators";
 import Consumers from "./Consumers/Consumers";
 import Permissions from "./Permissions/Permissions";
 import { FC } from "react";
+import Promotions from "./Promotions/Promotions";
 
 interface ManagementProps {
   parameter:
@@ -18,6 +19,7 @@ interface ManagementProps {
     | "brands"
     | "categories"
     | "products"
+    | "promotions"
     | "collaborators"
     | "clients"
     | "permissions";
@@ -29,6 +31,7 @@ const componentMap: Record<string, FC<any>> = {
   brands: Brands,
   categories: Categories,
   products: Products,
+  promotions: Promotions,
   collaborators: Collaborators,
   clients: Consumers,
   permissions: Permissions,

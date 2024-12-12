@@ -1,33 +1,16 @@
+import { getPromotionsViewModel } from "@/hooks/usePromotions";
+import { Promotion } from "@/interfaces/Promotion";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Promotions() {
-  const promotions = [
-    {
-      id: 1,
-      name: "Produto Promocional 1",
-      description: "Descrição do Produto Promocional 1",
-      originalPrice: 200.0,
-      discountedPrice: 150.0,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 2,
-      name: "Produto Promocional 2",
-      description: "Descrição do Produto Promocional 2",
-      originalPrice: 300.0,
-      discountedPrice: 250.0,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 3,
-      name: "Produto Promocional 3",
-      description: "Descrição do Produto Promocional 3",
-      originalPrice: 400.0,
-      discountedPrice: 320.0,
-      imageUrl: "/images/produto3.jpg",
-    },
-  ];
+export default async function Promotions() {
+  let promotions: Promotion[] = [];
+
+  try {
+    promotions = await getPromotionsViewModel();
+  } catch (error) {
+    console.error("Erro ao carregar categorias ou produtos:", error);
+  }
 
   return (
     <div className="bg-[#DDDEE5] min-h-screen">
@@ -50,21 +33,33 @@ export default function Promotions() {
               className="bg-white shadow-md rounded-lg overflow-hidden"
             >
               <Image
-                src={promo.imageUrl}
-                alt={`Produto Promocional ${promo.name}`}
+                src={
+                  promo?.product?.images?.[0]?.file
+                    ? `data:image;base64, ${promo?.product?.images[0].file}`
+                    : "/placeholder.png"
+                }
+                alt={promo?.product?.shortDescription}
                 className="w-full h-48 object-cover"
                 width={600}
                 height={400}
               />
               <div className="p-4">
-                <h3 className="text-lg font-semibold">{promo.name}</h3>
-                <p className="text-gray-600 mt-2">{promo.description}</p>
+                <h3 className="text-lg font-semibold">
+                  {promo?.product?.shortDescription}
+                </h3>
+                <p className="text-gray-600 mt-2">
+                  {promo?.product?.description}
+                </p>
                 <div className="mt-2">
                   <p className="text-gray-400 line-through">
-                    R$ {promo.originalPrice.toFixed(2)}
+                    R$ {promo?.product?.price.toFixed(2)}
                   </p>
                   <p className="text-[#4A90E2] font-bold">
-                    R$ {promo.discountedPrice.toFixed(2)}
+                    R${" "}
+                    {(
+                      promo?.product?.price -
+                      promo?.product?.price * promo.discount
+                    ).toFixed(2)}
                   </p>
                 </div>
                 <Link
