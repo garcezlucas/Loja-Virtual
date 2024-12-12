@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import StoreIcon from "../../public/icons/store-shop.svg";
-import MenuIcon from "../../public/icons/menu.svg";
-import UserIcon from "../../public/icons/user.svg";
-import CartIcon from "../../public/icons/cart.svg";
+import StoreIcon from "../../../public/icons/store-shop.svg";
+/* import MenuIcon from "../../public/icons/menu.svg"; */
+import UserIcon from "../../../public/icons/user.svg";
+import CartIcon from "../../../public/icons/cart.svg";
 import Link from "next/link";
 
 interface IconButtonProps {
@@ -45,15 +45,19 @@ const Header: React.FC = ({}) => {
   const [visibleDropdownIndex, setVisibleDropdownIndex] = useState<
     number | null
   >(null);
-  const [showMenu, setShowMenu] = useState<boolean>(true);
+  /*  const [showMenu, setShowMenu] = useState<boolean>(true); */
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const accessToken = localStorage.getItem("cookies");
 
   const HEADER_CONFIG = [
     {
       icon: UserIcon,
       alt: "User",
       dropdownItems: [
-        { label: "Logout", onClick: () => console.log("clicou") },
+        accessToken
+          ? { label: "Login", onClick: () => console.log("clicou") }
+          : { label: "Logout", onClick: () => console.log("clicou") },
       ],
     },
   ];
@@ -76,9 +80,9 @@ const Header: React.FC = ({}) => {
     setVisibleDropdownIndex(visibleDropdownIndex === index ? null : index);
   };
 
-  const toggleMenu = () => {
+  /* const toggleMenu = () => {
     setShowMenu(!showMenu);
-  };
+  }; */
 
   return (
     <header className="bg-[#FAFAFA] text-gray-100 py-4 shadow-md">
@@ -91,7 +95,7 @@ const Header: React.FC = ({}) => {
               <span className="text-black font-semibold">Loja Virtual</span>
             </div>
           </Link>
-          <IconButton src={MenuIcon} alt="Menu" onClick={toggleMenu} />
+          {/* <IconButton src={MenuIcon} alt="Menu" onClick={toggleMenu} /> */}
         </div>
 
         {/* Ícones de usuário e carrinho */}
