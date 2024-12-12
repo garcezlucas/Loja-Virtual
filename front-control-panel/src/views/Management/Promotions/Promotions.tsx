@@ -11,7 +11,7 @@ import DynamicForm, {
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
-import { filterDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+import { filterShortDescriptionObjectDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 
 import { Promotion } from "../../../interfaces/Promotion";
 
@@ -51,7 +51,10 @@ const Promotions: React.FC<PromotionsProps> = ({
       name: "isValid",
       type: "select",
       value: "",
-      options: ["Válido", "Inválido"],
+      options: [
+        { label: "Válido", value: "Válido" },
+        { label: "Inválido", value: "Inválido" },
+      ],
       validationRules: { required: true, message: "Campo é obrigatório" },
     },
   ]);
@@ -82,20 +85,26 @@ const Promotions: React.FC<PromotionsProps> = ({
 
   useEffect(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
+      const filtered = filterShortDescriptionObjectDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
     }
   }, [searchTerm, tableData]);
 
   const titleColumns = [
-    { label: "ID", width: "33.33%" },
-    { label: "Nome", width: "33.33%" },
-    { label: "", width: "33.33%" },
+    { label: "ID", width: "25%" },
+    { label: "Produto", width: "25%" },
+    { label: "Desconto", width: "25%" },
+    { label: "", width: "25%" },
   ];
 
   const columns: Column[] = [
-    { label: "id", format: (value) => value || "-", width: "33.33%" },
-    { label: "name", format: (value) => value || "-", width: "33.33%" },
+    { label: "id", format: (value) => value || "-", width: "25%" },
+    {
+      label: "product",
+      format: (value) => value.shortDescription || "-",
+      width: "25%",
+    },
+    { label: "discount", format: (value) => `${value * 100}%`|| "-", width: "25%" },
     {
       label: "id",
       format: (value, row) => (
@@ -114,7 +123,7 @@ const Promotions: React.FC<PromotionsProps> = ({
           </button>
         </div>
       ),
-      width: "33.33%",
+      width: "25%",
     },
   ];
 

@@ -50,6 +50,12 @@ const MENU_CONFIG = [
         permission: ["admin"],
       },
       {
+        icon: ProductIcon,
+        label: "Promoções",
+        path: "/system/management/promotions",
+        permission: ["admin"],
+      },
+      {
         icon: BrandIcon,
         label: "Marcas",
         path: "/system/management/brands",
