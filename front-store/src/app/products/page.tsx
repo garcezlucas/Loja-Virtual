@@ -1,4 +1,3 @@
-// src/app/products/page.tsx
 import { getCategoriesViewModel } from "@/hooks/useCategory";
 import {
   getProductsByCategoryViewModel,
