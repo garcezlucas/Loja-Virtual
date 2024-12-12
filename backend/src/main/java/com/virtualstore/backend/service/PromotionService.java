@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.virtualstore.backend.entity.Product;
+import com.virtualstore.backend.entity.ProductImage;
 import com.virtualstore.backend.entity.Promotion;
 import com.virtualstore.backend.repository.ProductRepository;
 import com.virtualstore.backend.repository.PromotionRepository;
@@ -20,8 +21,18 @@ public class PromotionService {
     @Autowired
     private ProductRepository productRepository;
 
-    public List<Promotion> getAllCities() {
-        return promotionRepository.findAll();
+    @Autowired
+    private ProductImageService productImageService;
+
+    public List<Promotion> getAllPromotions() {
+        List<Promotion> promotions = promotionRepository.findAll();
+
+        promotions.forEach(promotion -> {
+            List<ProductImage> images = productImageService.getByProduct(promotion.getProduct().getId());
+            promotion.getProduct().setImages(images);
+        });
+
+        return promotions;
     }
 
     public Promotion create(Promotion promotion) {

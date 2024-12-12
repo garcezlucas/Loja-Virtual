@@ -25,7 +25,7 @@ public class PromotionController {
 
     @GetMapping("/")
     public List<Promotion> getAllPromotions() {
-        return promotionService.getAllCities();
+        return promotionService.getAllPromotions();
     }
 
     @PostMapping("/")
