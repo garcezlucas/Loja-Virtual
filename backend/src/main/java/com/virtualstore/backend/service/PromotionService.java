@@ -35,12 +35,22 @@ public class PromotionService {
         return promotions;
     }
 
+    public Promotion getPromotion(Long id) {
+        Promotion promotion = promotionRepository.findById(id).get();
+
+        List<ProductImage> images = productImageService.getByProduct(promotion.getProduct().getId());
+        promotion.getProduct().setImages(images);
+
+        return promotion;
+    }
+
     public Promotion create(Promotion promotion) {
         Long productId = promotion.getProduct().getId();
 
         Product productOpt = productRepository.findById(productId).get();
 
         promotion.setCreationDate(new Date());
+        promotion.setId(productId);
 
         Promotion newPromotion = promotionRepository.saveAndFlush(promotion);
 

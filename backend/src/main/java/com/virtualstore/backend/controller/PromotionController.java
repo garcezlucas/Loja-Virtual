@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.virtualstore.backend.entity.Product;
 import com.virtualstore.backend.entity.Promotion;
 import com.virtualstore.backend.service.PromotionService;
 
@@ -26,6 +27,11 @@ public class PromotionController {
     @GetMapping("/")
     public List<Promotion> getAllPromotions() {
         return promotionService.getAllPromotions();
+    }
+
+    @GetMapping("/{id}")
+    public Promotion getPromotion(@PathVariable("id") Long id) {
+        return promotionService.getPromotion(id);
     }
 
     @PostMapping("/")
