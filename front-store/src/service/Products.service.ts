@@ -13,6 +13,30 @@ export class ProductsService {
     }
   }
 
+  public static async getAllProductsWithDiscount () {
+    try {
+      const url = `api/product/discount`;
+
+      return await FetchRequest(url, {
+        method: "GET",
+      });
+    } catch (error) {
+      console.error(`error when searching all products with discount: ${error}`);
+    }
+  }
+
+  public static async getAllProductsWithoutDiscount () {
+    try {
+      const url = `api/product/no-discount`;
+
+      return await FetchRequest(url, {
+        method: "GET",
+      });
+    } catch (error) {
+      console.error(`error when searching all products without discount : ${error}`);
+    }
+  }
+
   public static async getAllProductsByCategory(categoryId: string) {
     try {
       const url = `api/product/category/${categoryId}`;

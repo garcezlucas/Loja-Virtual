@@ -37,23 +37,3 @@ export function filterShortDescriptionDataIgnoringAccents(
       );
     });
 }
-
-export function filterShortDescriptionObjectDataIgnoringAccents(
-  data: any[],
-  searchTerm: string
-): any[] {
-  const removeAccents = (str: string): string => {
-    return str?.normalize("NFD")?.replace(/[\u0300-\u036f]/g, "");
-  };
-
-  return data
-    ?.sort(
-      (a, b) =>
-        new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
-    )
-    ?.filter((item: any) => {
-      return removeAccents(item?.product?.shortDescription?.toLowerCase())?.includes(
-        removeAccents(searchTerm?.toLowerCase())
-      );
-    });
-}

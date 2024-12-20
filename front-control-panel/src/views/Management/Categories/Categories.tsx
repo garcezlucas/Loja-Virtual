@@ -64,6 +64,8 @@ const Categories: React.FC<CategoriesProps> = ({
     if (tableData.length > 0) {
       const filtered = filterDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
     }
   }, [searchTerm, tableData]);
 

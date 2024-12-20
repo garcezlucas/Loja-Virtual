@@ -62,6 +62,8 @@ const Brands: React.FC<BrandsProps> = ({
     if (tableData.length > 0) {
       const filtered = filterDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
     }
   }, [searchTerm, tableData]);
 

@@ -1,5 +1,6 @@
 package com.virtualstore.backend.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -45,9 +46,15 @@ public class Product {
 
     private Double price;
 
+    private BigDecimal discount;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;
+
+    public Product() {
+        this.discount = null;
+    }
 }

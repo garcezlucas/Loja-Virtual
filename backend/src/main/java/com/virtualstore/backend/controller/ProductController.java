@@ -39,6 +39,16 @@ public class ProductController {
         return productService.getProduct(id);
     }
 
+    @GetMapping("/discount")
+    public List<Product> getProductsWithDiscount() {
+        return productService.getProductsWithDiscount();
+    }
+
+    @GetMapping("/no-discount")
+    public List<Product> getProductsWithoutDiscount() {
+        return productService.getProductsWithoutDiscount();
+    }
+
     @PostMapping("/")
     public Product createProduct(@RequestBody Product product) {
         return productService.create(product);
@@ -48,6 +58,12 @@ public class ProductController {
     public Product updateProduct(@RequestBody Product product) {
         return productService.update(product);
     }
+
+    @PutMapping("/discount")
+    public Product updateDiscountProduct(@RequestBody Product product) {
+        return productService.updateDiscount(product);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Product> removeProduct(@PathVariable("id") Long id) {

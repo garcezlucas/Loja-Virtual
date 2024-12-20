@@ -56,7 +56,6 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/person/**").hasAuthority("gerente")
                         .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/promotion/**").permitAll()
                         .anyRequest().authenticated());
 
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -60,6 +60,28 @@ public class ProductService {
         return product;
     }
 
+    public List<Product> getProductsWithDiscount() {
+        List<Product> products = productRepository.findWithDiscount();
+
+        products.forEach(product -> {
+            List<ProductImage> images = productImageService.getByProduct(product.getId());
+            product.setImages(images);
+        });
+
+        return products;
+    }
+
+    public List<Product> getProductsWithoutDiscount() {
+        List<Product> products = productRepository.findWithoutDiscount();
+
+        products.forEach(product -> {
+            List<ProductImage> images = productImageService.getByProduct(product.getId());
+            product.setImages(images);
+        });
+        
+        return products;
+    }
+
     public Product create(Product product) {
         Long brandId = product.getBrand().getId();
 
@@ -86,6 +108,33 @@ public class ProductService {
 
         product.setCreationDate(createDate);
         product.setUpdateDate(new Date());
+
+        Product updateProduct = productRepository.saveAndFlush(product);
+
+        return updateProduct;
+    }
+
+    public Product updateDiscount(Product product) {
+        Product existingProduct = productRepository.findById(product.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto inválido!"));
+
+        Date createDate = existingProduct.getCreationDate();
+        String shortDescription = existingProduct.getShortDescription();
+        String description = existingProduct.getDescription();
+        Brand brand = existingProduct.getBrand();
+        Category category = existingProduct.getCategory();
+        Double expense = existingProduct.getExpense();
+        Double price = existingProduct.getPrice();
+
+        product.setCreationDate(createDate);
+        product.setUpdateDate(new Date());
+        product.setShortDescription(shortDescription);
+        product.setDescription(description);
+        product.setCategory(category);
+        product.setBrand(brand);
+        product.setPrice(price);
+        product.setExpense(expense);
+        product.setCategory(category);
 
         Product updateProduct = productRepository.saveAndFlush(product);
 

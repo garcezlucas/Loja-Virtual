@@ -111,6 +111,8 @@ const Consumers: React.FC<ConsumersProps> = ({
     if (tableData.length > 0) {
       const filtered = filterDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
     }
   }, [searchTerm, tableData]);
 
