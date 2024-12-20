@@ -23,6 +23,26 @@ export const getProductsByCategoryViewModel = async (
   }
 };
 
+export const getProductsWithDiscount = async (): Promise<Product[]> => {
+  try {
+    const products = await ProductsService.getAllProductsWithDiscount();
+    return products;
+  } catch (error) {
+    console.error(`Erro ao buscar produtos com desconto: ${error}`);
+    throw new Error("Erro ao carregar produtos com desconto.");
+  }
+};
+
+export const getProductsWithoutDiscount = async (): Promise<Product[]> => {
+  try {
+    const products = await ProductsService.getAllProductsWithoutDiscount();
+    return products;
+  } catch (error) {
+    console.error(`Erro ao buscar produtos com desconto: ${error}`);
+    throw new Error("Erro ao carregar produtos com desconto.");
+  }
+};
+
 export const getProductViewModel = async (id: string): Promise<Product> => {
   try {
     const product = await ProductsService.getProduct(id);

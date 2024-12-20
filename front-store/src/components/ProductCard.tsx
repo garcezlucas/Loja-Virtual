@@ -24,7 +24,22 @@ const ProductCard = ({ product }: ProductCardProps) => (
       <p className="text-gray-600 mt-2 whitespace-nowrap overflow-hidden text-ellipsis">
         {product.description}
       </p>
-      <p className="text-[#4A90E2] font-bold mt-2">R$ {product.price}</p>
+      {!product.discount ? (
+        <p className="text-[#4A90E2] font-bold mt-2">R${product.price}</p>
+      ) : (
+        <div className="mt-2">
+          <p className="text-gray-400 line-through">
+            R$ {product?.price.toFixed(2)}
+          </p>
+          <p className="text-[#4A90E2] font-bold">
+            R${" "}
+            {(
+              product?.price -
+              product?.price * (product.discount ?? 0)
+            ).toFixed(2)}
+          </p>
+        </div>
+      )}
       <Link
         href={`/products/${product.id}`}
         className="mt-4 block text-center bg-[#4A90E2] text-white font-semibold py-2 px-4 rounded hover:bg-[#3A70B3] transition-colors"

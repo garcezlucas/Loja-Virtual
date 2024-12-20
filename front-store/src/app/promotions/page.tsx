@@ -1,13 +1,13 @@
-import { getPromotionsViewModel } from "@/hooks/usePromotions";
-import { Promotion } from "@/interfaces/Promotion";
+import { getProductsWithDiscount } from "@/hooks/useProducts";
+import { Product } from "@/interfaces/Product";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function Promotions() {
-  let promotions: Promotion[] = [];
+  let promotions: Product[] = [];
 
   try {
-    promotions = await getPromotionsViewModel();
+    promotions = await getProductsWithDiscount();
   } catch (error) {
     console.error("Erro ao carregar categorias ou produtos:", error);
   }
@@ -34,36 +34,36 @@ export default async function Promotions() {
             >
               <Image
                 src={
-                  promo?.product?.images?.[0]?.file
-                    ? `data:image;base64, ${promo?.product?.images[0].file}`
+                  promo?.images?.[0]?.file
+                    ? `data:image;base64, ${promo?.images[0].file}`
                     : "/placeholder.png"
                 }
-                alt={promo?.product?.shortDescription}
+                alt={promo?.shortDescription}
                 className="w-full h-48 object-cover"
                 width={600}
                 height={400}
               />
               <div className="p-4">
                 <h3 className="text-lg font-semibold">
-                  {promo?.product?.shortDescription}
+                  {promo?.shortDescription}
                 </h3>
                 <p className="text-gray-600 mt-2">
-                  {promo?.product?.description}
+                  {promo?.description}
                 </p>
                 <div className="mt-2">
                   <p className="text-gray-400 line-through">
-                    R$ {promo?.product?.price.toFixed(2)}
+                    R$ {promo?.price.toFixed(2)}
                   </p>
                   <p className="text-[#4A90E2] font-bold">
                     R${" "}
                     {(
-                      promo?.product?.price -
-                      promo?.product?.price * promo.discount
+                      promo?.price -
+                      promo?.price * (promo.discount ?? 0)
                     ).toFixed(2)}
                   </p>
                 </div>
                 <Link
-                  href={`/promotions/${promo.id}`}
+                  href={`/products/${promo.id}`}
                   className="mt-4 block text-center bg-[#4A90E2] text-white font-semibold py-2 px-4 rounded hover:bg-[#3A70B3] transition-colors"
                 >
                   Ver Detalhes

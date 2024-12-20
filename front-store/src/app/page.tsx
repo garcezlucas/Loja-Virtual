@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ContactForm from "../components/ContactForm";
-import { getProductsViewModel } from "@/hooks/useProducts";
+import { getProductsWithoutDiscount } from "@/hooks/useProducts";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/interfaces/Product";
 
@@ -8,7 +8,7 @@ export default async function Home() {
   let products: Product[] = [];
 
   try {
-    products = await getProductsViewModel();
+    products = await getProductsWithoutDiscount();
   } catch (error) {
     console.error("Erro ao carregar produtos:", error);
   }

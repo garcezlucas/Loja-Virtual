@@ -59,9 +59,22 @@ export default function ProductDetails() {
               {product.shortDescription}
             </h1>
             <p className="text-gray-600 mt-4">{product.description}</p>
-            <p className="text-[#4A90E2] font-bold text-2xl mt-4">
-              R$ {product.price.toFixed(2)}
-            </p>
+            {!product.discount ? (
+              <p className="text-[#4A90E2] font-bold mt-2">R${product.price}</p>
+            ) : (
+              <div className="mt-2">
+                <p className="text-gray-400 line-through">
+                  R$ {product?.price.toFixed(2)}
+                </p>
+                <p className="text-[#4A90E2] font-bold">
+                  R${" "}
+                  {(
+                    product?.price -
+                    product?.price * (product.discount ?? 0)
+                  ).toFixed(2)}
+                </p>
+              </div>
+            )}
             <button className="mt-6 w-full bg-[#F5A623] text-white font-semibold py-3 rounded-full hover:bg-[#D58A1D] transition-colors">
               Adicionar ao Carrinho
             </button>
