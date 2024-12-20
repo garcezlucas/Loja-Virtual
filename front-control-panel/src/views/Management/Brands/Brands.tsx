@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { useBrands } from "./useBrands";
 
@@ -29,7 +29,6 @@ const Brands: React.FC<BrandsProps> = ({
   handleCloseAdd,
 }) => {
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
-  const [filteredData, setFilteredData] = useState<Brand[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -58,14 +57,12 @@ const Brands: React.FC<BrandsProps> = ({
     setSelectedBrand,
   });
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "33.33%" },

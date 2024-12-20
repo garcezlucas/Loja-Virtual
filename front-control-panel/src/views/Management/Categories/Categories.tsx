@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useCategories } from "./useCategories";
 
@@ -31,7 +31,6 @@ const Categories: React.FC<CategoriesProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
-  const [filteredData, setFilteredData] = useState<Category[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -60,14 +59,12 @@ const Categories: React.FC<CategoriesProps> = ({
     setSelectedCategory,
   });
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = useMemo(
     () => [

@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useCollaborators } from "./useCollaborators";
 
@@ -34,7 +34,6 @@ const Collaborators: React.FC<CollaboratorsProps> = ({
 }) => {
   const [selectedCollaborator, setSelectedCollaborator] =
     useState<Person | null>(null);
-  const [filteredData, setFilteredData] = useState<Person[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -126,14 +125,12 @@ const Collaborators: React.FC<CollaboratorsProps> = ({
     updateFieldsWithCities();
   }, [cities]);
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "14.28%" },

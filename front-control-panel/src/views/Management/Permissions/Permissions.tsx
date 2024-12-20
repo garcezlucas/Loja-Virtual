@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { usePermissions } from "./usePermissions";
 
@@ -31,7 +31,6 @@ const Permissions: React.FC<PermissionsProps> = ({
 }) => {
   const [selectedPermission, setSelectedPermission] =
     useState<Permission | null>(null);
-  const [filteredData, setFilteredData] = useState<Permission[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -60,14 +59,12 @@ const Permissions: React.FC<PermissionsProps> = ({
     setSelectedPermission,
   });
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
   
   const titleColumns = [
     { label: "ID", width: "33.33%" },

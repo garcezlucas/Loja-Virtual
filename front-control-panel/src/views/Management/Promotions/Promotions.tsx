@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { usePromotions } from "./usePromotions";
 
@@ -32,7 +32,6 @@ const Promotions: React.FC<PromotionsProps> = ({
   const [selectedPromotion, setSelectedPromotion] = useState<Product | null>(
     null
   );
-  const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Produto*",
@@ -75,14 +74,12 @@ const Promotions: React.FC<PromotionsProps> = ({
     updateFieldsWithStates();
   }, [products]);
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterShortDescriptionDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterShortDescriptionDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "20%" },
