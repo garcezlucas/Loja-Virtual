@@ -39,6 +39,11 @@ public class ProductController {
         return productService.getProduct(id);
     }
 
+    @GetMapping("/discount")
+    public List<Product> getProductsWithDiscount() {
+        return productService.getProductsWithDiscount();
+    }
+
     @PostMapping("/")
     public Product createProduct(@RequestBody Product product) {
         return productService.create(product);

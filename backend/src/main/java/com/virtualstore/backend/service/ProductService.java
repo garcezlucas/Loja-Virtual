@@ -60,6 +60,10 @@ public class ProductService {
         return product;
     }
 
+    public List<Product> getProductsWithDiscount() {
+        return productRepository.findWithDiscount();
+    }
+
     public Product create(Product product) {
         Long brandId = product.getBrand().getId();
 
