@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useCities } from "./useCities";
 
@@ -29,7 +29,6 @@ const Cities: React.FC<CitiesProps> = ({
   handleCloseAdd,
 }) => {
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
-  const [filteredData, setFilteredData] = useState<City[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -72,14 +71,12 @@ const Cities: React.FC<CitiesProps> = ({
     updateFieldsWithStates();
   }, [states]);
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "25%" },

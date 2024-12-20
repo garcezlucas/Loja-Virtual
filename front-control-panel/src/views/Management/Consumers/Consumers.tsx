@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useConsumers } from "./useConsumers";
 
@@ -32,7 +32,6 @@ const Consumers: React.FC<ConsumersProps> = ({
   handleCloseAdd,
 }) => {
   const [selectedConsumer, setSelectedConsumer] = useState<Person | null>(null);
-  const [filteredData, setFilteredData] = useState<Person[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -107,14 +106,12 @@ const Consumers: React.FC<ConsumersProps> = ({
     updateFieldsWithCities();
   }, [cities]);
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "14.28%" },

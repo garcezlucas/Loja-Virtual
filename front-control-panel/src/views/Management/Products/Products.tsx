@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useProducts } from "./useProducts";
 
@@ -34,7 +34,6 @@ const Products: React.FC<ProductsProps> = ({
   handleCloseAdd,
 }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Descrição curta*",
@@ -129,15 +128,12 @@ const Products: React.FC<ProductsProps> = ({
     updateFieldsWithBrands();
   }, [brands]);
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterShortDescriptionDataIgnoringAccents(
-        tableData,
-        searchTerm
-      );
-      setFilteredData(filtered);
+      return filterShortDescriptionDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "12.5%" },

@@ -1,6 +1,6 @@
 import "../_management.scss";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useStates } from "./useStates";
 
@@ -29,7 +29,6 @@ const States: React.FC<StatesProps> = ({
   handleCloseAdd,
 }) => {
   const [selectedState, setSelectedState] = useState<State | null>(null);
-  const [filteredData, setFilteredData] = useState<State[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Nome*",
@@ -65,14 +64,12 @@ const States: React.FC<StatesProps> = ({
     setSelectedState,
   });
 
-  useEffect(() => {
+  const filteredData = useMemo(() => {
     if (tableData.length > 0) {
-      const filtered = filterDataIgnoringAccents(tableData, searchTerm);
-      setFilteredData(filtered);
-    } else {
-      setFilteredData([]);
+      return filterDataIgnoringAccents(tableData, searchTerm);
     }
-  }, [searchTerm, tableData]);
+    return [];
+  }, [tableData, searchTerm]);
 
   const titleColumns = [
     { label: "ID", width: "25%" },
