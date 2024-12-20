@@ -45,7 +45,7 @@ export function useProducts({
 
   const { data: tableData = [], isLoading } = useQuery<Product[], Error>({
     queryKey: ["products"],
-    queryFn: ProductsService.getAllProducts,
+    queryFn: ProductsService.getAllProductsWithoutDiscount,
   });
 
   const { data: categories = [] } = useQuery<Category[], Error>({
@@ -161,6 +161,7 @@ export function useProducts({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

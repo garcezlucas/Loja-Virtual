@@ -35,6 +35,7 @@ export function useBrands({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["brands"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

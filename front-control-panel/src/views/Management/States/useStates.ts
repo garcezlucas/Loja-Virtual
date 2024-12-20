@@ -37,6 +37,7 @@ export function useStates({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["states"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

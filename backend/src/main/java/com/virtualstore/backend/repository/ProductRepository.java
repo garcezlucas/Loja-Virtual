@@ -13,4 +13,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.discount IS NOT NULL")
     List<Product> findWithDiscount();
+
+    @Query("SELECT p FROM Product p WHERE p.discount IS NULL")
+    List<Product> findWithoutDiscount();
+
 }

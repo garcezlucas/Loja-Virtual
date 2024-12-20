@@ -35,6 +35,7 @@ export function useCategories({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

@@ -11,6 +11,7 @@ export interface Product {
   category: Category;
   expense: number;
   price: number;
+  discount: number | null;
   creationDate: Date | null;
   updateDate: Date | null;
 }

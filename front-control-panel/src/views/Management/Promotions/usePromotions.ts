@@ -1,9 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { PromotionsService } from "../../../service/Promotions.service";
 import { ProductsService } from "../../../service/Products.service";
 
-import { Promotion } from "../../../interfaces/Promotion";
 import { Product } from "../../../interfaces/Product";
 
 import { DynamicField } from "../../../components/DynamicForm/DynamicForm";
@@ -18,7 +16,7 @@ interface usePromotionsProps {
   setFields: React.Dispatch<React.SetStateAction<DynamicField[]>>;
   setOpenEdit: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedPromotion: React.Dispatch<
-    React.SetStateAction<Promotion | null>
+    React.SetStateAction<Product | null>
   >;
 }
 
@@ -31,14 +29,14 @@ export function usePromotions ({
 }: usePromotionsProps) {
     const queryClient = useQueryClient();
 
-    const { data: tableData = [], isLoading } = useQuery<Promotion[], Error>({
+    const { data: tableData = [], isLoading } = useQuery<Product[], Error>({
       queryKey: ["promotions"],
-      queryFn: PromotionsService.getAllPromotions,
+      queryFn: ProductsService.getAllProductsWithDiscount,
     });
 
     const { data: products = [] } = useQuery<Product[], Error>({
-      queryKey: ["products"],
-      queryFn: ProductsService.getAllProducts,
+      queryKey: ["productsWithoutDiscount"],
+      queryFn: ProductsService.getAllProductsWithoutDiscount,
     });
   
     const updateFieldsWithStates = () => {
@@ -74,39 +72,36 @@ export function usePromotions ({
     const handleSubmit = async (
       event: React.FormEvent,
       fields: DynamicField[],
-      selectedPromotion: Promotion | null
+      selectedPromotion: Product | null
     ) => {
       event.preventDefault();
       const productId = getFieldValue(fields, "product") as number;
-      const isValid = getFieldValue(fields, "isValid") as string;
       const discount = getFieldValue(fields, "discount") as number;
   
       if (selectedPromotion) {
         updatePromotion.mutate({
           id: selectedPromotion.id,
-          product: { id: productId } as Product,
-          isValid: isValid === 'Válido' ? true : false,
           discount: discount
-        } as Promotion);
+        } as Product);
       } else {
         createPromotion.mutate({
-          product: { id: productId } as Product,
-          isValid: isValid === 'Válido' ? true : false,
+          id: productId,
           discount: discount
-        } as Promotion);
+        } as Product);
       }
     };
   
-    const createPromotion = useMutation<void, Error, Omit<Promotion, "id">>({
-      mutationFn: (promotion) => PromotionsService.createPromotion(promotion),
+    const createPromotion = useMutation<void, Error, Product>({
+      mutationFn: (promotion) => ProductsService.updateProductWithDiscount(promotion),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["promotions"] });
         handleCloseAdd();
+        handleClearFields();
       },
     });
   
-    const updatePromotion = useMutation<void, Error, Promotion>({
-      mutationFn: (promotion) => PromotionsService.updatePromotion(promotion),
+    const updatePromotion = useMutation<void, Error, Product>({
+      mutationFn: (promotion) => ProductsService.updateProductWithDiscount(promotion),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["promotions"] });
         handleCloseEdit();
@@ -114,7 +109,7 @@ export function usePromotions ({
     });
   
     const deletePromotion = useMutation<void, Error, number>({
-      mutationFn: (id) => PromotionsService.deletePromotion(id),
+      mutationFn: (id) => ProductsService.updateProductWithDiscount({id: id, discount: null}),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["promotions"] });
       },
@@ -136,13 +131,13 @@ export function usePromotions ({
       );
     };
   
-    const handleEditClick = (row: Promotion) => {
+    const handleEditClick = (row: Product) => {
       setSelectedPromotion(row);
       setOpenEdit(true);
   
       const fieldMap: Record<FieldName, string | number> = {
-        discount: row.discount,
-        product: row.product.id,
+        discount: row.discount as number,
+        product: row.id,
       };
   
       setFields((prevFields) =>
@@ -174,6 +169,7 @@ export function usePromotions ({
   
       setFields(updatedFields);
     };
+
     return {
         tableData,
         products,

@@ -76,6 +76,8 @@ const Cities: React.FC<CitiesProps> = ({
     if (tableData.length > 0) {
       const filtered = filterDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
     }
   }, [searchTerm, tableData]);
 

@@ -97,6 +97,7 @@ export function useCities({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cities"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

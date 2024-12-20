@@ -57,6 +57,7 @@ export function usePermissions({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["permissions"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

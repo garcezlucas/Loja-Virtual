@@ -111,6 +111,7 @@ export function useConsumers({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["consumers"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

@@ -9,7 +9,31 @@ export class ProductsService {
         method: "GET",
       });
     } catch (error) {
-      throw new Error(`error when searching all cities : ${error}`);
+      throw new Error(`error when searching all products : ${error}`);
+    }
+  }
+
+  public static async getAllProductsWithDiscount() {
+    try {
+      const url = `api/product/discount`;
+
+      return await FetchRequest(url, {
+        method: "GET",
+      });
+    } catch (error) {
+      throw new Error(`error when searching all products with discount : ${error}`);
+    }
+  }
+
+  public static async getAllProductsWithoutDiscount() {
+    try {
+      const url = `api/product/no-discount`;
+
+      return await FetchRequest(url, {
+        method: "GET",
+      });
+    } catch (error) {
+      throw new Error(`error when searching all products with discount : ${error}`);
     }
   }
 
@@ -54,6 +78,22 @@ export class ProductsService {
     }
   }
 
+  public static async updateProductWithDiscount(product: {
+    id: number;
+    discount: number | null;
+  }) {
+    try {
+      const url = `api/product/discount`;
+
+      return await FetchRequest(url, {
+        method: "PUT",
+        body: JSON.stringify(product),
+      });
+    } catch (error) {
+      throw new Error(`error when crate product : ${error}`);
+    }
+  }
+  
   public static async deleteProduct(id: number) {
     try {
       const url = `api/product/${id}`;

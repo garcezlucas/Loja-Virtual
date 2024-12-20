@@ -130,6 +130,8 @@ const Collaborators: React.FC<CollaboratorsProps> = ({
     if (tableData.length > 0) {
       const filtered = filterDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
     }
   }, [searchTerm, tableData]);
 

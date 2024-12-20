@@ -165,6 +165,7 @@ export function useCollaborators({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaborators"] });
       handleCloseAdd();
+      handleClearFields();
     },
   });
 

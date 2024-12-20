@@ -7,13 +7,16 @@ import TableComponent, { Column } from "../../../components/Table/Table";
 import DynamicForm, {
   DynamicField,
 } from "../../../components/DynamicForm/DynamicForm";
+import Carousel from "../../../components/Carosel/Carousel";
 
 import EditIcon from "../../../assets/icons/edit.svg";
 import DeleteIcon from "../../../assets/icons/delete.svg";
 
-import { filterShortDescriptionObjectDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
+import { filterShortDescriptionDataIgnoringAccents } from "../../../utils/filterDataIgnoringAccents";
 
-import { Promotion } from "../../../interfaces/Promotion";
+import { Image } from "../../../interfaces/Image";
+import { Product } from "../../../interfaces/Product";
+
 
 interface PromotionsProps {
   searchTerm: string;
@@ -26,10 +29,10 @@ const Promotions: React.FC<PromotionsProps> = ({
   openAdd,
   handleCloseAdd,
 }) => {
-  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(
+  const [selectedPromotion, setSelectedPromotion] = useState<Product | null>(
     null
   );
-  const [filteredData, setFilteredData] = useState<Promotion[]>([]);
+  const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [fields, setFields] = useState<DynamicField[]>([
     {
       label: "Produto*",
@@ -45,17 +48,6 @@ const Promotions: React.FC<PromotionsProps> = ({
       type: "number",
       value: 0,
       validationRules: { required: true, message: "Desconto é obrigatório" },
-    },
-    {
-      label: "Ativo*",
-      name: "isValid",
-      type: "select",
-      value: "",
-      options: [
-        { label: "Válido", value: "Válido" },
-        { label: "Inválido", value: "Inválido" },
-      ],
-      validationRules: { required: true, message: "Campo é obrigatório" },
     },
   ]);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
@@ -85,26 +77,57 @@ const Promotions: React.FC<PromotionsProps> = ({
 
   useEffect(() => {
     if (tableData.length > 0) {
-      const filtered = filterShortDescriptionObjectDataIgnoringAccents(tableData, searchTerm);
+      const filtered = filterShortDescriptionDataIgnoringAccents(tableData, searchTerm);
       setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
     }
   }, [searchTerm, tableData]);
 
   const titleColumns = [
-    { label: "ID", width: "25%" },
-    { label: "Produto", width: "25%" },
-    { label: "Desconto", width: "25%" },
-    { label: "", width: "25%" },
+    { label: "ID", width: "20%" },
+    { label: "Imagem", width: "20%" },
+    { label: "Produto", width: "20%" },
+    { label: "Desconto", width: "20%" },
+    { label: "", width: "20%" },
   ];
 
+  const renderImages = (images: Image[]) => {
+  if (!images || images.length === 0) {
+    return "-";
+  }
+
+  const lisImages = images.map((image) => {
+    return `data:image;base64, ${image.file}`;
+  });
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        width: "3rem",
+        height: "3rem",
+      }}
+    >
+      <Carousel images={lisImages} />
+    </div>
+  );
+};
+
   const columns: Column[] = [
-    { label: "id", format: (value) => value || "-", width: "25%" },
+    { label: "id", format: (value) => value || "-", width: "20%" },
     {
-      label: "product",
-      format: (value) => value.shortDescription || "-",
-      width: "25%",
+      label: "images",
+      format: (value) => renderImages(value),
+      width: "12.5%",
     },
-    { label: "discount", format: (value) => `${value * 100}%`|| "-", width: "25%" },
+    {
+      label: "shortDescription",
+      format: (value) => value|| "-",
+      width: "20%",
+    },
+    { label: "discount", format: (value) => `${value * 100}%`|| "-", width: "20%" },
     {
       label: "id",
       format: (value, row) => (
@@ -123,7 +146,7 @@ const Promotions: React.FC<PromotionsProps> = ({
           </button>
         </div>
       ),
-      width: "25%",
+      width: "20%",
     },
   ];
 
