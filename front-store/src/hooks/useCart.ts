@@ -21,15 +21,15 @@ export const getShopCartByUSer = async (userId: number) => {
   }
 };
 
-/* export const addProductToShopCart = async (shopCart: ShopCart) => {
+export const addProductToShopCart = async (cartId: number, productId: number) => {
     try {
-      const cart = await CartDataService.addProductToShopCart(shopCart);
+      const cart = await CartDataService.addProductToShopCart(cartId, productId);
       return cart;
     } catch (error) {
       console.error(`Erro ao criar carrinho de compras: ${error}`);
       throw new Error("Erro ao criar carrinho de compras.");
     }
-  }; */
+  };
 
 export const removeItemShopCart = async (shopCartId: number, itemId: number) => {
   try {

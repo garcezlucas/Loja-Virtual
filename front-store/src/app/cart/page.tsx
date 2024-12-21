@@ -44,7 +44,9 @@ export default function Cart() {
   const removeItem = async (cartId: number, productId: number) => {
     const response = await removeItemShopCart(cartId, productId);
 
-    if (response) {
+    console.log(response);
+
+    if (response  && response.status === 200) {
       setCart((prevCart) => {
         if (!prevCart) return prevCart;
 

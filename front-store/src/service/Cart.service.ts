@@ -27,6 +27,19 @@ export class CartDataService {
     }
   }
 
+  public static async addProductToShopCart(cartId: number, productId: number) {
+    try {
+      const url = `api/cart/add`;
+
+      return await FetchRequest(url, {
+        method: "PUT",
+        body: JSON.stringify({ cartId, productId }),
+      });
+    } catch (error) {
+      throw new Error(`error when add Item to shopCart: ${error}`);
+    }
+  }
+
   public static async removeItemFromShopCart(
     cartId: number,
     productId: number

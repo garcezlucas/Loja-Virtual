@@ -4,25 +4,35 @@ import { useEffect, useState } from "react";
 import { getProductViewModel } from "@/hooks/useProducts";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Product } from "@/interfaces/Product";
 import Modal from "@/components/Modal";
 import Login from "@/app/login/Login";
+import { addProductToShopCart, getShopCartByUSer } from "@/hooks/useCart";
+import { getFromLocalStorageDecrypted } from "@/utils/encryptStorage";
+import { ShopCart } from "@/interfaces/ShopCart";
 
 export default function ProductDetails() {
   const { productId } = useParams();
+  const router = useRouter();
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openLogin, setOpenLogin] = useState(false);
+
+  const [cart, setCart] = useState<ShopCart>();
 
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("cookies") : null;
 
   useEffect(() => {
     const fetchProduct = async () => {
+      const userId = await getFromLocalStorageDecrypted("user");
       try {
         const productData = await getProductViewModel(productId as string);
+        const cart = await getShopCartByUSer(userId);
+        setCart(cart);
         setProduct(productData);
       } catch (err) {
         console.error("Erro ao carregar produtos:", err);
@@ -34,6 +44,17 @@ export default function ProductDetails() {
 
     fetchProduct();
   }, [productId]);
+
+  const addNewProductToShopCart = async (cartId: number, productId: number) => {
+    try {
+      const response = await addProductToShopCart(cartId, productId);
+      if (response.id) {
+        router.push("/cart");
+      }
+    } catch (error) {
+      console.error(`Erro ao adicionar produto no carrinho: ${error}`);
+    }
+  };
 
   if (loading)
     return <div className="bg-[#DDDEE5] min-h-screen">Carregando...</div>;
@@ -83,7 +104,11 @@ export default function ProductDetails() {
             )}
             <button
               className="mt-6 w-full bg-[#F5A623] text-white font-semibold py-3 rounded-full hover:bg-[#D58A1D] transition-colors"
-              onClick={() => (accessToken ? "" : setOpenLogin(true))}
+              onClick={() =>
+                accessToken
+                  ? addNewProductToShopCart(cart?.id as number, product.id)
+                  : setOpenLogin(true)
+              }
             >
               Adicionar ao Carrinho
             </button>

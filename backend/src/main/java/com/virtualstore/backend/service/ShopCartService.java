@@ -88,6 +88,23 @@ public class ShopCartService {
         return null;
     }
 
+    public ShopCart addProductToCart(Long cartId, Long productId) {
+        ShopCart shopCart = shopCartRepository.findById(cartId).get();
+
+        ShopCart existingShopCart = shopCartRepository.findById(shopCart.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Carrinho inválido!"));
+        Date createDate = existingShopCart.getCreationDate();
+
+        shopCart.setCreationDate(createDate);
+        shopCart.setUpdateDate(new Date());
+
+        ShopCart updateShopCart = shopCartRepository.saveAndFlush(shopCart);
+
+        productShopCartService.linkProductShopCart(shopCart, productId, 1.00);
+
+        return updateShopCart;
+    }
+
     public ShopCart update(ShopCart shopCart, Product product, Double quantity) {
         Long productId = product.getId();
 

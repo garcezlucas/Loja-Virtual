@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.virtualstore.backend.dto.AddProductRequestDTO;
 import com.virtualstore.backend.dto.ShopCartRequestDTO;
 import com.virtualstore.backend.dto.ShopCartReturnDTO;
 import com.virtualstore.backend.entity.ShopCart;
@@ -39,6 +40,11 @@ public class ShopCartController {
     @PostMapping("/")
     public ShopCart createCart(@RequestBody Long userId) {
         return shopCartService.create(userId);
+    }
+
+    @PutMapping("/add")
+    public ShopCart addProductToCart(@RequestBody AddProductRequestDTO request) {
+        return shopCartService.addProductToCart(request.getCartId(), request.getProductId());
     }
 
     @PutMapping("/")
