@@ -44,9 +44,7 @@ export default function Cart() {
   const removeItem = async (cartId: number, productId: number) => {
     const response = await removeItemShopCart(cartId, productId);
 
-    console.log(response);
-
-    if (response  && response.status === 200) {
+    if (response  && response.id) {
       setCart((prevCart) => {
         if (!prevCart) return prevCart;
 
@@ -95,7 +93,7 @@ export default function Cart() {
                     <Image
                       src={`data:image;base64, ${item.product.images[0]?.file}`}
                       alt={item.product.shortDescription}
-                      className="w-32 h-32 object-cover ml-4 mt-4"
+                      className="w-32 h-24 object-cover ml-4"
                       width={128}
                       height={128}
                     />

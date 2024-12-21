@@ -123,12 +123,14 @@ public class ShopCartService {
     }
 
     @Transactional
-    public void removeItem(Long cartId, Long productCartId) {
+    public ShopCart removeItem(Long cartId, Long productCartId) {
         Optional<ProductShopCart> item = productShopCartRepository.findByIdAndCartId(productCartId, cartId);
         if (item.isPresent()) {
             productShopCartRepository.deleteByIdAndCartId(productCartId, cartId);
+            return shopCartRepository.findById(cartId).orElse(null);
         } else {
             System.out.println("Item não encontrado com cartId: " + cartId + " e productCartId: " + productCartId);
+            return null;
         }
     }
 }
