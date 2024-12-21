@@ -48,7 +48,7 @@ public class ShopCartController {
 
     @PutMapping("/")
     public ShopCart updateCart(@RequestBody ShopCartRequestDTO request) {
-        return shopCartService.update(request.getShopCart(), request.getProduct(), request.getQuantity());
+        return shopCartService.update(request.getCartId(), request.getProductId(), request.getQuantity());
     }
 
     @DeleteMapping("/{cartId}/{productCartId}")

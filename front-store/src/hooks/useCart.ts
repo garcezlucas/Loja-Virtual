@@ -29,8 +29,22 @@ export const addProductToShopCart = async (
     const cart = await CartDataService.addProductToShopCart(cartId, productId);
     return cart;
   } catch (error) {
-    console.error(`Erro ao criar carrinho de compras: ${error}`);
-    throw new Error("Erro ao criar carrinho de compras.");
+    console.error(`Erro ao adicionar item no carrinho de compras: ${error}`);
+    throw new Error("Erro ao adicionar item no carrinho de compras.");
+  }
+};
+
+export const updateProductToShopCart = async (
+  cartId: number,
+  productId: number,
+  quantity: number
+) => {
+  try {
+    const cart = await CartDataService.updateProductToShopCart(cartId, productId, quantity);
+    return cart;
+  } catch (error) {
+    console.error(`Erro ao atualizar carrinho de compras: ${error}`);
+    throw new Error("Erro ao atualizar carrinho de compras.");
   }
 };
 

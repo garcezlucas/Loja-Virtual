@@ -105,12 +105,13 @@ public class ShopCartService {
         return updateShopCart;
     }
 
-    public ShopCart update(ShopCart shopCart, Product product, Double quantity) {
-        Long productId = product.getId();
+    public ShopCart update(Long shopCartId, Long productId, Double quantity) {
 
-        ShopCart existingShopCart = shopCartRepository.findById(shopCart.getId())
+        ShopCart existingShopCart = shopCartRepository.findById(shopCartId)
                 .orElseThrow(() -> new IllegalArgumentException("Carrinho inválido!"));
         Date createDate = existingShopCart.getCreationDate();
+
+        ShopCart shopCart = shopCartRepository.findById(shopCartId).get();
 
         shopCart.setCreationDate(createDate);
         shopCart.setUpdateDate(new Date());

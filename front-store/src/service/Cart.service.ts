@@ -40,6 +40,23 @@ export class CartDataService {
     }
   }
 
+  public static async updateProductToShopCart(
+    cartId: number,
+    productId: number,
+    quantity: number
+  ) {
+    try {
+      const url = `api/cart/`;
+
+      return await FetchRequest(url, {
+        method: "PUT",
+        body: JSON.stringify({ cartId, productId, quantity }),
+      });
+    } catch (error) {
+      throw new Error(`error when update Item to shopCart: ${error}`);
+    }
+  }
+
   public static async removeItemFromShopCart(
     cartId: number,
     productId: number

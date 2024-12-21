@@ -1,6 +1,6 @@
 "use client";
 
-import { getShopCartByUSer, removeItemShopCart } from "@/hooks/useCart";
+import { getShopCartByUSer, removeItemShopCart, updateProductToShopCart } from "@/hooks/useCart";
 import { ShopCart } from "@/interfaces/ShopCart";
 import { getFromLocalStorageDecrypted } from "@/utils/encryptStorage";
 import Image from "next/image";
@@ -24,21 +24,25 @@ export default function Cart() {
     fetchProduct();
   }, []);
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = async (cartId: number, productId: number, newQuantity: number, itemId: number) => {
     if (newQuantity < 1) return;
 
+    const response = await updateProductToShopCart(cartId, productId, newQuantity);
+
+    if (response  && response.id) {
     setCart((prevCart) => {
       if (!prevCart) return prevCart;
 
       return {
         ...prevCart,
         products: prevCart.products.map((product) =>
-          product.id === productId
+          product.id === itemId
             ? { ...product, quantity: newQuantity }
             : product
         ),
       };
     });
+  }
   };
 
   const removeItem = async (cartId: number, productId: number) => {
@@ -107,7 +111,7 @@ export default function Cart() {
                       <div className="mt-4 flex items-center gap-4">
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            updateQuantity(cart.id, item.product.id, item.quantity - 1, item.id)
                           }
                           className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
                         >
@@ -116,7 +120,7 @@ export default function Cart() {
                         <span className="text-lg">{item.quantity}</span>
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            updateQuantity(cart.id, item.product.id, item.quantity + 1, item.id)
                           }
                           className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
                         >

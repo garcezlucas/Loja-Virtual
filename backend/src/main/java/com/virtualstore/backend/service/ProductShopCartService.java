@@ -37,13 +37,15 @@ public class ProductShopCartService {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Cart with ID " + shopCart.getId() + " not found"));
 
-        Product product = productRepository.findById(productId).get();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Product with ID " + productId + " not found"));
 
         Optional<ProductShopCart> existingProductShopCart = productShopCartRepository
                 .findByCartIdAndProductId(cart.getId(), productId);
 
         if (existingProductShopCart.isPresent()) {
             ProductShopCart productShopCart = existingProductShopCart.get();
+
             productShopCart.setQuantity(quantity);
             productShopCart.setObservation(cart.getObservation());
             productShopCart.setUpdateDate(new Date());
