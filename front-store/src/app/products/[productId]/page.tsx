@@ -6,12 +6,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Product } from "@/interfaces/Product";
+import Modal from "@/components/Modal";
+import Login from "@/app/login/Login";
 
 export default function ProductDetails() {
   const { productId } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openLogin, setOpenLogin] = useState(false);
+
+  const accessToken =
+    typeof window !== "undefined" ? localStorage.getItem("cookies") : null;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -75,7 +81,10 @@ export default function ProductDetails() {
                 </p>
               </div>
             )}
-            <button className="mt-6 w-full bg-[#F5A623] text-white font-semibold py-3 rounded-full hover:bg-[#D58A1D] transition-colors">
+            <button
+              className="mt-6 w-full bg-[#F5A623] text-white font-semibold py-3 rounded-full hover:bg-[#D58A1D] transition-colors"
+              onClick={() => (accessToken ? "" : setOpenLogin(true))}
+            >
               Adicionar ao Carrinho
             </button>
 
@@ -88,6 +97,10 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
+
+      <Modal isOpen={openLogin} onClose={() => setOpenLogin(false)}>
+        <Login setOpenLogin={setOpenLogin} />
+      </Modal>
     </div>
   );
 }

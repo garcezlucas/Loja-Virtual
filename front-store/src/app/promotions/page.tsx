@@ -27,7 +27,7 @@ export default async function Promotions() {
       <section className="container mx-auto py-10 px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* Renderização dos produtos em promoção */}
-          {promotions.map((promo) => (
+          {promotions?.map((promo) => (
             <div
               key={promo.id}
               className="bg-white shadow-md rounded-lg overflow-hidden"

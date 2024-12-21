@@ -1,4 +1,6 @@
+import { createShopCart, getShopCartByUSer } from "@/hooks/useCart";
 import { ManagementService } from "@/service/Management.service";
+import { saveToLocalStorageEncrypted } from "@/utils/encryptStorage";
 import { useState } from "react";
 
 interface LoginProps {
@@ -14,6 +16,11 @@ const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
       const response = await ManagementService.login({ email, password });
       if (response.accessToken) {
         localStorage.setItem("cookies", response.accessToken);
+        saveToLocalStorageEncrypted("user", response.userId);
+        const result = await getShopCartByUSer(response.userId)
+        if (!result) {
+          await createShopCart(response.userId);
+        }
         setOpenLogin(false);
       }
     } catch (error) {

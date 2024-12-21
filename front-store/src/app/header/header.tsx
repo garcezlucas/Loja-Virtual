@@ -30,6 +30,7 @@ const Header: React.FC = () => {
               label: "Logout",
               onClick: () => {
                 localStorage.removeItem("cookies");
+                localStorage.removeItem("user");
                 setVisibleDropdownIndex(null);
               },
             }

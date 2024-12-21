@@ -37,8 +37,8 @@ public class ShopCartController {
     }
 
     @PostMapping("/")
-    public ShopCart createCart(@RequestBody ShopCartRequestDTO request) {
-        return shopCartService.create(request.getShopCart(), request.getProduct(), request.getQuantity());
+    public ShopCart createCart(@RequestBody Long userId) {
+        return shopCartService.create(userId);
     }
 
     @PutMapping("/")

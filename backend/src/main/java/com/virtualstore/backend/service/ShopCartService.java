@@ -8,11 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.virtualstore.backend.dto.ShopCartReturnDTO;
+import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.entity.Product;
 import com.virtualstore.backend.entity.ProductShopCart;
 import com.virtualstore.backend.entity.ShopCart;
+import com.virtualstore.backend.repository.PersonRepository;
 import com.virtualstore.backend.repository.ProductShopCartRepository;
 import com.virtualstore.backend.repository.ShopCartRepository;
+
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Service
 public class ShopCartService {
@@ -25,6 +32,9 @@ public class ShopCartService {
 
     @Autowired
     private ProductShopCartService productShopCartService;
+
+    @Autowired
+    private PersonRepository personRepository;
 
     public List<ShopCart> getAllCarts() {
         return shopCartRepository.findAll();
@@ -54,15 +64,22 @@ public class ShopCartService {
         return Optional.of(shopCartDto);
     }
 
-    public ShopCart create(ShopCart shopCart, Product product, Double quantity) {
-        Long productId = product.getId();
+    public ShopCart create(Long userId) {
+        Optional<ShopCart> optionalCart = shopCartRepository.findByPersonIdAndSituation(userId, "pending");
 
-        shopCart.setCreationDate(new Date());
-        ShopCart newShopCart = shopCartRepository.saveAndFlush(shopCart);
+        if (optionalCart.isEmpty()) {
+            ShopCart shopCart = new ShopCart();
 
-        productShopCartService.linkProductShopCart(shopCart, productId, quantity);
+            Person person = personRepository.findById(userId).get();
 
-        return newShopCart;
+            shopCart.setPerson(person);
+            shopCart.setSituation("pending");
+            shopCart.setCreationDate(new Date());
+
+            return shopCart;
+        }
+
+        return null;
     }
 
     public ShopCart update(ShopCart shopCart, Product product, Double quantity) {
