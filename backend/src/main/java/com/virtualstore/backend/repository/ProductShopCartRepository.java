@@ -12,5 +12,9 @@ public interface ProductShopCartRepository extends JpaRepository<ProductShopCart
     
     Optional<ProductShopCart> findByCartIdAndProductId(Long cartId, Long productId);
 
+    Optional<ProductShopCart> findByIdAndCartId(Long id, Long cartId);
+
     List<ProductShopCart> findByCartIdAndCreationDateAfter(Long cartId, Date creationDate);
+
+    void deleteByIdAndCartId(Long id, Long cartId);
 }

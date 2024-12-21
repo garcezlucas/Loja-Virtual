@@ -26,4 +26,20 @@ export class CartDataService {
       throw new Error(`error when get shop cart by userId : ${error}`);
     }
   }
+
+  public static async removeItemFromShopCart(
+    cartId: number,
+    productId: number
+  ) {
+    try {
+      const url = `api/cart/${cartId}/${productId}`;
+
+      return await FetchRequest(url, {
+        method: "DELETE",
+        /* body: JSON.stringify({ cartId, productId }), */
+      });
+    } catch (error) {
+      throw new Error(`error when remove item from cart : ${error}`);
+    }
+  }
 }

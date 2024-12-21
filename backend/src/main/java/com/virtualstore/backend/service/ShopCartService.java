@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.virtualstore.backend.dto.ShopCartReturnDTO;
 import com.virtualstore.backend.entity.Person;
@@ -104,9 +105,13 @@ public class ShopCartService {
         return updateShopCart;
     }
 
-    public void remove(Long id) {
-        ShopCart shopCart = shopCartRepository.findById(id).get();
-        shopCartRepository.delete(shopCart);
-
+    @Transactional
+    public void removeItem(Long cartId, Long productCartId) {
+        Optional<ProductShopCart> item = productShopCartRepository.findByIdAndCartId(productCartId, cartId);
+        if (item.isPresent()) {
+            productShopCartRepository.deleteByIdAndCartId(productCartId, cartId);
+        } else {
+            System.out.println("Item não encontrado com cartId: " + cartId + " e productCartId: " + productCartId);
+        }
     }
 }

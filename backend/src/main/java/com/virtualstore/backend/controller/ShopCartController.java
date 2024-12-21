@@ -46,9 +46,9 @@ public class ShopCartController {
         return shopCartService.update(request.getShopCart(), request.getProduct(), request.getQuantity());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeCart(@PathVariable("id") Long id) {
-        shopCartService.remove(id);
+    @DeleteMapping("/{cartId}/{productCartId}")
+    public ResponseEntity<Void> removeItemCart(@PathVariable("cartId") Long cartId, @PathVariable("productCartId") Long productCartId) {
+        shopCartService.removeItem(cartId, productCartId);
         return ResponseEntity.ok().build();
     }
 }

@@ -30,3 +30,13 @@ export const getShopCartByUSer = async (userId: number) => {
       throw new Error("Erro ao criar carrinho de compras.");
     }
   }; */
+
+export const removeItemShopCart = async (shopCartId: number, itemId: number) => {
+  try {
+    const cart = await CartDataService.removeItemFromShopCart(shopCartId, itemId);
+    return cart;
+  } catch (error) {
+    console.error(`Erro ao remover item do carrinho: ${error}`);
+    throw new Error("Erro ao remover item do carrinho.");
+  }
+};

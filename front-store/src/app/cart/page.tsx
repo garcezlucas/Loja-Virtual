@@ -1,6 +1,6 @@
 "use client";
 
-import { getShopCartByUSer } from "@/hooks/useCart";
+import { getShopCartByUSer, removeItemShopCart } from "@/hooks/useCart";
 import { ShopCart } from "@/interfaces/ShopCart";
 import { getFromLocalStorageDecrypted } from "@/utils/encryptStorage";
 import Image from "next/image";
@@ -41,17 +41,21 @@ export default function Cart() {
     });
   };
 
-  const removeItem = (productId: number) => {
-    setCart((prevCart) => {
-      if (!prevCart) return prevCart; 
+  const removeItem = async (cartId: number, productId: number) => {
+    const response = await removeItemShopCart(cartId, productId);
 
-      return {
-        ...prevCart,
-        products: prevCart.products.filter(
-          (product) => product.id !== productId
-        ),
-      };
-    });
+    if (response) {
+      setCart((prevCart) => {
+        if (!prevCart) return prevCart;
+
+        return {
+          ...prevCart,
+          products: prevCart.products.filter(
+            (product) => product.id !== productId
+          ),
+        };
+      });
+    }
   };
 
   const calculateTotal = () => {
@@ -121,7 +125,7 @@ export default function Cart() {
                       </div>
                     </div>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(cart.id, item.id)}
                       className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors mr-4"
                     >
                       Remover
