@@ -106,6 +106,10 @@ public class PersonManagementService {
 
         Person authenticatedPerson = (Person) authentication.getPrincipal();
 
+        Person user = personRepository.findByEmail(email);
+
+        Long userId = user.getId();
+
         String accessToken = jwtUtil.generateTokenUsername(authenticatedPerson);
 
         refreshTokenService.createRefreshToken(authenticatedPerson);
@@ -116,6 +120,7 @@ public class PersonManagementService {
 
         map.put("permissions", authenticatedPerson.getAuthorities());
         map.put("accessToken", accessToken);
+        map.put("userId", userId);
 
         return ResponseEntity.ok(map);
     }

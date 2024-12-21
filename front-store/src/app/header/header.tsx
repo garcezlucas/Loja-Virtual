@@ -2,13 +2,17 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import IconButton from "./IconButton";
+import { Badge, IconButton } from "@mui/material";
+import IconsButton from "./IconsButton";
 import Modal from "@/components/Modal";
 import StoreIcon from "../../../public/icons/store-shop.svg";
 import CartIcon from "../../../public/icons/cart.svg";
 import UserIcon from "../../../public/icons/user.svg";
 import Dropdown from "./Dropdown";
 import Login from "../login/Login";
+import { getFromLocalStorageDecrypted } from "@/utils/encryptStorage";
+import { getShopCartByUSer } from "@/hooks/useCart";
+import { ShopCart } from "@/interfaces/ShopCart";
 
 const Header: React.FC = () => {
   const [visibleDropdownIndex, setVisibleDropdownIndex] = useState<
@@ -20,6 +24,22 @@ const Header: React.FC = () => {
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("cookies") : null;
 
+  const [cart, setCart] = useState<ShopCart>();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const userId = await getFromLocalStorageDecrypted("user");
+      try {
+        const cart = await getShopCartByUSer(userId);
+        setCart(cart);
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
   const HEADER_CONFIG = [
     {
       icon: UserIcon,
@@ -30,6 +50,7 @@ const Header: React.FC = () => {
               label: "Logout",
               onClick: () => {
                 localStorage.removeItem("cookies");
+                localStorage.removeItem("user");
                 setVisibleDropdownIndex(null);
               },
             }
@@ -70,12 +91,25 @@ const Header: React.FC = () => {
             </div>
           </Link>
           <div className="flex items-center space-x-6">
-            <Link href={"/cart"}>
-              <IconButton src={CartIcon} alt="Carrinho de Compras" />
+            <Link href="/cart">
+              <IconButton>
+                <Badge
+                  badgeContent={cart?.products?.length}
+                  color="primary"
+                  invisible={cart?.products?.length === 0}
+                >
+                  <Image
+                    src={CartIcon}
+                    alt={"Carrinho de Compras"}
+                    width={24}
+                    height={24}
+                  />
+                </Badge>
+              </IconButton>
             </Link>
             {HEADER_CONFIG.map((item, index) => (
               <div key={index} className="relative" ref={dropdownRef}>
-                <IconButton
+                <IconsButton
                   src={item.icon}
                   alt={item.alt}
                   onClick={() => toggleDropdown(index)}

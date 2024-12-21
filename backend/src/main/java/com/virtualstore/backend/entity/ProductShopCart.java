@@ -26,7 +26,6 @@ public class ProductShopCart {
 
     @ManyToOne
     @JoinColumn(name = "idProduct")
-    @JsonIgnore
     private Product product;
 
     @ManyToOne

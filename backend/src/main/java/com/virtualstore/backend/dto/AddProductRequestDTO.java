@@ -3,11 +3,8 @@ package com.virtualstore.backend.dto;
 import lombok.Data;
 
 @Data
-public class ShopCartRequestDTO {
+public class AddProductRequestDTO {
     private Long cartId;
 
     private Long productId;
-
-    private Double quantity;
-
 }

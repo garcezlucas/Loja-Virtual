@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.virtualstore.backend.dto.AddProductRequestDTO;
 import com.virtualstore.backend.dto.ShopCartRequestDTO;
 import com.virtualstore.backend.dto.ShopCartReturnDTO;
 import com.virtualstore.backend.entity.ShopCart;
@@ -37,18 +37,22 @@ public class ShopCartController {
     }
 
     @PostMapping("/")
-    public ShopCart createCart(@RequestBody ShopCartRequestDTO request) {
-        return shopCartService.create(request.getShopCart(), request.getProduct(), request.getQuantity());
+    public ShopCart createCart(@RequestBody Long userId) {
+        return shopCartService.create(userId);
+    }
+
+    @PutMapping("/add")
+    public ShopCart addProductToCart(@RequestBody AddProductRequestDTO request) {
+        return shopCartService.addProductToCart(request.getCartId(), request.getProductId());
     }
 
     @PutMapping("/")
     public ShopCart updateCart(@RequestBody ShopCartRequestDTO request) {
-        return shopCartService.update(request.getShopCart(), request.getProduct(), request.getQuantity());
+        return shopCartService.update(request.getCartId(), request.getProductId(), request.getQuantity());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeCart(@PathVariable("id") Long id) {
-        shopCartService.remove(id);
-        return ResponseEntity.ok().build();
+    @DeleteMapping("/{cartId}/{productCartId}")
+    public ShopCart removeItemCart(@PathVariable("cartId") Long cartId, @PathVariable("productCartId") Long productCartId) {
+        return shopCartService.removeItem(cartId, productCartId);
     }
 }

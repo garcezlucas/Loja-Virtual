@@ -6,11 +6,15 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.virtualstore.backend.dto.ShopCartReturnDTO;
+import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.entity.Product;
+import com.virtualstore.backend.entity.ProductImage;
 import com.virtualstore.backend.entity.ProductShopCart;
 import com.virtualstore.backend.entity.ShopCart;
+import com.virtualstore.backend.repository.PersonRepository;
 import com.virtualstore.backend.repository.ProductShopCartRepository;
 import com.virtualstore.backend.repository.ShopCartRepository;
 
@@ -25,6 +29,12 @@ public class ShopCartService {
 
     @Autowired
     private ProductShopCartService productShopCartService;
+
+    @Autowired
+    private PersonRepository personRepository;
+
+    @Autowired
+    private ProductImageService productImageService;
 
     public List<ShopCart> getAllCarts() {
         return shopCartRepository.findAll();
@@ -42,6 +52,12 @@ public class ShopCartService {
         List<ProductShopCart> products = productShopCartRepository.findByCartIdAndCreationDateAfter(
                 cart.getId(), cart.getCreationDate());
 
+        products.forEach(productShopCart -> {
+            Product product = productShopCart.getProduct();
+            List<ProductImage> images = productImageService.getByProduct(product.getId());
+            product.setImages(images);
+        });
+
         ShopCartReturnDTO shopCartDto = new ShopCartReturnDTO();
         shopCartDto.setId(cart.getId());
         shopCartDto.setPersonId(cart.getPerson().getId());
@@ -54,23 +70,48 @@ public class ShopCartService {
         return Optional.of(shopCartDto);
     }
 
-    public ShopCart create(ShopCart shopCart, Product product, Double quantity) {
-        Long productId = product.getId();
+    public ShopCart create(Long userId) {
+        Optional<ShopCart> optionalCart = shopCartRepository.findByPersonIdAndSituation(userId, "pending");
 
-        shopCart.setCreationDate(new Date());
-        ShopCart newShopCart = shopCartRepository.saveAndFlush(shopCart);
+        if (optionalCart.isEmpty()) {
+            ShopCart shopCart = new ShopCart();
 
-        productShopCartService.linkProductShopCart(shopCart, productId, quantity);
+            Person person = personRepository.findById(userId).get();
 
-        return newShopCart;
+            shopCart.setPerson(person);
+            shopCart.setSituation("pending");
+            shopCart.setCreationDate(new Date());
+
+            return shopCart;
+        }
+
+        return null;
     }
 
-    public ShopCart update(ShopCart shopCart, Product product, Double quantity) {
-        Long productId = product.getId();
+    public ShopCart addProductToCart(Long cartId, Long productId) {
+        ShopCart shopCart = shopCartRepository.findById(cartId).get();
 
         ShopCart existingShopCart = shopCartRepository.findById(shopCart.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Carrinho inválido!"));
         Date createDate = existingShopCart.getCreationDate();
+
+        shopCart.setCreationDate(createDate);
+        shopCart.setUpdateDate(new Date());
+
+        ShopCart updateShopCart = shopCartRepository.saveAndFlush(shopCart);
+
+        productShopCartService.linkProductShopCart(shopCart, productId, 1.00);
+
+        return updateShopCart;
+    }
+
+    public ShopCart update(Long shopCartId, Long productId, Double quantity) {
+
+        ShopCart existingShopCart = shopCartRepository.findById(shopCartId)
+                .orElseThrow(() -> new IllegalArgumentException("Carrinho inválido!"));
+        Date createDate = existingShopCart.getCreationDate();
+
+        ShopCart shopCart = shopCartRepository.findById(shopCartId).get();
 
         shopCart.setCreationDate(createDate);
         shopCart.setUpdateDate(new Date());
@@ -82,9 +123,15 @@ public class ShopCartService {
         return updateShopCart;
     }
 
-    public void remove(Long id) {
-        ShopCart shopCart = shopCartRepository.findById(id).get();
-        shopCartRepository.delete(shopCart);
-
+    @Transactional
+    public ShopCart removeItem(Long cartId, Long productCartId) {
+        Optional<ProductShopCart> item = productShopCartRepository.findByIdAndCartId(productCartId, cartId);
+        if (item.isPresent()) {
+            productShopCartRepository.deleteByIdAndCartId(productCartId, cartId);
+            return shopCartRepository.findById(cartId).orElse(null);
+        } else {
+            System.out.println("Item não encontrado com cartId: " + cartId + " e productCartId: " + productCartId);
+            return null;
+        }
     }
 }

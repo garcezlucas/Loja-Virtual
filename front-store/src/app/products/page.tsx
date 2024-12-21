@@ -34,15 +34,15 @@ const Products = async ({
 
   const sortedProducts = [...products];
   if (sort === "recent") {
-    sortedProducts.sort((a, b) => {
+    sortedProducts?.sort((a, b) => {
       const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
       const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
       return dateB - dateA;
     });
   } else if (sort === "low_to_high") {
-    sortedProducts.sort((a, b) => a.price - b.price);
+    sortedProducts?.sort((a, b) => a.price - b.price);
   } else if (sort === "high_to_low") {
-    sortedProducts.sort((a, b) => b.price - a.price);
+    sortedProducts?.sort((a, b) => b.price - a.price);
   }
 
   return (
@@ -57,7 +57,7 @@ const Products = async ({
       <Filters categories={categories} categoryId={categoryId} sort={sort} />
       <section className="container mx-auto py-10 px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {sortedProducts.map((product) => (
+          {sortedProducts?.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

@@ -1,50 +1,75 @@
 "use client";
 
+import { getShopCartByUSer, removeItemShopCart, updateProductToShopCart } from "@/hooks/useCart";
+import { ShopCart } from "@/interfaces/ShopCart";
+import { getFromLocalStorageDecrypted } from "@/utils/encryptStorage";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Cart() {
-  // Estado inicial do carrinho de compras
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Produto 1",
-      price: 100.0,
-      quantity: 1,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 2,
-      name: "Produto 2",
-      price: 150.0,
-      quantity: 2,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 3,
-      name: "Produto 3",
-      price: 200.0,
-      quantity: 1,
-      imageUrl: "/images/produto3.jpg",
-    },
-  ]);
+  const [cart, setCart] = useState<ShopCart>();
 
-  const updateQuantity = (id: number, newQuantity: number) => {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const userId = await getFromLocalStorageDecrypted("user");
+      try {
+        const cart = await getShopCartByUSer(userId);
+        setCart(cart);
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
+  const updateQuantity = async (cartId: number, productId: number, newQuantity: number, itemId: number) => {
     if (newQuantity < 1) return;
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
+
+    const response = await updateProductToShopCart(cartId, productId, newQuantity);
+
+    if (response  && response.id) {
+    setCart((prevCart) => {
+      if (!prevCart) return prevCart;
+
+      return {
+        ...prevCart,
+        products: prevCart.products.map((product) =>
+          product.id === itemId
+            ? { ...product, quantity: newQuantity }
+            : product
+        ),
+      };
+    });
+  }
+  };
+
+  const removeItem = async (cartId: number, productId: number) => {
+    const response = await removeItemShopCart(cartId, productId);
+
+    if (response  && response.id) {
+      setCart((prevCart) => {
+        if (!prevCart) return prevCart;
+
+        return {
+          ...prevCart,
+          products: prevCart.products.filter(
+            (product) => product.id !== productId
+          ),
+        };
+      });
+    }
+  };
+
+  const calculateTotal = () => {
+    if (!cart) return 0;
+
+    return cart.products.reduce(
+      (total, product) => total + product.price * (product.quantity || 1),
+      0
     );
   };
-
-  const removeItem = (id: number) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
-
-  const calculateTotal = () =>
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
     <div className="bg-[#DDDEE5] min-h-screen">
@@ -60,31 +85,33 @@ export default function Cart() {
 
       {/* Seção do Carrinho */}
       <section className="container mx-auto py-10 px-4">
-        {cartItems.length > 0 ? (
+        {cart?.products?.length && cart?.products?.length > 0 ? (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                {cartItems.map((item) => (
+                {cart?.products?.map((item) => (
                   <div
                     key={item.id}
                     className="bg-white shadow-md rounded-lg overflow-hidden flex items-center mb-6"
                   >
                     <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-32 h-32 object-cover ml-4 mt-4"
+                      src={`data:image;base64, ${item.product.images[0]?.file}`}
+                      alt={item.product.shortDescription}
+                      className="w-32 h-24 object-cover ml-4"
                       width={128}
                       height={128}
                     />
                     <div className="p-4 flex-1">
-                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <h3 className="text-lg font-semibold">
+                        {item.product.shortDescription}
+                      </h3>
                       <p className="text-gray-600">
                         Preço: R$ {item.price.toFixed(2).replace(".", ",")}
                       </p>
                       <div className="mt-4 flex items-center gap-4">
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            updateQuantity(cart.id, item.product.id, item.quantity - 1, item.id)
                           }
                           className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
                         >
@@ -93,7 +120,7 @@ export default function Cart() {
                         <span className="text-lg">{item.quantity}</span>
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            updateQuantity(cart.id, item.product.id, item.quantity + 1, item.id)
                           }
                           className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
                         >
@@ -102,7 +129,7 @@ export default function Cart() {
                       </div>
                     </div>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(cart.id, item.id)}
                       className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors mr-4"
                     >
                       Remover

@@ -6,10 +6,10 @@ interface IconButtonProps {
   onClick?: () => void;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ src, alt, onClick }) => (
+const IconsButton: React.FC<IconButtonProps> = ({ src, alt, onClick }) => (
   <button onClick={onClick} aria-label={alt} className="p-2">
     <Image src={src} alt={alt} width={24} height={24} />
   </button>
 );
 
-export default IconButton;
+export default IconsButton;

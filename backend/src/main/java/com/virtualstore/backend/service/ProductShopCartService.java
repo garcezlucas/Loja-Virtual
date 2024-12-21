@@ -1,5 +1,6 @@
 package com.virtualstore.backend.service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -36,13 +37,15 @@ public class ProductShopCartService {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Cart with ID " + shopCart.getId() + " not found"));
 
-        Product product = productRepository.findById(productId).get();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Product with ID " + productId + " not found"));
 
         Optional<ProductShopCart> existingProductShopCart = productShopCartRepository
                 .findByCartIdAndProductId(cart.getId(), productId);
 
         if (existingProductShopCart.isPresent()) {
             ProductShopCart productShopCart = existingProductShopCart.get();
+
             productShopCart.setQuantity(quantity);
             productShopCart.setObservation(cart.getObservation());
             productShopCart.setUpdateDate(new Date());
@@ -50,9 +53,14 @@ public class ProductShopCartService {
 
         } else {
             ProductShopCart productShopCart = new ProductShopCart();
+
+            Double price = (product.getDiscount() != null && product.getDiscount().compareTo(BigDecimal.ZERO) > 0)
+                    ? product.getPrice() * (1 - product.getDiscount().doubleValue())
+                    : product.getPrice();
+
             productShopCart.setProduct(product);
             productShopCart.setCart(cart);
-            productShopCart.setPrice(product.getPrice());
+            productShopCart.setPrice(price);
             productShopCart.setQuantity(quantity);
             productShopCart.setObservation(cart.getObservation());
             productShopCart.setCreationDate(new Date());
