@@ -1,8 +1,8 @@
 import FetchRequest from "@/api/apiFetch";
-import { shopCart } from "@/interfaces/ShopCart";
+import { ShopCart } from "@/interfaces/ShopCart";
 
 export class CartDataService {
-  public static async createCart(cart: shopCart) {
+  public static async createCart(cart: ShopCart) {
     try {
       const url = `api/cart/`;
 

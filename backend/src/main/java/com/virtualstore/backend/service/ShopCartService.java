@@ -10,16 +10,12 @@ import org.springframework.stereotype.Service;
 import com.virtualstore.backend.dto.ShopCartReturnDTO;
 import com.virtualstore.backend.entity.Person;
 import com.virtualstore.backend.entity.Product;
+import com.virtualstore.backend.entity.ProductImage;
 import com.virtualstore.backend.entity.ProductShopCart;
 import com.virtualstore.backend.entity.ShopCart;
 import com.virtualstore.backend.repository.PersonRepository;
 import com.virtualstore.backend.repository.ProductShopCartRepository;
 import com.virtualstore.backend.repository.ShopCartRepository;
-
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 @Service
 public class ShopCartService {
@@ -36,6 +32,9 @@ public class ShopCartService {
     @Autowired
     private PersonRepository personRepository;
 
+    @Autowired
+    private ProductImageService productImageService;
+
     public List<ShopCart> getAllCarts() {
         return shopCartRepository.findAll();
     }
@@ -51,6 +50,12 @@ public class ShopCartService {
 
         List<ProductShopCart> products = productShopCartRepository.findByCartIdAndCreationDateAfter(
                 cart.getId(), cart.getCreationDate());
+
+        products.forEach(productShopCart -> {
+            Product product = productShopCart.getProduct();
+            List<ProductImage> images = productImageService.getByProduct(product.getId());
+            product.setImages(images);
+        });
 
         ShopCartReturnDTO shopCartDto = new ShopCartReturnDTO();
         shopCartDto.setId(cart.getId());

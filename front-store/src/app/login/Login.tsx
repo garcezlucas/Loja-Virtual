@@ -17,7 +17,7 @@ const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
       if (response.accessToken) {
         localStorage.setItem("cookies", response.accessToken);
         saveToLocalStorageEncrypted("user", response.userId);
-        const result = await getShopCartByUSer(response.userId)
+        const result = await getShopCartByUSer(response.userId);
         if (!result) {
           await createShopCart(response.userId);
         }

@@ -1,50 +1,67 @@
 "use client";
 
+import { getShopCartByUSer } from "@/hooks/useCart";
+import { ShopCart } from "@/interfaces/ShopCart";
+import { getFromLocalStorageDecrypted } from "@/utils/encryptStorage";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Cart() {
-  // Estado inicial do carrinho de compras
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Produto 1",
-      price: 100.0,
-      quantity: 1,
-      imageUrl: "/images/produto1.jpg",
-    },
-    {
-      id: 2,
-      name: "Produto 2",
-      price: 150.0,
-      quantity: 2,
-      imageUrl: "/images/produto2.jpg",
-    },
-    {
-      id: 3,
-      name: "Produto 3",
-      price: 200.0,
-      quantity: 1,
-      imageUrl: "/images/produto3.jpg",
-    },
-  ]);
+  const [cart, setCart] = useState<ShopCart>();
 
-  const updateQuantity = (id: number, newQuantity: number) => {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const userId = await getFromLocalStorageDecrypted("user");
+      try {
+        const cart = await getShopCartByUSer(userId);
+        setCart(cart);
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
+  const updateQuantity = (productId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
+
+    setCart((prevCart) => {
+      if (!prevCart) return prevCart;
+
+      return {
+        ...prevCart,
+        products: prevCart.products.map((product) =>
+          product.id === productId
+            ? { ...product, quantity: newQuantity }
+            : product
+        ),
+      };
+    });
+  };
+
+  const removeItem = (productId: number) => {
+    setCart((prevCart) => {
+      if (!prevCart) return prevCart; 
+
+      return {
+        ...prevCart,
+        products: prevCart.products.filter(
+          (product) => product.id !== productId
+        ),
+      };
+    });
+  };
+
+  const calculateTotal = () => {
+    if (!cart) return 0;
+
+    return cart.products.reduce(
+      (total, product) => total + product.price * (product.quantity || 1),
+      0
     );
   };
-
-  const removeItem = (id: number) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
-
-  const calculateTotal = () =>
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
     <div className="bg-[#DDDEE5] min-h-screen">
@@ -60,24 +77,26 @@ export default function Cart() {
 
       {/* Seção do Carrinho */}
       <section className="container mx-auto py-10 px-4">
-        {cartItems.length > 0 ? (
+        {cart?.products?.length && cart?.products?.length > 0 ? (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                {cartItems.map((item) => (
+                {cart?.products?.map((item) => (
                   <div
                     key={item.id}
                     className="bg-white shadow-md rounded-lg overflow-hidden flex items-center mb-6"
                   >
                     <Image
-                      src={item.imageUrl}
-                      alt={item.name}
+                      src={`data:image;base64, ${item.product.images[0]?.file}`}
+                      alt={item.product.shortDescription}
                       className="w-32 h-32 object-cover ml-4 mt-4"
                       width={128}
                       height={128}
                     />
                     <div className="p-4 flex-1">
-                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <h3 className="text-lg font-semibold">
+                        {item.product.shortDescription}
+                      </h3>
                       <p className="text-gray-600">
                         Preço: R$ {item.price.toFixed(2).replace(".", ",")}
                       </p>

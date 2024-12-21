@@ -1,7 +1,7 @@
-import { shopCart } from "@/interfaces/ShopCart";
+import { ShopCart } from "@/interfaces/ShopCart";
 import { CartDataService } from "@/service/Cart.service";
 
-export const createShopCart = async (shopCart: shopCart) => {
+export const createShopCart = async (shopCart: ShopCart) => {
   try {
     const cart = await CartDataService.createCart(shopCart);
     return cart;
@@ -21,7 +21,7 @@ export const getShopCartByUSer = async (userId: number) => {
   }
 };
 
-/* export const addProductToShopCart = async (shopCart: shopCart) => {
+/* export const addProductToShopCart = async (shopCart: ShopCart) => {
     try {
       const cart = await CartDataService.addProductToShopCart(shopCart);
       return cart;
