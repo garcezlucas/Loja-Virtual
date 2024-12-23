@@ -9,6 +9,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  /* const [openRegister, setOpenRegister] = useState(false); */
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -64,6 +65,9 @@ const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
         >
           Entrar
         </button>
+        <div className="flex justify-center mt-6">
+          <button className="text-blue-500 underline" type="button">Registre-se</button>
+        </div>
       </form>
     </>
   );
