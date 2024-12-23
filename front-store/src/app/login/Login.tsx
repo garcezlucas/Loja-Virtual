@@ -1,7 +1,9 @@
+import Modal from "@/components/Modal";
 import { createShopCart, getShopCartByUSer } from "@/hooks/useCart";
 import { ManagementService } from "@/service/Management.service";
 import { saveToLocalStorageEncrypted } from "@/utils/encryptStorage";
 import { useState } from "react";
+import Register from "../register/Register";
 
 interface LoginProps {
   setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>;
@@ -9,7 +11,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  /* const [openRegister, setOpenRegister] = useState(false); */
+  const [openRegister, setOpenRegister] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -66,9 +68,18 @@ const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
           Entrar
         </button>
         <div className="flex justify-center mt-6">
-          <button className="text-blue-500 underline" type="button">Registre-se</button>
+          <button
+            className="text-blue-500 underline"
+            type="button"
+            onClick={() => setOpenRegister(true)}
+          >
+            Registre-se
+          </button>
         </div>
       </form>
+      <Modal isOpen={openRegister} onClose={() => setOpenRegister(false)}>
+        <Register setOpenRegister={setOpenRegister} />
+      </Modal>
     </>
   );
 };

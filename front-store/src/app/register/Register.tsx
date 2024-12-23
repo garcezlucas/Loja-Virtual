@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ManagementService } from "@/service/Management.service";
 import { CitiesService } from "@/service/Cities.service";
+import CustomSelect from "@/components/CustomSelect";
 
 interface RegisterProps {
   setOpenRegister: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,23 +23,75 @@ const Register: React.FC<RegisterProps> = ({ setOpenRegister }) => {
   });
 
   const [cities, setCities] = useState<City[]>([]);
-  const [loadingCities, setLoadingCities] = useState(false);
+  const [errors, setErrors] = useState({
+    name: "",
+    cpf: "",
+    email: "",
+    address: "",
+    codePostal: "",
+    city: "",
+  });
 
   useEffect(() => {
     const fetchCities = async () => {
-      setLoadingCities(true);
       try {
         const response = await CitiesService.getAllCities();
-        setCities(response.data);
+        setCities(response);
       } catch (error) {
         console.error("Erro ao buscar cidades", error);
-      } finally {
-        setLoadingCities(false);
       }
     };
 
     fetchCities();
   }, []);
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      name: "",
+      cpf: "",
+      email: "",
+      address: "",
+      codePostal: "",
+      city: "",
+    };
+
+    if (!formData.name) {
+      newErrors.name = "Nome é obrigatório";
+      isValid = false;
+    }
+
+    const cpfRegex = /^[0-9]{11}$/;
+    if (!cpfRegex.test(formData.cpf)) {
+      newErrors.cpf = "CPF inválido. Deve conter 11 dígitos numéricos";
+      isValid = false;
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Email inválido";
+      isValid = false;
+    }
+
+    if (!formData.address) {
+      newErrors.address = "Endereço é obrigatório";
+      isValid = false;
+    }
+
+    const cepRegex = /^[0-9]{5}-?[0-9]{3}$/;
+    if (!cepRegex.test(formData.codePostal)) {
+      newErrors.codePostal = "CEP inválido";
+      isValid = false;
+    }
+
+    if (formData.city.id === 0) {
+      newErrors.city = "Cidade é obrigatória";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -60,14 +113,17 @@ const Register: React.FC<RegisterProps> = ({ setOpenRegister }) => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    try {
-      const response = await ManagementService.createUser(formData);
-      if (response.success) {
-        alert("Usuário registrado com sucesso!");
-        setOpenRegister(false);
+
+    if (validateForm()) {
+      try {
+        const response = await ManagementService.createUser(formData);
+        if (response.success) {
+          alert("Usuário registrado com sucesso!");
+          setOpenRegister(false);
+        }
+      } catch (error) {
+        console.error("Registration failed", error);
       }
-    } catch (error) {
-      console.error("Registration failed", error);
     }
   };
 
@@ -87,19 +143,21 @@ const Register: React.FC<RegisterProps> = ({ setOpenRegister }) => {
             value={formData.name}
             onChange={handleChange}
           />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
         <div className="mb-4">
           <label htmlFor="cpf" className="block text-gray-700">
             CPF
           </label>
           <input
-            type="text"
+            type="number"
             id="cpf"
             className="w-full px-3 py-2 border rounded"
             placeholder="Digite seu CPF"
             value={formData.cpf}
             onChange={handleChange}
           />
+          {errors.cpf && <p className="text-red-500 text-sm">{errors.cpf}</p>}
         </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700">
@@ -113,6 +171,9 @@ const Register: React.FC<RegisterProps> = ({ setOpenRegister }) => {
             value={formData.email}
             onChange={handleChange}
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
         <div className="mb-4">
           <label htmlFor="address" className="block text-gray-700">
@@ -126,45 +187,42 @@ const Register: React.FC<RegisterProps> = ({ setOpenRegister }) => {
             value={formData.address}
             onChange={handleChange}
           />
+          {errors.address && (
+            <p className="text-red-500 text-sm">{errors.address}</p>
+          )}
         </div>
         <div className="mb-4">
           <label htmlFor="codePostal" className="block text-gray-700">
             CEP
           </label>
           <input
-            type="text"
+            type="number"
             id="codePostal"
             className="w-full px-3 py-2 border rounded"
             placeholder="Digite seu CEP"
             value={formData.codePostal}
             onChange={handleChange}
           />
+          {errors.codePostal && (
+            <p className="text-red-500 text-sm">{errors.codePostal}</p>
+          )}
         </div>
         <div className="mb-4">
           <label htmlFor="city" className="block text-gray-700">
             Cidade
           </label>
-          {loadingCities ? (
-            <p className="text-gray-500">Carregando cidades...</p>
-          ) : (
-            <select
-              id="city"
-              className="w-full px-3 py-2 border rounded"
-              value={formData.city.id}
-              onChange={handleChange}
-            >
-              <option value={0}>Selecione uma cidade</option>
-              {cities.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-          )}
+          <CustomSelect
+            options={cities}
+            selectedValue={formData.city.id}
+            onChange={handleChange}
+            placeholder="Selecione uma cidade"
+            name={"city"}
+          />
+          {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
         </div>
         <button
           type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         >
           Registrar
         </button>
