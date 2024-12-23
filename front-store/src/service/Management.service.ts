@@ -14,6 +14,26 @@ export class ManagementService {
     }
   }
 
+  public static async createUser(person: {
+    name: string;
+    cpf: string;
+    email: string;
+    address: string;
+    codePostal: string;
+    city: { id: number };
+  }) {
+    try {
+      const url = `api/client/`;
+
+      return await FetchRequest(url, {
+        method: "POST",
+        body: JSON.stringify(person),
+      });
+    } catch (error) {
+      throw new Error(`error when crate person : ${error}`);
+    }
+  }
+
   public static async getCodeAccess(email: string) {
     try {
       const url = `api/management/password-code`;
